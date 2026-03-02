@@ -1,7 +1,6 @@
 extends Control
 
 # Références UI existantes
-@onready var label_bag_info = $LabelBagInfo
 @onready var label_drawn_token = $LabelDrawnToken
 @onready var button_draw = $ButtonDraw
 @onready var button_execute = $ButtonExecute
@@ -20,6 +19,7 @@ extends Control
 
 # Références UI Joueur
 @onready var label_player_hp = $PlayerHPZone/LabelPlayerHP
+@onready var bag_inspector = $BagInspector
 
 # Scène du jeton virtuel
 var token_card_scene = preload("res://token_card.tscn")
@@ -54,8 +54,9 @@ func _ready():
 	button_reset.pressed.connect(_on_button_reset_pressed)
 	
 	# Mise à jour de l'affichage
-	update_ui()
+	bag_inspector.setup(bag_manager)
 	update_player_hp()
+	bag_inspector.refresh()
 
 # Fonction pour créer et configurer l'entité ennemie
 func setup_enemy() -> void:
@@ -136,24 +137,7 @@ func _on_button_draw_pressed():
 			
 			# Nettoyage automatique de la ligne
 			for child in combat_line.get_children():
-				var icon = child.get_node("VBoxContainer/LabelIcon").text
-				var value = int(child.get_node("VBoxContainer/LabelValue").text)
-				
-				# Remet le jeton dans le sac
-				for t in bag_manager.initial_bag:
-					var type_match = false
-					match icon:
-						"⚔️":
-							type_match = (t.token_type == TokenResource.TokenType.ATTACK)
-						"🛡️":
-							type_match = (t.token_type == TokenResource.TokenType.DEFENSE)
-						"💀":
-							type_match = (t.token_type == TokenResource.TokenType.HAZARD)
-					
-					if type_match and t.value == value:
-						bag_manager.bag.append(t)
-						break
-				
+				bag_manager.bag.append(child.token_data)
 				child.queue_free()
 			
 			# Mélange du sac
@@ -236,12 +220,8 @@ func _on_button_reset_pressed():
 
 # Mise à jour de l'affichage du sac
 func update_ui():
-	var attack_count = bag_manager.bag.filter(func(t): return t.token_type == TokenResource.TokenType.ATTACK).size()
-	var defense_count = bag_manager.bag.filter(func(t): return t.token_type == TokenResource.TokenType.DEFENSE).size()
-	var hazard_count = bag_manager.bag.filter(func(t): return t.token_type == TokenResource.TokenType.HAZARD).size()
-	
-	label_bag_info.text = "📦 Sac: %d jetons (⚔️ %d | 🛡️ %d | 💀 %d)" % [bag_manager.bag.size(), attack_count, defense_count, hazard_count]
 	update_combat_line_totals()
+	bag_inspector.refresh()
 	
 # Met à jour l'affichage des HP du joueur
 func update_player_hp() -> void:

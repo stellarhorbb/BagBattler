@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://j5tbbfvkq2v2"]
 
 [ext_resource type="Script" uid="uid://c6ry6gfdx54gk" path="res://scripts/battle_scene.gd" id="1_fw8re"]
+[ext_resource type="PackedScene" uid="uid://dmx4ppn2y5g2j" path="res://bag_inspector.tscn" id="2_r5l0u"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ip1la"]
 bg_color = Color(0.059185125, 0.46805102, 0.79853326, 1)
@@ -39,19 +40,8 @@ text = "Bag Battler - Test du Sac"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="LabelBagInfo" type="Label" parent="." unique_id=1745812560]
+[node name="BagInspector" parent="." unique_id=1361147510 instance=ExtResource("2_r5l0u")]
 layout_mode = 1
-anchors_preset = 14
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_top = 396.0
-offset_bottom = 441.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_font_sizes/font_size = 32
-text = "Sac: 0 jetons"
-horizontal_alignment = 1
 
 [node name="CombatLine" type="HBoxContainer" parent="." unique_id=220632362]
 custom_minimum_size = Vector2(1200, 300)

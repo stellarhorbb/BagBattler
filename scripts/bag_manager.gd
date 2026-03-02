@@ -84,6 +84,31 @@ func reset_bag() -> void:
 	shuffle()
 	print("Sac réinitialisé (%d jetons)" % bag.size())
 	
+# Retourne la composition complète du sac pour l'UI
+func get_bag_composition() -> Dictionary:
+	var composition = {}
+	
+	var total_weight = 0.0
+	for token in bag:
+		total_weight += token.weight
+	
+	for token in bag:
+		var type = token.token_type
+		var token_name = token.token_name
+		
+		if not composition.has(type):
+			composition[type] = {}
+		
+		if not composition[type].has(token_name):
+			composition[type][token_name] = { "count": 0, "percent": 0.0 }
+		
+		var entry = composition[type][token_name]
+		entry["count"] += 1
+		entry["percent"] += (token.weight / total_weight) * 100.0
+		composition[type][token_name] = entry
+	
+	return composition
+	
 
 
 	
