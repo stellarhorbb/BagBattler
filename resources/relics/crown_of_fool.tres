@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="RelicResource" format=3 uid="uid://bldcvff4verek"]
+
+[ext_resource type="Script" uid="uid://bw7m6taw4761m" path="res://scripts/relics/RelicResource.gd" id="1_relicres"]
+
+[resource]
+script = ExtResource("1_relicres")
+relic_name = "Couronne de l'Imprudent"
+description = "Terminez un tour avec exactement 1 Hazard sur la ligne pour gagner +1 Or."
+rarity = 1
+cost = 4
+emoji = "👑"
+color = Color(0.95, 0.75, 0.1, 1)

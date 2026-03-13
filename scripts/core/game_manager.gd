@@ -9,6 +9,7 @@ var base_defense: int
 var player_max_hp: int
 var player_current_hp: int = 80
 var purchased_tokens: Array[TokenResource] = []
+var purchased_relics: Array[BaseRelic] = []
 
 # Charge la progression de l'entité
 var entity_progression: EntityProgressionResource = preload("res://resources/entity/entity_progression.tres")
@@ -19,6 +20,7 @@ func reset_run() -> void:
 	gold = 0
 	turns_played_last_combat = 0
 	purchased_tokens.clear()
+	purchased_relics.clear()
 	player_current_hp = player_max_hp
 
 func init_run_stats(job: JobResource) -> void:

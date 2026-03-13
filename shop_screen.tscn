@@ -55,6 +55,18 @@ layout_mode = 2
 theme_override_constants/separation = 40
 alignment = 1
 
+[node name="LabelRelics" type="Label" parent="VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Relics"
+horizontal_alignment = 1
+
+[node name="RelicContainer" type="HBoxContainer" parent="VBox"]
+custom_minimum_size = Vector2(800, 150)
+layout_mode = 2
+theme_override_constants/separation = 40
+alignment = 1
+
 [node name="BottomBar" type="HBoxContainer" parent="VBox"]
 layout_mode = 2
 theme_override_constants/separation = 20

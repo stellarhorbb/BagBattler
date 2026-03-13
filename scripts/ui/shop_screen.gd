@@ -8,6 +8,7 @@ var all_shop_tokens: Array[TokenResource] = []
 @onready var label_gold = $VBox/LabelGold
 @onready var label_reroll_cost = $VBox/BottomBar/LabelRerollCost
 @onready var token_container = $VBox/TokenContainer
+@onready var relic_container = $VBox/RelicContainer
 @onready var button_reroll = $VBox/BottomBar/ButtonReroll
 @onready var button_continue = $VBox/BottomBar/ButtonContinue
 @onready var label_player_hp = $StatsBar/LabelPlayerHP
@@ -25,6 +26,7 @@ func _ready() -> void:
 	button_continue.pressed.connect(_on_continue_pressed)
 	update_gold_display()
 	generate_shop()
+	populate_relic_section()
 
 func generate_shop() -> void:
 	for child in token_container.get_children():
@@ -72,6 +74,65 @@ func generate_shop() -> void:
 		var token_ref = picked
 		var price_ref = price
 		buy_button.pressed.connect(func(): _on_buy_pressed(token_ref, price_ref, card))
+
+func populate_relic_section() -> void:
+	# TODO: TEMP — hardcoded for testing, replace with dynamic relic pool
+	var shop_relics: Array[RelicResource] = [
+		preload("res://resources/relics/crown_of_fool.tres"),
+	]
+	var relic_classes := [RelicCrownOfFool]
+
+	for i in shop_relics.size():
+		var data: RelicResource = shop_relics[i]
+		var already_owned := GameManager.purchased_relics.any(
+			func(r): return r.relic_data == data
+		)
+
+		var card := Panel.new()
+		var vbox := VBoxContainer.new()
+		var label_name := Label.new()
+		var label_desc := Label.new()
+		var label_cost := Label.new()
+		var buy_button := Button.new()
+
+		label_name.text = data.relic_name
+		label_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label_desc.text = data.description
+		label_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label_desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label_cost.text = "%d 💰" % data.cost
+		label_cost.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		buy_button.text = "Buy"
+		buy_button.disabled = already_owned
+
+		vbox.add_child(label_name)
+		vbox.add_child(label_desc)
+		vbox.add_child(label_cost)
+		vbox.add_child(buy_button)
+		card.add_child(vbox)
+		card.custom_minimum_size = Vector2(280, 140)
+		relic_container.add_child(card)
+
+		if not already_owned:
+			var relic_class = relic_classes[i]
+			buy_button.pressed.connect(func(): _on_buy_relic_pressed(data, relic_class, buy_button, vbox))
+
+func _on_buy_relic_pressed(data: RelicResource, relic_class: GDScript, button: Button, vbox: VBoxContainer) -> void:
+	if GameManager.gold < data.cost:
+		print("Not enough gold")
+		return
+	var instance: BaseRelic = relic_class.new()
+	if not RelicManager.add_relic(instance):
+		var label_full := Label.new()
+		label_full.text = "Slots pleins"
+		label_full.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label_full.modulate = Color(1, 0.4, 0.4)
+		vbox.add_child(label_full)
+		return
+	GameManager.gold -= data.cost
+	GameManager.purchased_relics.append(instance)
+	button.disabled = true
+	update_gold_display()
 
 func _on_buy_pressed(token: TokenResource, price: int, card: Node) -> void:
 	if GameManager.gold >= price:

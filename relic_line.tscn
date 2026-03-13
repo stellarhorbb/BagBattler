@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://relic_line001"]
+
+[ext_resource type="Script" path="res://scripts/ui/relic_line.gd" id="1_relline"]
+
+[node name="RelicLine" type="HBoxContainer"]
+theme_override_constants/separation = 12
+script = ExtResource("1_relline")

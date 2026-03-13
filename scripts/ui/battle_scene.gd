@@ -1,6 +1,7 @@
 extends Control
 
 # Références UI existantes
+@onready var relic_line = $RelicLine
 @onready var button_draw = $ButtonDraw
 @onready var button_execute = $ButtonExecute
 @onready var button_reset = $ButtonReset
@@ -73,12 +74,20 @@ func _ready():
 	button_draw.pressed.connect(_on_button_draw_pressed)
 	button_execute.pressed.connect(_on_button_execute_pressed)
 	button_reset.pressed.connect(_on_button_reset_pressed)
+
+	# Disable keyboard focus on all buttons so Tab doesn't cycle through UI
+	for btn in [button_draw, button_execute, button_reset, button_next, button_back_to_menu]:
+		btn.focus_mode = Control.FOCUS_NONE
 	
 	# Mise à jour de l'affichage
 	bag_inspector.setup(bag_manager)
 	update_player_hp()
 	bag_inspector.refresh()
 	update_hud()
+	button_execute.disabled = true
+
+	relic_line.setup()
+	RelicManager.relic_triggered.connect(relic_line.trigger_pulse)
 
 # Fonction pour créer et configurer l'entité ennemie
 func setup_enemy() -> void:
@@ -133,7 +142,13 @@ func _on_button_draw_pressed():
 		# Si 2 Hazards ou plus → CRASH IMMÉDIAT !
 		if hazard_count >= 2:
 			print("💥 CRASH IMMÉDIAT ! Le joueur est stunné !")
+			button_draw.disabled = true
+			button_execute.disabled = true
+			button_reset.disabled = true
 			await vfx.trigger_crash_effect()
+			button_draw.disabled = false
+			button_execute.disabled = false
+			button_reset.disabled = false
 			# Le joueur prend TOUS les dégâts ennemis (pas de défense)
 			var incoming_damage = current_enemy.current_damage
 			print("💀 Dégâts reçus sans défense : %d" % incoming_damage)
@@ -171,12 +186,26 @@ func _on_button_draw_pressed():
 
 # Fonction appelée quand on clique sur "EXÉCUTER"
 func _on_button_execute_pressed():
+	RelicManager.reset_combat_states()
 	turns_played += 1
 	GameManager.turns_played_last_combat = turns_played
 	print("=== PHASE D'EXÉCUTION ===")
-	
+
 	var cards = combat_line.get_children()
 	var result = TokenEffectResolver.resolve(cards)
+
+	var hazard_count = 0
+	for c in cards:
+		if c.get_node("VBoxContainer/LabelIcon").text == "💀":
+			hazard_count += 1
+
+	var context := {
+		"hazard_count": hazard_count,
+		"gold": GameManager.gold,
+	}
+	context = RelicManager.trigger_execute(context)
+	GameManager.gold = context["gold"]
+	update_hud()
 
 	# Dégâts au joueur
 	print("Joueur inflige %d dégâts à l'ennemi" % result.total_attack)
@@ -216,6 +245,24 @@ func _on_button_execute_pressed():
 	print("")
 	update_ui()
 	
+func _input(event: InputEvent) -> void:
+	if event is InputEventKey and not event.echo:
+		match event.keycode:
+			KEY_SPACE:
+				get_viewport().set_input_as_handled()
+				if event.pressed and not button_draw.disabled:
+					_on_button_draw_pressed()
+			KEY_ENTER, KEY_KP_ENTER:
+				get_viewport().set_input_as_handled()
+				if event.pressed and not button_execute.disabled:
+					_on_button_execute_pressed()
+			KEY_TAB:
+				get_viewport().set_input_as_handled()
+				if event.pressed:
+					bag_inspector.open_modal()
+				else:
+					bag_inspector.close_modal()
+
 # Fonction appelée quand on clique sur "Reset"
 func _on_button_reset_pressed():
 	bag_manager.reset_bag()
@@ -238,6 +285,7 @@ func update_ui():
 	update_combat_line_totals()
 	bag_inspector.refresh()
 	update_hud()
+	button_execute.disabled = combat_line.get_child_count() == 0
 
 func update_hud() -> void:
 	label_turns.text = "Turns: %d" % turns_played

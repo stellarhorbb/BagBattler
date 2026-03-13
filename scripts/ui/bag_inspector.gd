@@ -162,6 +162,15 @@ func _position_modal() -> void:
 
 	modal_view.position = Vector2(mx, my)
 
+func open_modal() -> void:
+	if not modal_view.visible:
+		_build_modal_view()
+		_position_modal()
+		modal_view.visible = true
+
+func close_modal() -> void:
+	_close_modal()
+
 func _close_modal() -> void:
 	modal_view.visible = false
 
