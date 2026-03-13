@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://sesshgk7bj8m"]
 
-[ext_resource type="Script" uid="uid://b36icqc5ttd1m" path="res://scripts/token_card.gd" id="1_cdf47"]
+[ext_resource type="Script" uid="uid://o2ym7w5mqw0c" path="res://scripts/ui/token_card.gd" id="1_cdf47"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cdf47"]
 bg_color = Color(1, 1, 1, 1)
@@ -49,5 +49,4 @@ horizontal_alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 58
-text = "+5"
 horizontal_alignment = 1

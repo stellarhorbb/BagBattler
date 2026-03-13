@@ -1,0 +1,103 @@
+[gd_scene format=3 uid="uid://cr4nx74ocycwx"]
+
+[ext_resource type="Script" uid="uid://bgdbw73jt5ptn" path="res://scripts/ui/reward_screen.gd" id="1_r3w9s"]
+
+[node name="RewardScreen" type="Control" unique_id=1676230002]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_r3w9s")
+
+[node name="Background" type="ColorRect" parent="." unique_id=151958462]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.10196, 0.10196, 0.10196, 1)
+
+[node name="VBox" type="VBoxContainer" parent="." unique_id=1932009525]
+custom_minimum_size = Vector2(600, 400)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -200.0
+offset_right = 300.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LabelTitle" type="Label" parent="VBox" unique_id=394763364]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "Victory !"
+horizontal_alignment = 1
+
+[node name="LabelEfficiency" type="Label" parent="VBox" unique_id=1771088823]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+horizontal_alignment = 1
+
+[node name="LabelGoldEarned" type="Label" parent="VBox" unique_id=463742798]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+horizontal_alignment = 1
+
+[node name="LabelGoldTotal" type="Label" parent="VBox" unique_id=1807851885]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+
+[node name="RewardContainer" type="HBoxContainer" parent="VBox" unique_id=223344556]
+custom_minimum_size = Vector2(900, 350)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 30
+
+[node name="ButtonContinue" type="Button" parent="VBox" unique_id=153736924]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Continue"
+
+[node name="StatsBar" type="HBoxContainer" parent="." unique_id=334455900]
+layout_mode = 1
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -50.0
+offset_right = -20.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 40
+alignment = 1
+
+[node name="LabelPlayerHP" type="Label" parent="StatsBar" unique_id=334455901]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.25490198, 1, 0.101960786, 1)
+theme_override_font_sizes/font_size = 22
+text = "HP: — / —"
+
+[node name="LabelBaseDamage" type="Label" parent="StatsBar" unique_id=334455902]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.39215687, 0.39215687, 1)
+theme_override_font_sizes/font_size = 22
+text = "⚔️ Base DMG: —"
+
+[node name="LabelBaseDefense" type="Label" parent="StatsBar" unique_id=334455903]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.30980392, 0.6392157, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "🛡️ Base DEF: —"
+
+[connection signal="pressed" from="VBox/ButtonContinue" to="." method="_on_continue_pressed"]

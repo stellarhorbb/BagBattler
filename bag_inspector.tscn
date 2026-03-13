@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dmx4ppn2y5g2j"]
 
-[ext_resource type="Script" uid="uid://bunsxr3hjbyw3" path="res://scripts/bag_inspector.gd" id="1_7mi55"]
+[ext_resource type="Script" path="res://scripts/ui/bag_inspector.gd" id="1_7mi55"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7mi55"]
 

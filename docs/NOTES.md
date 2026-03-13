@@ -200,3 +200,46 @@ Architecture mise en place :
 - Zone de clic CompactView encore imprécise
 - Position du modal à repositionner
 - Fermeture du modal au clic extérieur
+
+## 12 Mars 2026 — Session : Économie, Coffres & HP Persistants
+
+**Système d'économie (Gold) ✅**
+- Ajout de `gold` et `turns_played_last_combat` dans `GameManager`
+- Calcul automatique post-combat : base 5 gold, +2 si < 5 tours, -3 si > 10 tours, minimum 0
+- Affichage gold + compteur de tours en temps réel dans `battle_scene`
+
+**Stats upgradables depuis le Job ✅**
+- `JobResource` : ajout des exports `base_damage`, `base_defense`, `base_hp`
+- `knight.tres` mis à jour : 3 / 10 / 80
+- `GameManager` : `init_run_stats(job)` copie les stats du job au démarrage de la run
+- `TokenEffectResolver` : utilise `GameManager.base_damage` / `GameManager.base_defense` au lieu de `token.value`
+- `token_card.gd` : n'affiche plus la valeur pour les tokens ATTACK et DEFENSE
+
+**Système de récompenses post-combat (Coffre) ✅**
+- Créé `RewardResource.gd` : enum `RewardType` (GOLD, HP_MAX, UPGRADE_DAMAGE, UPGRADE_DEFENSE, HEAL), enum `Rarity` (5 paliers)
+- Génération aléatoire pondérée : Common 50%, Uncommon 30%, Rare 12%, Epic 5%, Legendary 3%
+- Valeurs équilibrées pour ne pas casser l'économie dès l'Ante 1
+- `reward_screen` : affiche gold gagné + efficacité + 3 cartes de récompense cliquables
+- Transition : Victoire → Reward Screen → Shop → Combat
+
+**Shop ✅**
+- Créé `shop_screen.gd` + `shop_screen.tscn`
+- 2 tokens achetables tirés aléatoirement via `shop_drop_weight`
+- Prix calculé depuis le poids : rarer = plus cher
+- Système de Reroll avec coût croissant (+2 gold par reroll)
+- `shop_drop_weight` ajouté sur `TokenResource` (séparé du `weight` de tirage en combat)
+- Tokens achetés conservés dans `GameManager.purchased_tokens`, ajoutés au sac au début de chaque combat
+
+**VFX Combat ✅**
+- Créé `scripts/vfx/battle_vfx.gd` : architecture extensible pour les effets visuels
+- Flash rouge au tirage d'un Hazard
+- Vignette rouge persistante tant qu'un Hazard est sur la ligne
+- Gros flash + label "💀 CRASH !" pendant 2 secondes au Crash
+- Suppression du `LabelHazardWarning` remplacé par les effets visuels
+
+**HP Persistants sur toute la run ✅**
+- `player_current_hp` stocké dans `GameManager`, persiste entre les rounds
+- Reset uniquement au Game Over via `reset_run()`
+- Soin de fin d'Ante : +25% HP Max automatique
+- Récompense HEAL ajoutée au coffre (5 / 10 / 18 / 28 / 40 HP selon rareté)
+- Upgrade HP Max : reste full si full life, sinon +50% de la valeur ajoutée

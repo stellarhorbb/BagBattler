@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="JobResource" format=3 uid="uid://dl8rdfcoptkb8"]
 
-[ext_resource type="Script" uid="uid://bvfs6im75dekn" path="res://scripts/JobResource.gd" id="1_0w5r0"]
-[ext_resource type="Script" uid="uid://30ye0l5c5in5" path="res://scripts/StartingTokenEntry.gd" id="2_okrrx"]
+[ext_resource type="Script" uid="uid://b0wfmbiq8ede6" path="res://scripts/resources/JobResource.gd" id="1_0w5r0"]
+[ext_resource type="Script" uid="uid://cwlr8x6e8ymoi" path="res://scripts/resources/StartingTokenEntry.gd" id="2_okrrx"]
 [ext_resource type="Resource" uid="uid://1ide4f4nxscu" path="res://resources/tokens/strike.tres" id="3_j7164"]
 [ext_resource type="Resource" uid="uid://cbyktbnocsciv" path="res://resources/tokens/guard.tres" id="4_b62gq"]
 [ext_resource type="Resource" uid="uid://c8x66m171d7sr" path="res://resources/tokens/provocation.tres" id="5_k2sp2"]
@@ -12,31 +12,27 @@
 script = ExtResource("2_okrrx")
 token = ExtResource("3_j7164")
 count = 3
-metadata/_custom_type_script = "uid://30ye0l5c5in5"
 
 [sub_resource type="Resource" id="Resource_2hxan"]
 script = ExtResource("2_okrrx")
 token = ExtResource("4_b62gq")
 count = 2
-metadata/_custom_type_script = "uid://30ye0l5c5in5"
 
 [sub_resource type="Resource" id="Resource_0ehes"]
 script = ExtResource("2_okrrx")
 token = ExtResource("5_k2sp2")
-metadata/_custom_type_script = "uid://30ye0l5c5in5"
 
 [sub_resource type="Resource" id="Resource_r1lkp"]
 script = ExtResource("2_okrrx")
 token = ExtResource("6_y6udf")
-metadata/_custom_type_script = "uid://30ye0l5c5in5"
 
 [sub_resource type="Resource" id="Resource_4axj8"]
 script = ExtResource("2_okrrx")
 token = ExtResource("7_1lib4")
 count = 2
-metadata/_custom_type_script = "uid://30ye0l5c5in5"
 
 [resource]
 script = ExtResource("1_0w5r0")
 starting_bag = Array[ExtResource("2_okrrx")]([SubResource("Resource_jkosw"), SubResource("Resource_2hxan"), SubResource("Resource_0ehes"), SubResource("Resource_r1lkp"), SubResource("Resource_4axj8")])
-metadata/_custom_type_script = "uid://bvfs6im75dekn"
+base_defense = 5
+base_hp = 20

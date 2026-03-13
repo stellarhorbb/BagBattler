@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://fto77wvtgxs2"]
 
-[ext_resource type="Script" uid="uid://remtoxo2maj0" path="res://scripts/test_tokens.gd" id="1_yjcho"]
+[ext_resource type="Script" path="res://scripts/test/test_tokens.gd" id="1_yjcho"]
 
 [node name="TestTokens" type="Node" unique_id=2040491742]
 script = ExtResource("1_yjcho")

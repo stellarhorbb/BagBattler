@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(python3 -c \"\nimport subprocess\nresult = subprocess.run\\(['pdftotext', 'docs/bag-battler-gdd.pdf', '-'], capture_output=True, text=True\\)\nprint\\(result.stdout[:8000]\\)\n\" 2>/dev/null || echo \"pdftotext not available\")",
+      "Bash(python3 << 'EOF'\nimport struct, zlib, re\n\ndef read_pdf_text\\(path\\):\n    with open\\(path, 'rb'\\) as f:\n        data = f.read\\(\\)\n    # Extract text between BT and ET markers\n    texts = []\n    # Find all Tj and TJ operators\n    pattern = re.compile\\(rb'\\\\\\(\\([^\\)]*\\)\\\\\\)\\\\s*Tj|\\\\[\\([^\\\\]]*\\)\\\\]\\\\s*TJ'\\)\n    for m in pattern.finditer\\(data\\):\n        if m.group\\(1\\):\n            try:\n                texts.append\\(m.group\\(1\\).decode\\('latin-1'\\)\\)\n            except:\n                pass\n        elif m.group\\(2\\):\n            inner = m.group\\(2\\)\n            parts = re.findall\\(rb'\\\\\\(\\([^\\)]*\\)\\\\\\)', inner\\)\n            for p in parts:\n                try:\n                    texts.append\\(p.decode\\('latin-1'\\)\\)\n                except:\n                    pass\n    return ' '.join\\(texts\\)\n\ntext = read_pdf_text\\('docs/bag-battler-gdd.pdf'\\)\nprint\\(text[:6000]\\)\nEOF)"
     ]
   }
 }

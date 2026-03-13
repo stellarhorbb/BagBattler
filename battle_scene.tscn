@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://j5tbbfvkq2v2"]
 
-[ext_resource type="Script" uid="uid://c6ry6gfdx54gk" path="res://scripts/battle_scene.gd" id="1_fw8re"]
+[ext_resource type="Script" uid="uid://c7jugbm2yf0rg" path="res://scripts/ui/battle_scene.gd" id="1_fw8re"]
 [ext_resource type="PackedScene" uid="uid://dmx4ppn2y5g2j" path="res://bag_inspector.tscn" id="2_r5l0u"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ip1la"]
@@ -8,6 +8,17 @@ bg_color = Color(0.059185125, 0.46805102, 0.79853326, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hn8js"]
 bg_color = Color(0.22569287, 0.5143949, 0.16542158, 1)
+
+[sub_resource type="Shader" id="Shader_vig001"]
+code = "shader_type canvas_item;
+void fragment() {
+	vec2 uv = UV;
+	float vignette = smoothstep(0.35, 0.75, length(uv - vec2(0.5)));
+	COLOR = vec4(1.0, 0.0, 0.0, vignette * 0.45);
+}"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vig001"]
+shader = SubResource("Shader_vig001")
 
 [node name="BagUI" type="Control" unique_id=1323824443]
 layout_mode = 3
@@ -26,19 +37,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.101960786, 0.101960786, 0.101960786, 1)
-
-[node name="LabelTitle" type="Label" parent="." unique_id=1056578449]
-layout_mode = 1
-offset_left = -33.999996
-offset_top = 14.0
-offset_right = 454.0
-offset_bottom = 72.0
-scale = Vector2(0.99840045, 1)
-theme_override_colors/font_color = Color(0.3329962, 0.33299595, 0.332996, 1)
-theme_override_font_sizes/font_size = 29
-text = "Bag Battler - Test du Sac"
-horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="BagInspector" parent="." unique_id=1361147510 instance=ExtResource("2_r5l0u")]
 layout_mode = 1
@@ -137,67 +135,6 @@ theme_override_colors/font_color = Color(0.92941177, 0.24313726, 0.105882354, 1)
 theme_override_font_sizes/font_size = 32
 text = "Reset"
 
-[node name="LabelDrawnToken" type="Label" parent="." unique_id=1717475018]
-layout_mode = 1
-anchors_preset = 14
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = 10.0
-offset_top = -210.0
-offset_right = 10.0
-offset_bottom = -165.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_font_sizes/font_size = 32
-text = "Dernier jeton tiré: -"
-horizontal_alignment = 1
-
-[node name="LabelAttackTotal" type="Label" parent="." unique_id=367290875]
-custom_minimum_size = Vector2(100, 100)
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -593.0
-offset_top = 933.0
-offset_right = -493.0
-offset_bottom = 1033.0
-grow_horizontal = 2
-theme_override_colors/font_color = Color(1, 0.39215687, 0.39215687, 1)
-theme_override_font_sizes/font_size = 42
-text = "⚔️ 0"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="LabelDefenseTotal" type="Label" parent="." unique_id=611392520]
-custom_minimum_size = Vector2(100, 100)
-layout_mode = 0
-offset_left = 1472.0
-offset_top = 929.0
-offset_right = 1572.0
-offset_bottom = 1029.0
-theme_override_colors/font_color = Color(0.09803922, 0.5411765, 1, 1)
-theme_override_font_sizes/font_size = 42
-text = "🛡️ 0"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="LabelHazardWarning" type="Label" parent="." unique_id=788500755]
-custom_minimum_size = Vector2(100, 100)
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -50.0
-offset_top = 205.0
-offset_right = 50.0
-offset_bottom = 305.0
-grow_horizontal = 2
-theme_override_font_sizes/font_size = 42
-horizontal_alignment = 1
-vertical_alignment = 1
-
 [node name="EnemyZone" type="VBoxContainer" parent="." unique_id=971891270]
 custom_minimum_size = Vector2(500, 200)
 layout_mode = 1
@@ -221,7 +158,7 @@ horizontal_alignment = 1
 [node name="LabelEnemyName" type="Label" parent="EnemyZone" unique_id=1013805118]
 layout_mode = 2
 theme_override_font_sizes/font_size = 36
-text = "Goblin"
+text = "Entity"
 horizontal_alignment = 1
 
 [node name="LabelEnemyHP" type="Label" parent="EnemyZone" unique_id=1632338886]
@@ -231,27 +168,166 @@ theme_override_font_sizes/font_size = 24
 text = "HP: 20 / 20"
 horizontal_alignment = 1
 
-[node name="PlayerHPZone" type="HBoxContainer" parent="." unique_id=543818585]
-custom_minimum_size = Vector2(500, 50)
+[node name="LabelTurns" type="Label" parent="." unique_id=112233445]
 layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
+anchors_preset = 3
+anchor_left = 1.0
 anchor_top = 1.0
-anchor_right = 0.5
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -250.0
-offset_top = -101.0
-offset_right = 250.0
-offset_bottom = -51.0
+offset_left = -1866.0
+offset_top = -1043.0
+offset_right = -1666.0
+offset_bottom = -1009.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 24
+text = "Turns: 0"
+
+[node name="LabelGold" type="Label" parent="." unique_id=112233446]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -1870.0
+offset_top = -1006.0
+offset_right = -1670.0
+offset_bottom = -972.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 0.84314, 0, 1)
+theme_override_font_sizes/font_size = 24
+text = "💰 0"
+
+[node name="LabelDamagePreview" type="Label" parent="." unique_id=334455667]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -620.0
+offset_top = -230.0
+offset_right = -20.0
+offset_bottom = -160.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.39215687, 0.39215687, 1)
+theme_override_font_sizes/font_size = 52
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="LabelDefensePreview" type="Label" parent="." unique_id=334455671]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 20.0
+offset_top = -230.0
+offset_right = 620.0
+offset_bottom = -160.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.30980393, 0.6392157, 1, 1)
+theme_override_font_sizes/font_size = 52
+vertical_alignment = 1
+
+[node name="StatsBar" type="HBoxContainer" parent="." unique_id=334455668]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -50.0
+offset_right = -20.0
+offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 0
+theme_override_constants/separation = 40
+alignment = 1
 
-[node name="LabelPlayerHP" type="Label" parent="PlayerHPZone" unique_id=50330458]
+[node name="LabelBaseDamage" type="Label" parent="StatsBar" unique_id=334455669]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.39215687, 0.39215687, 1)
+theme_override_font_sizes/font_size = 22
+text = "⚔️ Base DMG: 3"
+
+[node name="LabelPlayerHP" type="Label" parent="StatsBar" unique_id=50330458]
 layout_mode = 2
 size_flags_horizontal = 6
 theme_override_colors/font_color = Color(0.25490198, 1, 0.101960786, 1)
 theme_override_font_sizes/font_size = 24
 text = "HP: 30 / 30"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LabelBaseDefense" type="Label" parent="StatsBar" unique_id=334455670]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.30980393, 0.6392157, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "🛡️ Base DEF: 10"
+
+[node name="VignetteOverlay" type="ColorRect" parent="." unique_id=445566778]
+visible = false
+z_index = 9
+material = SubResource("ShaderMaterial_vig001")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="FlashOverlay" type="ColorRect" parent="." unique_id=445566779]
+modulate = Color(1, 1, 1, 0)
+z_index = 10
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 0, 0, 1)
+
+[node name="CrashBanner" type="Control" parent="." unique_id=445566780]
+visible = false
+z_index = 11
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -80.0
+offset_bottom = 80.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BannerBG" type="ColorRect" parent="CrashBanner" unique_id=445566781]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.8, 0.04, 0.04, 1)
+
+[node name="LabelCrash" type="Label" parent="CrashBanner" unique_id=445566782]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 96
+text = "CRASH !"
 horizontal_alignment = 1
 vertical_alignment = 1
 

@@ -1,10 +1,11 @@
 [gd_resource type="Resource" script_class="TokenResource" format=3 uid="uid://c8x66m171d7sr"]
 
-[ext_resource type="Script" uid="uid://cgmlktf00g143" path="res://scripts/TokenResource.gd" id="1_8uf7i"]
+[ext_resource type="Script" uid="uid://b85kh2kqvsidh" path="res://scripts/resources/TokenResource.gd" id="1_8uf7i"]
 
 [resource]
 script = ExtResource("1_8uf7i")
 token_name = "Provocation"
 token_type = 2
 effect = 1
+shop_drop_weight = 0.5
 metadata/_custom_type_script = "uid://cgmlktf00g143"

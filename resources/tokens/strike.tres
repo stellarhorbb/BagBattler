@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="TokenResource" format=3 uid="uid://1ide4f4nxscu"]
 
-[ext_resource type="Script" uid="uid://cgmlktf00g143" path="res://scripts/TokenResource.gd" id="1_r5oys"]
+[ext_resource type="Script" uid="uid://b85kh2kqvsidh" path="res://scripts/resources/TokenResource.gd" id="1_r5oys"]
 
 [resource]
 script = ExtResource("1_r5oys")
