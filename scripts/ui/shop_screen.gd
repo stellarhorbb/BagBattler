@@ -24,6 +24,11 @@ func _ready() -> void:
 		preload("res://resources/tokens/guard.tres"),
 		preload("res://resources/tokens/provocation.tres"),
 		preload("res://resources/tokens/rampart.tres"),
+		preload("res://resources/tokens/frenzy.tres"),
+		preload("res://resources/tokens/heal.tres"),
+		preload("res://resources/tokens/reckless.tres"),
+		preload("res://resources/tokens/resonance.tres"),
+		preload("res://resources/tokens/gamble.tres"),
 	]
 	relic_line.setup()
 	_populate_shop()
@@ -47,7 +52,7 @@ func _populate_shop() -> void:
 			if roll <= cumulative:
 				picked = token
 				break
-		var price = roundi(10.0 / picked.shop_drop_weight)
+		var price := picked.shop_price if picked.shop_price > 0 else roundi(10.0 / picked.shop_drop_weight)
 		var icon = _token_card_scene.instantiate()
 		var item = _make_item(icon, picked.token_name.to_upper(), price)
 		item.get_node("BuyButton").pressed.connect(func(): _on_buy_token(picked, price, item.get_node("BuyButton")))

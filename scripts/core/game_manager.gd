@@ -6,6 +6,7 @@ var gold: int = 0
 var turns_played_last_combat: int = 0
 var base_damage: int
 var base_defense: int
+var base_damage_fractional: float = 0.0
 var pressure_increment: float = 0.1
 var player_max_hp: int
 var player_current_hp: int = 80
@@ -22,6 +23,7 @@ func reset_run() -> void:
 	current_round = 1
 	gold = 0
 	turns_played_last_combat = 0
+	base_damage_fractional = 0.0
 	purchased_tokens.clear()
 	purchased_relics.clear()
 	sacrificed_tokens.clear()
@@ -32,6 +34,7 @@ func reset_run() -> void:
 func init_run_stats(job: JobResource) -> void:
 	base_damage = job.base_damage
 	base_defense = job.base_defense
+	base_damage_fractional = 0.0
 	pressure_increment = 0.1
 	player_max_hp = job.base_hp
 	player_current_hp = player_max_hp

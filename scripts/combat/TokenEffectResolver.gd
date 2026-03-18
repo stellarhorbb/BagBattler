@@ -7,6 +7,11 @@ static func get_effect(token: TokenResource) -> BaseEffect:
 			return EffectProvocation.new()
 		TokenResource.TokenEffect.RAMPART:
 			return EffectRampart.new()
+		TokenResource.TokenEffect.FRENZY:    return EffectFrenzy.new()
+		TokenResource.TokenEffect.HEAL:      return EffectHeal.new()
+		TokenResource.TokenEffect.RECKLESS:  return EffectReckless.new()
+		TokenResource.TokenEffect.RESONANCE: return EffectResonance.new()
+		TokenResource.TokenEffect.GAMBLE:    return EffectGamble.new()
 		_:
 			return null
 

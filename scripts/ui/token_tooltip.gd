@@ -63,6 +63,7 @@ func _build_slot_dots(effect: TokenResource.TokenEffect, color: Color) -> void:
 	match effect:
 		TokenResource.TokenEffect.PROVOCATION: active_indices = [0]
 		TokenResource.TokenEffect.RAMPART:     active_indices = [N_SLOTS - 1]
+		TokenResource.TokenEffect.HEAL:        active_indices = [N_SLOTS - 1]
 
 	for i in N_SLOTS:
 		if i > 0:
@@ -142,5 +143,7 @@ func _set_effect_label(effect: TokenResource.TokenEffect) -> void:
 			label_effect.text = "Reduces Entity DMG by 75% if placed on the first slot."
 		TokenResource.TokenEffect.RAMPART:
 			label_effect.text = "Only activates if placed on the last slot with at least one DEF token before it."
+		TokenResource.TokenEffect.HEAL:
+			label_effect.text = "Restores 20% max HP if placed on the last slot. 10% otherwise."
 		_:
 			label_effect.text = ""

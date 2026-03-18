@@ -307,6 +307,21 @@ func _on_button_execute_pressed() -> void:
 
 	var result = TokenEffectResolver.resolve(cards)
 
+	# Apply token side effects immediately
+	if result.heal_percent > 0.0:
+		var heal_amount := roundi(GameManager.player_max_hp * result.heal_percent)
+		player_current_hp = min(player_current_hp + heal_amount, GameManager.player_max_hp)
+		hud.update_player_hp()
+	if result.bonus_gold > 0:
+		GameManager.gold += result.bonus_gold
+	if result.reckless_triggered:
+		GameManager.base_damage_fractional += 0.5
+		if GameManager.base_damage_fractional >= 1.0:
+			GameManager.base_damage += 1
+			GameManager.base_damage_fractional -= 1.0
+	if result.resonance_triggered:
+		GameManager.base_damage += 1
+
 	var hazard_count := _count_hazards_in_slots()
 	var context := {
 		"hazard_count": hazard_count,

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="TokenResource" format=3 uid="uid://d4hm3pq7heal"]
+
+[ext_resource type="Script" uid="uid://b85kh2kqvsidh" path="res://scripts/resources/TokenResource.gd" id="1_healx"]
+
+[resource]
+script = ExtResource("1_healx")
+token_name = "Heal"
+token_type = 3
+effect = 4
+description = "Restores 10% of max HP on execute. 20% if placed on the last slot."
+shop_price = 6
+shop_drop_weight = 0.7

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="TokenResource" format=3 uid="uid://e2kv9mtreckl"]
+
+[ext_resource type="Script" uid="uid://b85kh2kqvsidh" path="res://scripts/resources/TokenResource.gd" id="1_reckl"]
+
+[resource]
+script = ExtResource("1_reckl")
+token_name = "Reckless"
+effect = 5
+description = "Permanently adds +0.5 base ATK each time executed. Stacks into full points."
+shop_price = 10
+shop_drop_weight = 0.4

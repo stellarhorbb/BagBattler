@@ -6,3 +6,7 @@ var total_defense: int = 0
 var damage_multiplier: float = 1.0
 var rampart_active: bool = false
 var active_combo_slots: Array[int] = []
+var heal_percent: float = 0.0
+var bonus_gold: int = 0
+var reckless_triggered: bool = false
+var resonance_triggered: bool = false

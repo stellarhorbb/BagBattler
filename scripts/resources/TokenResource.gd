@@ -15,6 +15,11 @@ enum TokenEffect {
 	NONE,
 	PROVOCATION,  # Réduit les dégâts ennemis (-25%, ou -75% si 1er tiré)
 	RAMPART,      # Base Defense ×2 uniquement si dernier jeton exécuté
+	FRENZY,     # ATK × nb of ATK tokens on line
+	HEAL,       # Restore 10% HP (20% if last slot)
+	RECKLESS,   # +0.5 base ATK permanently on execute
+	RESONANCE,  # +1 base ATK permanently if 4 different types on line
+	GAMBLE,     # 0–6 gold on execute
 }
 
 # Les propriétés de jetons
@@ -27,3 +32,4 @@ enum TokenEffect {
 @export var value: int = 1 # La valeur du jeton (nombre entier) + valeur par défault
 @export var weight: float = 1 # Le poid du jeton dans le sac par défaut
 @export var shop_drop_weight: float = 1.0
+@export var shop_price: int = 0  # 0 = derive from shop_drop_weight formula
