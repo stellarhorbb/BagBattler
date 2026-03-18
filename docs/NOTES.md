@@ -243,3 +243,118 @@ Architecture mise en place :
 - Soin de fin d'Ante : +25% HP Max automatique
 - Récompense HEAL ajoutée au coffre (5 / 10 / 18 / 28 / 40 HP selon rareté)
 - Upgrade HP Max : reste full si full life, sinon +50% de la valeur ajoutée
+
+---
+
+## 13 Mars 2026 — Session : Refonte & Système de Reliques
+
+**Refonte de l'architecture du projet ✅**
+- Nouvelle base propre avec les systèmes fondamentaux stabilisés
+- Séparation claire des responsabilités entre scripts et scènes
+
+**Système de Reliques ✅**
+- Créé `RelicResource.gd` : reliques avec nom, description, rareté, passif
+- Reliques affichées dans une ligne dédiée en bas de l'écran de combat (`RelicLine`)
+- Shop : achat de reliques disponibles entre les rounds
+- Raccourcis clavier pour accélérer la navigation en combat
+
+---
+
+## 18 Mars 2026 — Session 1 : Refonte du Combat (Draw/Place/Execute)
+
+**Nouveau modèle de combat ✅**
+
+Remplacement du système "tirer → auto-placer" par un flux en trois phases :
+1. **Draw** : le joueur tire un jeton depuis le sac (carte révélée)
+2. **Place** : le joueur fait glisser la carte sur un slot de la ligne de combat
+3. **Execute** : résolution du tour une fois la ligne prête
+
+**Drag & drop physique ✅**
+- `DragController.gd` : gestion du drag, snap sur les slots, retour si slot occupé
+- Les cartes suivent le curseur avec un léger décalage (physique d'inertie)
+- Carte "fantôme" visible sur le slot cible pendant le drag
+
+**Slots de combat ✅**
+- 5 slots numérotés, chacun avec état vide/occupé
+- Anneau de wave par slot : s'allume si le token est actif à l'exécution
+- Bouton DRAW grisé quand la main est pleine ou un token en attente de placement
+
+---
+
+## 18 Mars 2026 — Session 2 : Tooltips Reliques, Sacrifice & Musique
+
+**Tooltip Reliques ✅**
+- `relic_tooltip.tscn` : panel noir, bordure blanche, header coloré par rareté
+- `TooltipManager.gd` (autoload) : affiche/masque les tooltips, repositionnement intelligent (évite les débordements d'écran)
+- Correction bug "tooltip vide au premier survol" : deux frames d'attente avant `reset_size()`
+
+**Écran de Sacrifice ✅**
+- Le joueur peut sacrifier des tokens du sac en échange d'une relique
+- Affichage de la composition du sac, sélection du token à sacrifier, confirmation
+
+**Musique & polish ✅**
+- Musique de fond en combat et dans les menus
+- Polish visuel du Shop et de l'écran de récompense
+- Nouveaux assets d'icônes pour les reliques
+
+---
+
+## 18 Mars 2026 — Session 3 : Système de Pression & Refactoring
+
+**Système de Pression ✅**
+- Multiplicateur de pression qui s'applique sur l'ATK et la DEF à l'exécution
+- Affiché dans la HUD, anime visuellement les valeurs avant la résolution
+- La pression augmente au fil des rounds pour corser la difficulté
+
+**Effets de slots visuels ✅**
+- L'anneau autour de chaque slot s'allume en couleur selon le type de token actif (rouge ATK, bleu DEF…)
+- Provocation et Rampart ont leurs propres indicateurs visuels
+
+**Refactoring `battle_scene.gd` ✅**
+- Scène découpée en trois classes séparées :
+  - `DragController` : toute la logique de drag & drop
+  - `BattleHUD` : mise à jour des labels, barres HP, annimations
+  - `battle_scene.gd` : orchestration du flux de combat uniquement
+- Code plus lisible et maintenable
+
+---
+
+## 18 Mars 2026 — Session 4 : Token Tooltips & QoL
+
+**Tooltips pour les tokens ✅**
+- `token_tooltip.tscn` : même shell que relic tooltip (noir, bordure blanche), sans header de rareté
+- Affiche : nom, type coloré, description, effet de position (points de slots), règles de combo
+- Points de slots : cercles colorés indiquant la/les positions actives — connecteurs uniquement entre positions adjacentes actives
+- Déclenché au survol de toute carte (draw, shop, sac, ligne de combat)
+
+**Click-to-place ✅**
+- Cliquer sur un slot vide place directement le token en attente (en plus du drag)
+
+**Polish & corrections ✅**
+- Bouton DRAW désactivé (fond noir, texte gris) quand tous les slots sont remplis
+- Tooltips désactivés pendant les banners de Crash et Saved
+- Délai de 0.5s + screen shake avant l'écran de Crash au 2ème Hazard
+
+---
+
+## 18 Mars 2026 — Session 5 : Système de Combo & Death Blow
+
+**Système de Combo ✅**
+
+Résolution en deux passes dans `TokenEffectResolver` :
+- Passe 1 : effets spéciaux (Provocation, Rampart) + tokens sans combo
+- Passe 2 : runs adjacents de même type → applique le meilleur multiplicateur
+
+Combos implémentés :
+- **Strike** : 2 adjacents → ×1.5 ATK / 3 adjacents → ×2.0 ATK
+- **Guard** : 2 adjacents → ×1.5 DEF / 3 adjacents → ×2.0 DEF
+- `active_combo_slots: Array[int]` dans `ResolveResult` → les slots concernés s'allument
+- Les règles de combo sont lisibles dans le tooltip du token (section COMBO avec dots colorés)
+
+**Death Blow ✅**
+
+Quand le joueur tue l'ennemi mais aurait subi des dégâts :
+- L'ennemi inflige quand même 50% de ses dégâts (calculés avant sa mort)
+- Animation dans l'IntentionBox : "DEATH BLOW" pop avec tilt (spring), puis "−X HP" en contre-tilt
+- Barre de vie du joueur s'anime pendant l'affichage
+- 1s de pause puis transition vers l'écran de récompense
