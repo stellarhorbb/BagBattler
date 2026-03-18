@@ -64,17 +64,20 @@ var turns_played: int = 0
 var current_pressure: float = 1.0
 var _slots: Array[Node] = []
 
-# Physics drag state
-var _dragging := false
-var _drag_card: Control = null
-var _drag_token: TokenResource = null
-var _drag_velocity := Vector2.ZERO
-var _prev_mouse_pos := Vector2.ZERO
+var drag_controller: DragController
+var hud: BattleHUD
 
 func _ready():
 	vfx = BattleVFX.new()
 	add_child(vfx)
 	vfx.setup(flash_overlay, vignette_overlay, crash_banner, saved_banner)
+
+	drag_controller = DragController.new()
+	add_child(drag_controller)
+
+	hud = BattleHUD.new()
+	add_child(hud)
+	hud.setup(self)
 
 	bag_manager = BagManager.new()
 	add_child(bag_manager)
@@ -104,6 +107,9 @@ func _ready():
 		_slots[i].setup(i)
 		_slots[i].token_dropped.connect(_on_token_placed_in_slot)
 
+	drag_controller.setup(_slots, revealed_token_holder, token_card_scene, self)
+	drag_controller.drag_dropped.connect(_on_token_placed_in_slot)
+
 	button_draw.pressed.connect(_on_button_draw_pressed)
 
 	for btn in [button_draw, button_execute, button_next, button_back_to_menu]:
@@ -114,8 +120,8 @@ func _ready():
 
 	player_hp_bar.max_value = GameManager.player_max_hp
 	player_hp_bar.value = player_current_hp
-	update_player_hp()
-	update_hud()
+	hud.update_player_hp()
+	hud.update_hud()
 	button_execute.disabled = true
 
 	MusicManager.play_game()
@@ -125,7 +131,7 @@ func _ready():
 
 	bag_info_area.mouse_entered.connect(bag_inspector.open_modal)
 	bag_info_area.mouse_exited.connect(bag_inspector.close_modal)
-	revealed_token_holder.drag_started.connect(_on_drag_started)
+	revealed_token_holder.drag_started.connect(drag_controller.start_drag)
 	revealed_token_holder.clear()
 
 	_setup_hover(button_execute)
@@ -143,8 +149,8 @@ func setup_enemy() -> void:
 	enemy_data.base_damage = stats.atk
 
 	current_enemy.setup(enemy_data)
-	current_enemy.hp_changed.connect(_on_enemy_hp_changed)
-	current_enemy.intention_changed.connect(_on_enemy_intention_changed)
+	current_enemy.hp_changed.connect(hud.on_enemy_hp_changed)
+	current_enemy.intention_changed.connect(hud.on_enemy_intention_changed)
 	current_enemy.enemy_died.connect(_on_enemy_died)
 
 	var display_ante = GameManager.get_current_ante() - 1
@@ -165,7 +171,7 @@ func setup_enemy() -> void:
 		label_enemy_hp.add_theme_color_override("font_color", white)
 		label_intention_type.add_theme_color_override("font_color", white)
 		label_enemy_intention.add_theme_color_override("font_color", white)
-		enemy_hp_bar.add_theme_stylebox_override("fill", _make_white_stylebox())
+		enemy_hp_bar.add_theme_stylebox_override("fill", hud.make_white_stylebox())
 
 var _btn_origins := {}
 
@@ -179,86 +185,6 @@ func _on_btn_hover(btn: Button, hovering: bool) -> void:
 	var target = _btn_origins[btn] + Vector2(0, -6) if hovering else _btn_origins[btn]
 	var t = create_tween()
 	t.tween_property(btn, "position", target, 0.1).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-
-func _on_drag_started(token: TokenResource, origin_pos: Vector2) -> void:
-	_drag_token = token
-	_dragging = true
-	_prev_mouse_pos = get_global_mouse_position()
-	_drag_velocity = Vector2.ZERO
-
-	_drag_card = token_card_scene.instantiate()
-	add_child(_drag_card)
-	_drag_card.setup(token)
-	_drag_card.z_index = 100
-	_drag_card.z_as_relative = false
-	_drag_card.pivot_offset = Vector2(70, 70)
-	_drag_card.global_position = origin_pos
-	_drag_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	revealed_token_holder.set_card_alpha(0.25)
-
-	var t = _drag_card.create_tween()
-	t.tween_property(_drag_card, "scale", Vector2(1.08, 1.08), 0.12)\
-		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-
-func _process(delta: float) -> void:
-	if not _dragging or _drag_card == null:
-		return
-	var mouse_pos := get_global_mouse_position()
-	var target := mouse_pos - Vector2(70, 70)
-
-	_drag_card.global_position = _drag_card.global_position.lerp(target, min(1.0, 18.0 * delta))
-
-	var frame_vel: Vector2 = (mouse_pos - _prev_mouse_pos) / max(delta, 0.001)
-	_drag_velocity = _drag_velocity.lerp(frame_vel, 0.25)
-	_prev_mouse_pos = mouse_pos
-
-	var target_rot: float = clamp(_drag_velocity.x * 0.0012, -0.22, 0.22)
-	_drag_card.rotation = lerp(_drag_card.rotation, target_rot, 12.0 * delta)
-
-func _end_drag() -> void:
-	_dragging = false
-	if _drag_card == null:
-		return
-
-	var card_center := _drag_card.global_position + Vector2(70, 70)
-	var drop_slot: Node = null
-	for slot in _slots:
-		if slot.is_empty():
-			var slot_center: Vector2 = slot.global_position + Vector2(70, 70)
-			if card_center.distance_to(slot_center) < 90.0:
-				drop_slot = slot
-				break
-
-	var card := _drag_card
-	_drag_card = null
-
-	if drop_slot != null:
-		var t = card.create_tween()
-		t.set_parallel(true)
-		t.tween_property(card, "global_position", drop_slot.global_position, 0.12)\
-			.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-		t.tween_property(card, "rotation", 0.0, 0.12)
-		t.tween_property(card, "scale", Vector2(1.0, 1.0), 0.12)
-		await t.finished
-		card.queue_free()
-		revealed_token_holder.clear()
-		drop_slot.place_token(_drag_token)
-		var dropped_token := _drag_token
-		_drag_token = null
-		await _on_token_placed_in_slot(drop_slot.slot_index, dropped_token)
-	else:
-		# Return to holder
-		var t = card.create_tween()
-		t.set_parallel(true)
-		t.tween_property(card, "global_position", revealed_token_holder.global_position, 0.2)\
-			.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-		t.tween_property(card, "rotation", 0.0, 0.2)
-		t.tween_property(card, "scale", Vector2(1.0, 1.0), 0.2)
-		await t.finished
-		card.queue_free()
-		revealed_token_holder.set_card_alpha(1.0)
-		_drag_token = null
 
 func _on_button_draw_pressed() -> void:
 	if _count_hazards_in_slots() > 0:
@@ -323,7 +249,7 @@ func _handle_crash() -> void:
 	var incoming_damage := 0 if protected else crash_damage
 	player_current_hp -= incoming_damage
 	player_current_hp = max(player_current_hp, 0)
-	update_player_hp()
+	hud.update_player_hp()
 
 	if player_current_hp <= 0:
 		_handle_player_death()
@@ -379,7 +305,7 @@ func _on_button_execute_pressed() -> void:
 	# Echoes trigger left to right, can modify ATK, DEF, or Pressure
 	context = RelicManager.trigger_execute(context)
 	GameManager.gold = context["gold"]
-	update_hud()
+	hud.update_hud()
 
 	# Apply Pressure to both ATK and DEF simultaneously
 	var final_attack := roundi(context.get("total_attack", result.total_attack) * context.get("pressure", current_pressure))
@@ -390,9 +316,9 @@ func _on_button_execute_pressed() -> void:
 	button_execute.disabled = true
 	var atk_color := Color(0.91, 0.16, 0.29, 1) if final_attack > 0 else Color(1, 1, 1, 1)
 	var def_color := Color(0.24, 0.4, 1, 1) if final_defense > 0 else Color(1, 1, 1, 1)
-	await _animate_pressure_on_stat(label_turn_atk, "%d" % final_attack, atk_color)
+	await hud.animate_pressure_on_stat(label_turn_atk, "%d" % final_attack, atk_color)
 	await get_tree().create_timer(0.15).timeout
-	await _animate_pressure_on_stat(label_turn_def, "%d" % final_defense, def_color)
+	await hud.animate_pressure_on_stat(label_turn_def, "%d" % final_defense, def_color)
 	await get_tree().create_timer(0.2).timeout
 
 	# Player hits enemy — wait for HP bar to finish
@@ -415,7 +341,7 @@ func _on_button_execute_pressed() -> void:
 	print("Ennemi attaque pour %d (défense: %d) = %d dégâts reçus" % [modified_damage, final_defense, incoming_damage])
 	player_current_hp -= incoming_damage
 	player_current_hp = max(player_current_hp, 0)
-	update_player_hp()
+	hud.update_player_hp()
 	await get_tree().create_timer(0.7).timeout
 
 	if player_current_hp <= 0:
@@ -475,22 +401,6 @@ func _animate_tokens_to_draw_area() -> void:
 	for card in flying:
 		card.queue_free()
 
-func _animate_pressure_on_stat(label: Label, new_text: String, color: Color) -> void:
-	label.text = new_text
-	label.add_theme_color_override("font_color", color)
-	label.pivot_offset = label.size / 2.0
-	var tilt := deg_to_rad(8.0) if color.r > 0.5 else deg_to_rad(-8.0)
-	var t = label.create_tween()
-	t.set_parallel(true)
-	t.tween_property(label, "scale", Vector2(1.35, 1.35), 0.1).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-	t.tween_property(label, "rotation", tilt, 0.1).set_ease(Tween.EASE_OUT)
-	await t.finished
-	var t2 = label.create_tween()
-	t2.set_parallel(true)
-	t2.tween_property(label, "scale", Vector2(1.0, 1.0), 0.28).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SPRING)
-	t2.tween_property(label, "rotation", 0.0, 0.22).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-	await t2.finished
-
 func _handle_player_death() -> void:
 	print("💀 DÉFAITE!")
 	current_pressure = 1.0
@@ -502,9 +412,9 @@ func _handle_player_death() -> void:
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
-		if _dragging:
+		if drag_controller.is_dragging():
 			get_viewport().set_input_as_handled()
-			_end_drag()
+			drag_controller.end_drag()
 
 	if event is InputEventKey and not event.echo:
 		match event.keycode:
@@ -524,183 +434,12 @@ func _input(event: InputEvent) -> void:
 					bag_inspector.close_modal()
 
 func update_ui() -> void:
-	update_combat_line_totals()
-	update_draw_pile()
+	hud.update_combat_line_totals()
+	hud.update_draw_pile(bag_manager)
 	bag_inspector.refresh()
-	update_hud()
+	hud.update_hud()
 	var any_filled = _slots.any(func(s): return not s.is_empty())
 	button_execute.disabled = not any_filled
-
-func update_draw_pile() -> void:
-	var bag_size: int = bag_manager.bag.size()
-	draw_count_label.text = "%d" % bag_size
-
-	# Rebuild stacked pile circles below DRAW button
-	for child in draw_pile_stack.get_children():
-		child.queue_free()
-	var pile_style := StyleBoxFlat.new()
-	pile_style.bg_color = Color(0.08, 0.08, 0.08, 1)
-	pile_style.corner_radius_top_left = 70
-	pile_style.corner_radius_top_right = 70
-	pile_style.corner_radius_bottom_right = 70
-	pile_style.corner_radius_bottom_left = 70
-	pile_style.border_width_left = 5
-	pile_style.border_width_top = 5
-	pile_style.border_width_right = 5
-	pile_style.border_width_bottom = 5
-	pile_style.border_color = Color(1, 1, 1, 1)
-	# Add bottom-to-top so top circle is last child (renders in front)
-	for i in range(bag_size - 1, -1, -1):
-		var circle := Panel.new()
-		circle.size = Vector2(140, 140)
-		circle.custom_minimum_size = Vector2(140, 140)
-		circle.add_theme_stylebox_override("panel", pile_style)
-		circle.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		circle.position = Vector2(0, i * 80)
-		draw_pile_stack.add_child(circle)
-
-	for child in type_breakdown_box.get_children():
-		child.queue_free()
-
-	var counts := {
-		TokenResource.TokenType.ATTACK: 0,
-		TokenResource.TokenType.DEFENSE: 0,
-		TokenResource.TokenType.MODIFIER: 0,
-		TokenResource.TokenType.HAZARD: 0,
-	}
-	for token in bag_manager.bag:
-		if counts.has(token.token_type):
-			counts[token.token_type] += 1
-
-	var type_colors := {
-		TokenResource.TokenType.ATTACK:   Color("#E8294A"),
-		TokenResource.TokenType.DEFENSE:  Color("#3D4CE8"),
-		TokenResource.TokenType.MODIFIER: Color("#7B2FE8"),
-		TokenResource.TokenType.HAZARD:   Color("#333333"),
-	}
-
-	for type in [TokenResource.TokenType.ATTACK, TokenResource.TokenType.DEFENSE, TokenResource.TokenType.MODIFIER, TokenResource.TokenType.HAZARD]:
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 8)
-
-		var dot := Panel.new()
-		dot.custom_minimum_size = Vector2(28, 28)
-		var style := StyleBoxFlat.new()
-		style.bg_color = type_colors[type]
-		style.corner_radius_top_left = 14
-		style.corner_radius_top_right = 14
-		style.corner_radius_bottom_right = 14
-		style.corner_radius_bottom_left = 14
-		dot.add_theme_stylebox_override("panel", style)
-
-		var lbl := Label.new()
-		lbl.text = "%d" % counts[type]
-		lbl.add_theme_color_override("font_color", Color(1, 1, 1, 1))
-		lbl.add_theme_font_size_override("font_size", 24)
-		lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-
-		row.add_child(dot)
-		row.add_child(lbl)
-		type_breakdown_box.add_child(row)
-
-func update_hud() -> void:
-	label_turns.text = "%d" % turns_played
-	label_gold.text = "♦ %d" % GameManager.gold
-
-func update_player_hp() -> void:
-	GameManager.player_current_hp = player_current_hp
-	label_player_hp.text = "%d/%d" % [player_current_hp, GameManager.player_max_hp]
-	var t = create_tween()
-	t.tween_property(player_hp_bar, "value", player_current_hp, 0.6).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
-
-func update_combat_line_totals() -> void:
-	var cards = _get_slot_cards()
-
-	label_pressure_value.text = "x%.1f" % current_pressure
-
-	# Bottom bar always shows static base per-token values
-	label_base_damage.text = "%d" % GameManager.base_damage
-	label_base_damage.add_theme_color_override("font_color", Color(1, 1, 1, 1))
-	label_base_defense.text = "%d" % GameManager.base_defense
-	label_base_defense.add_theme_color_override("font_color", Color(1, 1, 1, 1))
-
-	if cards.is_empty():
-		_update_hazard_wave(0)
-		label_turn_atk.text = "0"
-		label_turn_atk.add_theme_color_override("font_color", Color(1, 1, 1, 1))
-		label_turn_def.text = "0"
-		label_turn_def.add_theme_color_override("font_color", Color(1, 1, 1, 1))
-		label_intention_type.text = "ATTACK"
-		label_enemy_intention.text = "◆ %d" % current_enemy.current_damage
-		label_enemy_intention.add_theme_color_override("font_color", _intention_color())
-		label_intention_type.add_theme_color_override("font_color", _intention_color())
-		for slot in _slots:
-			slot.set_effect_state(false)
-		return
-
-	var result = TokenEffectResolver.resolve(cards)
-
-	# Gather filled slots in order for effect index logic
-	var filled: Array = []
-	for slot in _slots:
-		if not slot.is_empty() and slot.get_card() != null:
-			filled.append(slot)
-	var last_index := filled.size() - 1
-	for i in range(filled.size()):
-		var slot = filled[i]
-		var card = slot.get_card()
-		var effect = card.token_data.effect
-		var activated := false
-		if effect == TokenResource.TokenEffect.PROVOCATION:
-			activated = true
-		elif effect == TokenResource.TokenEffect.RAMPART and i == last_index:
-			for j in range(i):
-				if filled[j].get_card().token_data.token_type == TokenResource.TokenType.DEFENSE:
-					activated = true
-					break
-		if activated:
-			slot.set_effect_state(true, _token_type_color(card.token_data.token_type))
-		else:
-			slot.set_effect_state(false)
-
-	# Pressure row ATK — dynamic, colored
-	var atk_count := 0
-	var def_count := 0
-	for card in cards:
-		match card.token_data.token_type:
-			TokenResource.TokenType.ATTACK: atk_count += 1
-			TokenResource.TokenType.DEFENSE: def_count += 1
-
-	if atk_count > 0:
-		label_turn_atk.text = "%d" % (atk_count * GameManager.base_damage)
-		label_turn_atk.add_theme_color_override("font_color", Color(0.91, 0.16, 0.29, 1))
-	else:
-		label_turn_atk.text = "0"
-		label_turn_atk.add_theme_color_override("font_color", Color(1, 1, 1, 1))
-
-	# Pressure row DEF — show pre→post arrow when Rampart doubles it
-	if result.rampart_active:
-		var pre_rampart: int = result.total_defense / 2
-		label_turn_def.text = "%d → %d" % [pre_rampart, result.total_defense]
-		label_turn_def.add_theme_color_override("font_color", Color(0.24, 0.4, 1, 1))
-	elif def_count > 0:
-		label_turn_def.text = "%d" % result.total_defense
-		label_turn_def.add_theme_color_override("font_color", Color(0.24, 0.4, 1, 1))
-	else:
-		label_turn_def.text = "0"
-		label_turn_def.add_theme_color_override("font_color", Color(1, 1, 1, 1))
-
-	# Enemy intention — arrow when Provocation reduces it
-	label_intention_type.text = "ATTACK"
-	label_intention_type.add_theme_color_override("font_color", _intention_color())
-	if result.damage_multiplier < 1.0:
-		var modified_damage := roundi(current_enemy.current_damage * result.damage_multiplier)
-		label_enemy_intention.text = "◆ %d → %d" % [current_enemy.current_damage, modified_damage]
-	else:
-		label_enemy_intention.text = "◆ %d" % current_enemy.current_damage
-	label_enemy_intention.add_theme_color_override("font_color", _intention_color())
-
-	_update_hazard_wave(_count_hazards_in_slots())
 
 func _get_slot_cards() -> Array:
 	var cards := []
@@ -715,32 +454,6 @@ func _count_hazards_in_slots() -> int:
 		if not slot.is_empty() and slot.get_token().token_type == TokenResource.TokenType.HAZARD:
 			count += 1
 	return count
-
-func _update_hazard_wave(hazard_count: int) -> void:
-	vfx.update_vignette(hazard_count)
-
-func _token_type_color(type: TokenResource.TokenType) -> Color:
-	match type:
-		TokenResource.TokenType.ATTACK:  return Color("#E8294A")
-		TokenResource.TokenType.DEFENSE: return Color("#3D4CE8")
-		TokenResource.TokenType.MODIFIER: return Color("#7B2FE8")
-		_: return Color.WHITE
-
-func _intention_color() -> Color:
-	return Color.WHITE if GameManager.is_boss_round() else Color.BLACK
-
-func _make_white_stylebox() -> StyleBoxFlat:
-	var s := StyleBoxFlat.new()
-	s.bg_color = Color.WHITE
-	return s
-
-func _on_enemy_hp_changed(new_hp: int, max_hp: int) -> void:
-	label_enemy_hp.text = "%d/%d" % [new_hp, max_hp]
-	var t = create_tween()
-	t.tween_property(enemy_hp_bar, "value", new_hp, 0.6).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
-
-func _on_enemy_intention_changed(_intention_type: String, damage: int) -> void:
-	label_enemy_intention.text = "◆ %d" % damage
 
 func _on_enemy_died() -> void:
 	print("=== COMBAT TERMINÉ : VICTOIRE ===")
