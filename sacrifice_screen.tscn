@@ -1,0 +1,97 @@
+[gd_scene format=3 uid="uid://rtlco0cym0ny"]
+
+[ext_resource type="Script" uid="uid://dokorik31dwvs" path="res://scripts/ui/sacrifice_screen.gd" id="1_sacr"]
+[ext_resource type="FontFile" uid="uid://bolt1salj5evg" path="res://font/LondrinaSolid-Black.ttf" id="2_font"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_confirm_normal"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_confirm_focus"]
+
+[node name="SacrificeScreen" type="Control" unique_id=264115268]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_sacr")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1548886225]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 2.0
+offset_bottom = 2.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.013212106, 0.00021947133, 0.0010187486, 1)
+
+[node name="ContentVBox" type="VBoxContainer" parent="." unique_id=1667708105]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 80.0
+offset_top = 80.0
+offset_right = -80.0
+offset_bottom = -80.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 16
+
+[node name="LabelTitle" type="Label" parent="ContentVBox" unique_id=61547533]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 100
+text = "SACRIFICE"
+horizontal_alignment = 1
+
+[node name="LabelSubtitle" type="Label" parent="ContentVBox" unique_id=539026743]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 32
+text = "REMOVE ONE TOKEN"
+horizontal_alignment = 1
+
+[node name="SpacerTop" type="Control" parent="ContentVBox" unique_id=2099275698]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+
+[node name="TokenRow" type="HBoxContainer" parent="ContentVBox" unique_id=76343133]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 32
+alignment = 1
+
+[node name="SpacerBottom" type="Control" parent="ContentVBox" unique_id=565225498]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ButtonConfirm" type="Button" parent="ContentVBox" unique_id=1464339070]
+custom_minimum_size = Vector2(260, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 40
+theme_override_styles/normal = SubResource("StyleBoxFlat_confirm_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_confirm_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_confirm_normal")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_confirm_normal")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_confirm_focus")
+disabled = true
+text = "CONFIRMER"

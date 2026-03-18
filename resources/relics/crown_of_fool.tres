@@ -1,12 +1,13 @@
 [gd_resource type="Resource" script_class="RelicResource" format=3 uid="uid://bldcvff4verek"]
 
 [ext_resource type="Script" uid="uid://bw7m6taw4761m" path="res://scripts/relics/RelicResource.gd" id="1_relicres"]
+[ext_resource type="Texture2D" uid="uid://cgkmtcq51iti7" path="res://assets/icons/relics/imprundent-crown.png" id="2_icon"]
 
 [resource]
 script = ExtResource("1_relicres")
-relic_name = "Couronne de l'Imprudent"
-description = "Terminez un tour avec exactement 1 Hazard sur la ligne pour gagner +1 Or."
+relic_name = "Crown of Fools"
+description = "If you execute an action with EXACTLY 1 Hazard on the line, gain +1 Salt."
+lore = "Stories say that a brave man once lost his favorite crown, up in the north."
 rarity = 1
 cost = 4
-emoji = "👑"
-color = Color(0.95, 0.75, 0.1, 1)
+icon = ExtResource("2_icon")

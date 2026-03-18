@@ -27,13 +27,19 @@ func trigger_execute(context: Dictionary) -> Dictionary:
 			relic_triggered.emit(i)
 	return context
 
-func trigger_hazard_drawn() -> void:
-	for relic in relics:
-		relic.on_hazard_drawn()
+func trigger_hazard_drawn() -> int:
+	var bonus_damage := 0
+	for i in relics.size():
+		var dmg := relics[i].on_hazard_drawn()
+		if dmg > 0:
+			bonus_damage += dmg
+			relic_triggered.emit(i)
+	return bonus_damage
 
-func trigger_before_crash() -> bool:
-	for relic in relics:
-		if relic.on_before_crash():
+func trigger_before_crash(draw_count: int, hazard_count: int) -> bool:
+	for i in relics.size():
+		if relics[i].on_before_crash(draw_count, hazard_count):
+			relic_triggered.emit(i)
 			return true
 	return false
 

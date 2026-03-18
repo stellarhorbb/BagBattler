@@ -9,26 +9,14 @@ enum Rarity { COMMON, UNCOMMON, RARE, EPIC, LEGENDARY }
 @export var value: int
 @export var label: String
 
-static func generate_random() -> RewardResource:
+static func generate_with_rarity(forced_rarity: Rarity) -> RewardResource:
 	var reward = RewardResource.new()
-
-	# Roll rarity
-	var roll = randf() * 100.0
-	if roll < 50.0:
-		reward.rarity = Rarity.COMMON
-	elif roll < 80.0:
-		reward.rarity = Rarity.UNCOMMON
-	elif roll < 92.0:
-		reward.rarity = Rarity.RARE
-	elif roll < 97.0:
-		reward.rarity = Rarity.EPIC
-	else:
-		reward.rarity = Rarity.LEGENDARY
-
-	# Roll type
+	reward.rarity = forced_rarity
 	reward.reward_type = randi() % 5 as RewardType
+	_fill_value(reward)
+	return reward
 
-	# Set value based on rarity + type
+static func _fill_value(reward: RewardResource) -> void:
 	match reward.rarity:
 		Rarity.COMMON:
 			match reward.reward_type:
@@ -66,18 +54,19 @@ static func generate_random() -> RewardResource:
 				RewardType.UPGRADE_DEFENSE: reward.value = 6
 				RewardType.HEAL:            reward.value = 40
 
-	# Build label
-	var rarity_name = Rarity.keys()[reward.rarity].capitalize()
-	match reward.reward_type:
-		RewardType.GOLD:
-			reward.label = "💰 %d Gold [%s]" % [reward.value, rarity_name]
-		RewardType.HP_MAX:
-			reward.label = "❤️ +%d Max HP [%s]" % [reward.value, rarity_name]
-		RewardType.UPGRADE_DAMAGE:
-			reward.label = "⚔️ +%d Base Damage [%s]" % [reward.value, rarity_name]
-		RewardType.UPGRADE_DEFENSE:
-			reward.label = "🛡️ +%d Base Defense [%s]" % [reward.value, rarity_name]
-		RewardType.HEAL:
-			reward.label = "❤️‍🩹 +%d HP\n[%s]" % [reward.value, rarity_name]
-
+static func generate_random() -> RewardResource:
+	var reward = RewardResource.new()
+	var roll = randf() * 100.0
+	if roll < 50.0:
+		reward.rarity = Rarity.COMMON
+	elif roll < 80.0:
+		reward.rarity = Rarity.UNCOMMON
+	elif roll < 92.0:
+		reward.rarity = Rarity.RARE
+	elif roll < 97.0:
+		reward.rarity = Rarity.EPIC
+	else:
+		reward.rarity = Rarity.LEGENDARY
+	reward.reward_type = randi() % 5 as RewardType
+	_fill_value(reward)
 	return reward

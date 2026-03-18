@@ -10,6 +10,8 @@ var player_max_hp: int
 var player_current_hp: int = 80
 var purchased_tokens: Array[TokenResource] = []
 var purchased_relics: Array[BaseRelic] = []
+var sacrificed_tokens: Array[TokenResource] = []
+var full_bag: Array[TokenResource] = []
 
 # Charge la progression de l'entité
 var entity_progression: EntityProgressionResource = preload("res://resources/entity/entity_progression.tres")
@@ -21,6 +23,9 @@ func reset_run() -> void:
 	turns_played_last_combat = 0
 	purchased_tokens.clear()
 	purchased_relics.clear()
+	sacrificed_tokens.clear()
+	full_bag.clear()
+	RelicManager.relics.clear()
 	player_current_hp = player_max_hp
 
 func init_run_stats(job: JobResource) -> void:
@@ -53,8 +58,26 @@ func get_round_in_ante() -> int:
 func is_boss_round() -> bool:
 	return get_round_in_ante() == 4
 
+const DEPTH_NAMES := [
+	"The Surface",
+	"Sunlight Depths",
+	"Twilight Depths",
+	"Midnight Depths",
+	"Abyssal Depths",
+	"Hadal Depths",
+]
+
+func get_depth_name() -> String:
+	var ante = get_current_ante()
+	if ante <= DEPTH_NAMES.size():
+		return DEPTH_NAMES[ante - 1]
+	return "The Abyss"
+
 func heal_end_of_ante() -> void:
 	player_current_hp = min(player_current_hp + roundi(player_max_hp * 0.25), player_max_hp)
+
+func get_effective_bag() -> Array[TokenResource]:
+	return full_bag
 
 func advance_round() -> void:
 	current_round += 1

@@ -3,7 +3,22 @@
     "allow": [
       "Bash(tree:*)",
       "Bash(python3 -c \"\nimport subprocess\nresult = subprocess.run\\(['pdftotext', 'docs/bag-battler-gdd.pdf', '-'], capture_output=True, text=True\\)\nprint\\(result.stdout[:8000]\\)\n\" 2>/dev/null || echo \"pdftotext not available\")",
-      "Bash(python3 << 'EOF'\nimport struct, zlib, re\n\ndef read_pdf_text\\(path\\):\n    with open\\(path, 'rb'\\) as f:\n        data = f.read\\(\\)\n    # Extract text between BT and ET markers\n    texts = []\n    # Find all Tj and TJ operators\n    pattern = re.compile\\(rb'\\\\\\(\\([^\\)]*\\)\\\\\\)\\\\s*Tj|\\\\[\\([^\\\\]]*\\)\\\\]\\\\s*TJ'\\)\n    for m in pattern.finditer\\(data\\):\n        if m.group\\(1\\):\n            try:\n                texts.append\\(m.group\\(1\\).decode\\('latin-1'\\)\\)\n            except:\n                pass\n        elif m.group\\(2\\):\n            inner = m.group\\(2\\)\n            parts = re.findall\\(rb'\\\\\\(\\([^\\)]*\\)\\\\\\)', inner\\)\n            for p in parts:\n                try:\n                    texts.append\\(p.decode\\('latin-1'\\)\\)\n                except:\n                    pass\n    return ' '.join\\(texts\\)\n\ntext = read_pdf_text\\('docs/bag-battler-gdd.pdf'\\)\nprint\\(text[:6000]\\)\nEOF)"
+      "Bash(python3 << 'EOF'\nimport struct, zlib, re\n\ndef read_pdf_text\\(path\\):\n    with open\\(path, 'rb'\\) as f:\n        data = f.read\\(\\)\n    # Extract text between BT and ET markers\n    texts = []\n    # Find all Tj and TJ operators\n    pattern = re.compile\\(rb'\\\\\\(\\([^\\)]*\\)\\\\\\)\\\\s*Tj|\\\\[\\([^\\\\]]*\\)\\\\]\\\\s*TJ'\\)\n    for m in pattern.finditer\\(data\\):\n        if m.group\\(1\\):\n            try:\n                texts.append\\(m.group\\(1\\).decode\\('latin-1'\\)\\)\n            except:\n                pass\n        elif m.group\\(2\\):\n            inner = m.group\\(2\\)\n            parts = re.findall\\(rb'\\\\\\(\\([^\\)]*\\)\\\\\\)', inner\\)\n            for p in parts:\n                try:\n                    texts.append\\(p.decode\\('latin-1'\\)\\)\n                except:\n                    pass\n    return ' '.join\\(texts\\)\n\ntext = read_pdf_text\\('docs/bag-battler-gdd.pdf'\\)\nprint\\(text[:6000]\\)\nEOF)",
+      "mcp__claude_ai_Figma__get_design_context",
+      "mcp__claude_ai_Figma__whoami",
+      "mcp__claude_ai_Figma__get_metadata",
+      "WebSearch",
+      "WebFetch(domain:help.figma.com)",
+      "Bash(pdftotext /Users/thomas/code/BagBattler/docs/fathom-gdd.pdf - 2>/dev/null | head -200)",
+      "Bash(brew install:*)",
+      "Bash(which pdftoppm:*)",
+      "Bash(pdftotext /Users/thomas/code/BagBattler/docs/fathom-gdd.pdf -)",
+      "Bash(ls /Users/thomas/code/BagBattler/assets/icons/ui/*bag-inspector*)",
+      "Bash(ls /Users/thomas/code/BagBattler/assets/icons/ui/skull*)",
+      "Bash(grep -rn \"bg_color\\\\|ColorRect\\\\|color = Color\" /Users/thomas/code/BagBattler/*.tscn | grep -i \"color = Color\" | grep -v \"font_color\\\\|border_color\\\\|modulate\\\\|StyleBox\\\\|shader\")",
+      "Bash(sed -i '' 's/color = Color\\(0\\\\.101960786, 0\\\\.101960786, 0\\\\.101960786, 1\\)/color = Color\\(0, 0, 0, 1\\)/g' /Users/thomas/code/BagBattler/job_selection.tscn /Users/thomas/code/BagBattler/reward_screen.tscn /Users/thomas/code/BagBattler/shop_screen.tscn && sed -i '' 's/color = Color\\(0\\\\.10196, 0\\\\.10196, 0\\\\.10196, 1\\)/color = Color\\(0, 0, 0, 1\\)/g' /Users/thomas/code/BagBattler/reward_screen.tscn /Users/thomas/code/BagBattler/shop_screen.tscn && sed -i '' 's/color = Color\\(0\\\\.08, 0\\\\.08, 0\\\\.08, 1\\)/color = Color\\(0, 0, 0, 1\\)/g' /Users/thomas/code/BagBattler/sacrifice_screen.tscn)",
+      "Bash(ls /Users/thomas/code/BagBattler/*.tscn)",
+      "Bash(ls /Users/thomas/code/BagBattler/scripts/ui/*.uid 2>/dev/null | head -5; ls /Users/thomas/code/BagBattler/scripts/ui/relic_card.gd.uid 2>/dev/null)"
     ]
   }
 }

@@ -20,7 +20,7 @@ scale_max = 7.0
 color = Color(0.95, 0.78, 0.1, 1)
 
 [node name="RelicCard" type="Panel" unique_id=68261754]
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(120, 120)
 theme_override_styles/panel = SubResource("StyleBoxFlat_circle")
 script = ExtResource("1_relcard")
 
@@ -35,6 +35,21 @@ theme_override_font_sizes/font_size = 30
 text = "?"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="IconTexture" type="TextureRect" parent="." unique_id=500000010]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Particles" type="GPUParticles2D" parent="." unique_id=1113088056]
 position = Vector2(32, 32)

@@ -1,0 +1,112 @@
+[gd_scene format=3 uid="uid://cr7cl6tcan4ym"]
+
+[ext_resource type="Script" uid="uid://bfeu58f2bmkdg" path="res://scripts/ui/relic_tooltip.gd" id="1_tt"]
+[ext_resource type="FontFile" uid="uid://bolt1salj5evg" path="res://font/LondrinaSolid-Black.ttf" id="2_font_black"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_outer"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_header"]
+bg_color = Color(0.25, 0.25, 0.25, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+
+[node name="RelicTooltip" type="PanelContainer" unique_id=1103117174]
+custom_minimum_size = Vector2(680, 0)
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_outer")
+script = ExtResource("1_tt")
+
+[node name="VBox" type="VBoxContainer" parent="." unique_id=897874092]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="Header" type="Panel" parent="VBox" unique_id=1343285447]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_header")
+
+[node name="HeaderRow" type="HBoxContainer" parent="VBox/Header" unique_id=1454628806]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_right = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="LabelRarity" type="Label" parent="VBox/Header/HeaderRow" unique_id=1952267122]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font_black")
+theme_override_font_sizes/font_size = 28
+text = "COMMON"
+vertical_alignment = 1
+
+[node name="LabelNature" type="Label" parent="VBox/Header/HeaderRow" unique_id=1588302574]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font_black")
+theme_override_font_sizes/font_size = 28
+text = "TYPE"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="BodyMargin" type="MarginContainer" parent="VBox" unique_id=527734431]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 24
+
+[node name="BodyContent" type="VBoxContainer" parent="VBox/BodyMargin" unique_id=1135542544]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 18
+
+[node name="LabelName" type="Label" parent="VBox/BodyMargin/BodyContent" unique_id=1482541260]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font_black")
+theme_override_font_sizes/font_size = 52
+text = "RELIC NAME"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="LabelEffect" type="Label" parent="VBox/BodyMargin/BodyContent" unique_id=1830472826]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font_black")
+theme_override_font_sizes/font_size = 28
+text = "Effect description."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="LabelLore" type="Label" parent="VBox/BodyMargin/BodyContent" unique_id=1195455886]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_fonts/font = ExtResource("2_font_black")
+theme_override_font_sizes/font_size = 22
+text = "Lore text."
+horizontal_alignment = 1
+autowrap_mode = 3

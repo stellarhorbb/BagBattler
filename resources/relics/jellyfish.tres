@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="RelicResource" format=3 uid="uid://jellyfish001"]
+
+[ext_resource type="Script" uid="uid://bw7m6taw4761m" path="res://scripts/relics/RelicResource.gd" id="1_relicres"]
+[ext_resource type="Texture2D" uid="uid://cl5ut8jjsar5n" path="res://assets/icons/relics/trident.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_relicres")
+relic_name = "The Trident"
+description = "Each time you draw a Hazard, inflict your base damage to the entity."
+lore = "Someone lost his faithful trident thousands of years ago, but this thing have not a sign of rust  yet."
+rarity = 1
+cost = 6
+icon = ExtResource("2_icon")

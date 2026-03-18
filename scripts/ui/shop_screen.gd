@@ -1,19 +1,22 @@
 extends Control
 
 var reroll_cost: int = 2
-var available_tokens: Array[TokenResource] = []
-var token_scenes: Array[Node] = []
 var all_shop_tokens: Array[TokenResource] = []
 
-@onready var label_gold = $VBox/LabelGold
-@onready var label_reroll_cost = $VBox/BottomBar/LabelRerollCost
-@onready var token_container = $VBox/TokenContainer
-@onready var relic_container = $VBox/RelicContainer
-@onready var button_reroll = $VBox/BottomBar/ButtonReroll
-@onready var button_continue = $VBox/BottomBar/ButtonContinue
-@onready var label_player_hp = $StatsBar/LabelPlayerHP
-@onready var label_base_damage = $StatsBar/LabelBaseDamage
-@onready var label_base_defense = $StatsBar/LabelBaseDefense
+var _font = preload("res://font/LondrinaSolid-Black.ttf")
+var _token_card_scene = preload("res://token_card.tscn")
+var _relic_card_scene = preload("res://relic_card.tscn")
+var _salt_icon = preload("res://assets/icons/ui/salt-icon.png")
+
+@onready var items_row = $ContentVBox/ShopPanel/PanelLayout/ItemsRow
+@onready var button_reroll = $ContentVBox/ShopPanel/PanelLayout/RerollRow/ButtonReroll
+@onready var button_continue = $ContentVBox/ButtonContinue
+@onready var label_salt_total = $SaltHUD/SaltRow/LabelSaltTotal
+@onready var player_hp_bar = $StatsBar/CenterStat/PlayerHPBar
+@onready var label_player_hp = $StatsBar/CenterStat/LabelPlayerHP
+@onready var label_dmg_value = $StatsBar/LeftStat/DmgRow/LabelDmgValue
+@onready var label_def_value = $StatsBar/RightStat/DefRow/LabelDefValue
+@onready var relic_line = $StatsBar/CenterStat/RelicLine
 
 func _ready() -> void:
 	all_shop_tokens = [
@@ -22,23 +25,20 @@ func _ready() -> void:
 		preload("res://resources/tokens/provocation.tres"),
 		preload("res://resources/tokens/rampart.tres"),
 	]
-	button_reroll.pressed.connect(_on_reroll_pressed)
-	button_continue.pressed.connect(_on_continue_pressed)
-	update_gold_display()
-	generate_shop()
-	populate_relic_section()
+	relic_line.setup()
+	_populate_shop()
+	_update_display()
 
-func generate_shop() -> void:
-	for child in token_container.get_children():
+func _populate_shop() -> void:
+	for child in items_row.get_children():
 		child.queue_free()
-	available_tokens.clear()
-	token_scenes.clear()
 
+	# 2 random tokens
 	var total_weight = 0.0
 	for token in all_shop_tokens:
 		total_weight += token.shop_drop_weight
 
-	for i in 2:
+	for _i in 2:
 		var roll = randf() * total_weight
 		var cumulative = 0.0
 		var picked: TokenResource = all_shop_tokens[0]
@@ -47,117 +47,153 @@ func generate_shop() -> void:
 			if roll <= cumulative:
 				picked = token
 				break
-		available_tokens.append(picked)
-
 		var price = roundi(10.0 / picked.shop_drop_weight)
+		var icon = _token_card_scene.instantiate()
+		var item = _make_item(icon, picked.token_name.to_upper(), price)
+		item.get_node("BuyButton").pressed.connect(func(): _on_buy_token(picked, price, item.get_node("BuyButton")))
+		items_row.add_child(item)
+		icon.setup(picked)
 
-		var card = Panel.new()
-		var vbox = VBoxContainer.new()
-		var label_name = Label.new()
-		var label_price = Label.new()
-		var buy_button = Button.new()
-
-		label_name.text = picked.token_name
-		label_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		label_price.text = "%d 💰" % price
-		label_price.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		buy_button.text = "Buy"
-
-		vbox.add_child(label_name)
-		vbox.add_child(label_price)
-		vbox.add_child(buy_button)
-		card.add_child(vbox)
-		card.custom_minimum_size = Vector2(200, 150)
-		token_container.add_child(card)
-		token_scenes.append(card)
-
-		var token_ref = picked
-		var price_ref = price
-		buy_button.pressed.connect(func(): _on_buy_pressed(token_ref, price_ref, card))
-
-func populate_relic_section() -> void:
-	# TODO: TEMP — hardcoded for testing, replace with dynamic relic pool
-	var shop_relics: Array[RelicResource] = [
-		preload("res://resources/relics/crown_of_fool.tres"),
+	# 1 random relic
+	var shop_relics := [
+		[preload("res://resources/relics/crown_of_fool.tres"), RelicCrownOfFool],
+		[preload("res://resources/relics/jellyfish.tres"), RelicJellyfish],
+		[preload("res://resources/relics/angel.tres"), RelicAngel],
 	]
-	var relic_classes := [RelicCrownOfFool]
+	var entry = shop_relics[randi() % shop_relics.size()]
+	var data: RelicResource = entry[0]
+	var relic_class = entry[1]
+	var already_owned = GameManager.purchased_relics.any(func(r): return r.relic_data == data)
 
-	for i in shop_relics.size():
-		var data: RelicResource = shop_relics[i]
-		var already_owned := GameManager.purchased_relics.any(
-			func(r): return r.relic_data == data
-		)
+	var relic_icon = _relic_card_scene.instantiate()
+	relic_icon.custom_minimum_size = Vector2(140, 140)
+	var relic_item = _make_item(relic_icon, data.relic_name.to_upper(), data.cost)
+	var buy_btn = relic_item.get_node("BuyButton")
+	buy_btn.disabled = already_owned
+	if not already_owned:
+		buy_btn.pressed.connect(func(): _on_buy_relic(data, relic_class, buy_btn))
+	items_row.add_child(relic_item)
+	relic_icon.setup(data)
 
-		var card := Panel.new()
-		var vbox := VBoxContainer.new()
-		var label_name := Label.new()
-		var label_desc := Label.new()
-		var label_cost := Label.new()
-		var buy_button := Button.new()
+	_update_reroll_button()
 
-		label_name.text = data.relic_name
-		label_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		label_desc.text = data.description
-		label_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		label_desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		label_cost.text = "%d 💰" % data.cost
-		label_cost.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		buy_button.text = "Buy"
-		buy_button.disabled = already_owned
+func _make_item(icon_node: Node, item_name: String, price: int) -> VBoxContainer:
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 10)
+	vbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
 
-		vbox.add_child(label_name)
-		vbox.add_child(label_desc)
-		vbox.add_child(label_cost)
-		vbox.add_child(buy_button)
-		card.add_child(vbox)
-		card.custom_minimum_size = Vector2(280, 140)
-		relic_container.add_child(card)
+	icon_node.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	vbox.add_child(icon_node)
 
-		if not already_owned:
-			var relic_class = relic_classes[i]
-			buy_button.pressed.connect(func(): _on_buy_relic_pressed(data, relic_class, buy_button, vbox))
+	var name_label = Label.new()
+	name_label.text = item_name
+	name_label.add_theme_font_override("font", _font)
+	name_label.add_theme_font_size_override("font_size", 28)
+	name_label.add_theme_color_override("font_color", Color(1, 1, 1, 1))
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(name_label)
 
-func _on_buy_relic_pressed(data: RelicResource, relic_class: GDScript, button: Button, vbox: VBoxContainer) -> void:
+	var style_buy = StyleBoxFlat.new()
+	style_buy.bg_color = Color(1, 1, 1, 1)
+	style_buy.border_width_left = 2
+	style_buy.border_width_top = 2
+	style_buy.border_width_right = 2
+	style_buy.border_width_bottom = 2
+	style_buy.border_color = Color(0, 0, 0, 1)
+	style_buy.corner_radius_top_left = 8
+	style_buy.corner_radius_top_right = 8
+	style_buy.corner_radius_bottom_left = 8
+	style_buy.corner_radius_bottom_right = 8
+
+	var style_buy_disabled = StyleBoxFlat.new()
+	style_buy_disabled.bg_color = Color(0.4, 0.4, 0.4, 1)
+	style_buy_disabled.corner_radius_top_left = 8
+	style_buy_disabled.corner_radius_top_right = 8
+	style_buy_disabled.corner_radius_bottom_left = 8
+	style_buy_disabled.corner_radius_bottom_right = 8
+
+	var btn = Button.new()
+	btn.name = "BuyButton"
+	btn.text = "BUY"
+	btn.custom_minimum_size = Vector2(140, 46)
+	btn.add_theme_font_override("font", _font)
+	btn.add_theme_font_size_override("font_size", 24)
+	btn.add_theme_color_override("font_color", Color(0, 0, 0, 1))
+	btn.add_theme_color_override("font_pressed_color", Color(0, 0, 0, 1))
+	btn.add_theme_color_override("font_hover_color", Color(0, 0, 0, 1))
+	btn.add_theme_color_override("font_disabled_color", Color(0.7, 0.7, 0.7, 1))
+	btn.add_theme_stylebox_override("normal", style_buy)
+	btn.add_theme_stylebox_override("pressed", style_buy)
+	btn.add_theme_stylebox_override("hover", style_buy)
+	btn.add_theme_stylebox_override("disabled", style_buy_disabled)
+	btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	vbox.add_child(btn)
+
+	var price_row = HBoxContainer.new()
+	price_row.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	price_row.add_theme_constant_override("separation", 6)
+	price_row.alignment = BoxContainer.ALIGNMENT_CENTER
+
+	var price_label = Label.new()
+	price_label.text = "%d" % price
+	price_label.add_theme_font_override("font", _font)
+	price_label.add_theme_font_size_override("font_size", 26)
+	price_label.add_theme_color_override("font_color", Color(1, 1, 1, 1))
+	price_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+
+	var price_icon = TextureRect.new()
+	price_icon.texture = _salt_icon
+	price_icon.custom_minimum_size = Vector2(20, 20)
+	price_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	price_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	price_icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+
+	price_row.add_child(price_label)
+	price_row.add_child(price_icon)
+	vbox.add_child(price_row)
+
+	return vbox
+
+func _on_buy_token(token: TokenResource, price: int, btn: Button) -> void:
+	if GameManager.gold < price:
+		return
+	GameManager.gold -= price
+	GameManager.purchased_tokens.append(token)
+	GameManager.full_bag.append(token)
+	btn.disabled = true
+	_update_display()
+
+func _on_buy_relic(data: RelicResource, relic_class: GDScript, btn: Button) -> void:
 	if GameManager.gold < data.cost:
-		print("Not enough gold")
 		return
 	var instance: BaseRelic = relic_class.new()
 	if not RelicManager.add_relic(instance):
-		var label_full := Label.new()
-		label_full.text = "Slots pleins"
-		label_full.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		label_full.modulate = Color(1, 0.4, 0.4)
-		vbox.add_child(label_full)
 		return
 	GameManager.gold -= data.cost
 	GameManager.purchased_relics.append(instance)
-	button.disabled = true
-	update_gold_display()
-
-func _on_buy_pressed(token: TokenResource, price: int, card: Node) -> void:
-	if GameManager.gold >= price:
-		GameManager.gold -= price
-		GameManager.purchased_tokens.append(token)
-		for child in card.get_children():
-			child.queue_free()
-		card.modulate = Color(0.5, 0.5, 0.5)
-		update_gold_display()
-	else:
-		print("Not enough gold")
+	btn.disabled = true
+	_update_display()
 
 func _on_reroll_pressed() -> void:
-	if GameManager.gold >= reroll_cost:
-		GameManager.gold -= reroll_cost
-		reroll_cost += 2
-		generate_shop()
-		update_gold_display()
+	if GameManager.gold < reroll_cost:
+		return
+	GameManager.gold -= reroll_cost
+	reroll_cost += 2
+	_populate_shop()
+	_update_display()
 
 func _on_continue_pressed() -> void:
 	get_tree().change_scene_to_file("res://battle_scene.tscn")
 
-func update_gold_display() -> void:
-	label_gold.text = "💰 %d" % GameManager.gold
-	label_reroll_cost.text = "Reroll: %d 💰" % reroll_cost
-	label_player_hp.text = "HP: %d / %d" % [GameManager.player_current_hp, GameManager.player_max_hp]
-	label_base_damage.text = "⚔️ Base DMG: %d" % GameManager.base_damage
-	label_base_defense.text = "🛡️ Base DEF: %d" % GameManager.base_defense
+func _update_reroll_button() -> void:
+	button_reroll.text = "REROLL  %d" % reroll_cost
+
+func _update_display() -> void:
+	label_salt_total.text = "%d" % GameManager.gold
+	label_dmg_value.text = "%d" % GameManager.base_damage
+	label_def_value.text = "%d" % GameManager.base_defense
+	player_hp_bar.max_value = GameManager.player_max_hp
+	player_hp_bar.value = GameManager.player_current_hp
+	label_player_hp.text = "%d/%d" % [GameManager.player_current_hp, GameManager.player_max_hp]
+	_update_reroll_button()

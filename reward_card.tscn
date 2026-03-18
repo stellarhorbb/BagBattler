@@ -1,42 +1,79 @@
 [gd_scene format=3 uid="uid://bq7n2xt4mpv8c"]
 
-[ext_resource type="Script" path="res://scripts/ui/reward_card.gd" id="1_rc001"]
+[ext_resource type="Script" uid="uid://cmgewnsm5jgy1" path="res://scripts/ui/reward_card.gd" id="1_rc001"]
+[ext_resource type="FontFile" uid="uid://bolt1salj5evg" path="res://font/LondrinaSolid-Black.ttf" id="2_font_black"]
 
-[node name="RewardCard" type="Panel"]
-custom_minimum_size = Vector2(280, 350)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dark"]
+bg_color = Color(0.133, 0.133, 0.133, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_header"]
+bg_color = Color(0.25, 0.25, 0.25, 1)
+
+[node name="RewardCard" type="Panel" unique_id=2078882831]
+custom_minimum_size = Vector2(260, 220)
+theme_override_styles/panel = SubResource("StyleBoxFlat_dark")
 script = ExtResource("1_rc001")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
+[node name="LayoutBox" type="VBoxContainer" parent="." unique_id=806804757]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -120.0
-offset_top = -140.0
-offset_right = 120.0
-offset_bottom = 140.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 20
 
-[node name="LabelRarity" type="Label" parent="VBoxContainer"]
+[node name="RarityHeader" type="Panel" parent="LayoutBox" unique_id=1693342329]
+custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_styles/panel = SubResource("StyleBoxFlat_header")
+
+[node name="LabelRarity" type="Label" parent="LayoutBox/RarityHeader" unique_id=1188360859]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font_black")
+theme_override_font_sizes/font_size = 22
+text = "COMMON"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ContentBox" type="VBoxContainer" parent="LayoutBox" unique_id=1498382380]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="Spacer" type="Control" parent="LayoutBox/ContentBox" unique_id=1069459006]
+custom_minimum_size = Vector2(0, 18)
+layout_mode = 2
+
+[node name="IconTexture" type="TextureRect" parent="LayoutBox/ContentBox" unique_id=1779048719]
+custom_minimum_size = Vector2(52, 52)
+layout_mode = 2
+size_flags_horizontal = 4
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LabelTypeName" type="Label" parent="LayoutBox/ContentBox" unique_id=381523372]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font_black")
+theme_override_font_sizes/font_size = 26
+text = "BASE ATTACK"
 horizontal_alignment = 1
 
-[node name="LabelType" type="Label" parent="VBoxContainer"]
+[node name="LabelValue" type="Label" parent="LayoutBox/ContentBox" unique_id=882430668]
 layout_mode = 2
-theme_override_font_sizes/font_size = 48
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font_black")
+theme_override_font_sizes/font_size = 52
+text = "+1"
 horizontal_alignment = 1
 
-[node name="LabelValue" type="Label" parent="VBoxContainer"]
+[node name="BottomSpacer" type="Control" parent="LayoutBox/ContentBox" unique_id=1441429882]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
-theme_override_font_sizes/font_size = 32
-horizontal_alignment = 1
-
-[node name="LabelRarityName" type="Label" parent="VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-horizontal_alignment = 1

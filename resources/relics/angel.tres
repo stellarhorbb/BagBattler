@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="RelicResource" format=3 uid="uid://ngel001"]
+
+[ext_resource type="Script" uid="uid://bw7m6taw4761m" path="res://scripts/relics/RelicResource.gd" id="1_relicres"]
+[ext_resource type="Texture2D" uid="uid://cv0q2p16bj2od" path="res://assets/icons/relics/angel.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_relicres")
+relic_name = "The Angel"
+description = "If your first 2 draws are both Hazards, you take 0 damage and the turn passes."
+lore = "There's a place where nobody can get wounded."
+rarity = 2
+cost = 7
+icon = ExtResource("2_icon")

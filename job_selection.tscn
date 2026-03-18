@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://b83gph874w4sr"]
 
-[ext_resource type="Script" path="res://scripts/ui/job_selection.gd" id="1_2fi1s"]
+[ext_resource type="Script" uid="uid://bexu24vf2l133" path="res://scripts/ui/job_selection.gd" id="1_2fi1s"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2fi1s"]
 bg_color = Color(0.38009015, 0.2524632, 0.5755956, 1)
@@ -21,7 +21,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.101960786, 0.101960786, 0.101960786, 1)
+color = Color(0, 0, 0, 1)
 
 [node name="LabelTitle" type="Label" parent="." unique_id=675910048]
 layout_mode = 1

@@ -6,10 +6,10 @@ extends Resource
 func on_execute(context: Dictionary) -> Dictionary:
 	return context
 
-func on_hazard_drawn() -> void:
-	pass
+func on_hazard_drawn() -> int:
+	return 0
 
-func on_before_crash() -> bool:
+func on_before_crash(draw_count: int, hazard_count: int) -> bool:
 	return false
 
 func on_reward_screen() -> void:
