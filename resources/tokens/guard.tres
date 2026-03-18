@@ -6,4 +6,5 @@
 script = ExtResource("1_js6tn")
 token_name = "Guard"
 token_type = 1
+description = "Absorbs base DEF from incoming Entity damage. Stacks with every Guard on the line."
 value = 5

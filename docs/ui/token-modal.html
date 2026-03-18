@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Token Modal — BagBattler</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Londrina+Solid:wght@900&family=Londrina+Solid&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #222;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 48px;
+    padding: 64px;
+    font-family: 'Londrina Solid', sans-serif;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .card {
+    background: #000;
+    border: 4px solid #fff;
+    border-radius: 12px;
+    width: 480px;
+    overflow: hidden;
+  }
+
+  .body {
+    padding: 28px 32px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .token-name {
+    font-size: 52px;
+    color: #fff;
+    text-align: center;
+    line-height: 1;
+    letter-spacing: 1px;
+  }
+
+  .token-type {
+    font-size: 28px;
+    text-align: center;
+    letter-spacing: 2px;
+  }
+  .type-attack   { color: #E8294A; }
+  .type-defense  { color: #3D4CE8; }
+  .type-modifier { color: #7B2FE8; }
+  .type-hazard   { color: #888; }
+
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: rgba(255,255,255,0.12);
+    margin: 6px 0;
+  }
+
+  .description {
+    font-size: 26px;
+    color: #fff;
+    text-align: center;
+    line-height: 1.35;
+  }
+
+  /* Special effect block */
+  .effect-block {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .effect-slots {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .slot-dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+  }
+
+  .slot-dot.active-attack   { background: #E8294A; }
+  .slot-dot.active-defense  { background: #3D4CE8; }
+  .slot-dot.active-modifier { background: #7B2FE8; }
+  .slot-dot.inactive        { background: #444; }
+
+  .slot-connector {
+    width: 14px;
+    height: 4px;
+    background: #555;
+    border-radius: 2px;
+  }
+  .slot-connector.active-attack   { background: #E8294A; }
+  .slot-connector.active-defense  { background: #3D4CE8; }
+  .slot-connector.active-modifier { background: #7B2FE8; }
+
+  .effect-label {
+    font-size: 22px;
+    color: #ccc;
+    text-align: center;
+    line-height: 1.3;
+  }
+</style>
+</head>
+<body>
+
+<!-- STRIKE — Attack, no special effect -->
+<div class="card">
+  <div class="body">
+    <div class="token-name">STRIKE</div>
+    <div class="token-type type-attack">ATTACK</div>
+    <div class="divider"></div>
+    <div class="description">
+      Deals <strong>base ATK</strong> damage to the Entity.<br>
+      Stacks with every other Strike on the line.
+    </div>
+  </div>
+</div>
+
+<!-- GUARD — Defense, with combo effect -->
+<div class="card">
+  <div class="body">
+    <div class="token-name">GUARD</div>
+    <div class="token-type type-defense">DEFENSE</div>
+    <div class="divider"></div>
+    <div class="description">
+      Absorbs <strong>base DEF</strong> from incoming<br>Entity damage.
+    </div>
+    <div class="divider"></div>
+    <div class="effect-block">
+      <div class="effect-slots">
+        <div class="slot-dot active-defense"></div>
+        <div class="slot-connector active-defense"></div>
+        <div class="slot-dot active-defense"></div>
+      </div>
+      <div class="effect-label">When 2 <span style="color:#3D4CE8">GUARD</span> are aligned, value ×1.5</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROVOCATION — Modifier, with position-based effect -->
+<div class="card">
+  <div class="body">
+    <div class="token-name">PROVOCATION</div>
+    <div class="token-type type-modifier">MODIFIER</div>
+    <div class="divider"></div>
+    <div class="description">
+      Reduces Entity DMG by <strong>25%</strong>.
+    </div>
+    <div class="divider"></div>
+    <div class="effect-block">
+      <div class="effect-slots">
+        <div class="slot-dot active-modifier"></div>
+        <div class="slot-dot inactive"></div>
+        <div class="slot-dot inactive"></div>
+        <div class="slot-dot inactive"></div>
+        <div class="slot-dot inactive"></div>
+      </div>
+      <div class="effect-label">
+        Reduces Entity DMG by <strong style="color:#7B2FE8">75%</strong><br>
+        if placed on the first slot of the line.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RAMPART — Defense, with last-slot condition -->
+<div class="card">
+  <div class="body">
+    <div class="token-name">RAMPART</div>
+    <div class="token-type type-defense">DEFENSE</div>
+    <div class="divider"></div>
+    <div class="description">
+      Doubles every <strong>DEF</strong> token on the line<br>
+      when placed as the last token.
+    </div>
+    <div class="divider"></div>
+    <div class="effect-block">
+      <div class="effect-slots">
+        <div class="slot-dot inactive"></div>
+        <div class="slot-dot inactive"></div>
+        <div class="slot-dot inactive"></div>
+        <div class="slot-dot inactive"></div>
+        <div class="slot-dot active-defense"></div>
+      </div>
+      <div class="effect-label">
+        Must be the <strong style="color:#3D4CE8">last slot</strong> on the line<br>
+        with at least one DEF token before it.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HAZARD — Hazard, no special effect -->
+<div class="card">
+  <div class="body">
+    <div class="token-name">HAZARD</div>
+    <div class="token-type type-hazard">HAZARD</div>
+    <div class="divider"></div>
+    <div class="description">
+      Drawn automatically and placed on a<br>
+      random free slot. Two Hazards on the line<br>
+      triggers a <strong style="color:#E8294A">CRASH</strong>.
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

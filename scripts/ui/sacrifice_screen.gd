@@ -1,7 +1,7 @@
 extends Control
 
 @onready var token_row: HBoxContainer = $ContentVBox/TokenRow
-@onready var button_confirm: Button = $ContentVBox/ButtonConfirm
+@onready var button_confirm: Button = $ButtonConfirm
 
 const TOKEN_CARD = preload("res://token_card.tscn")
 const FONT_BLACK = preload("res://font/LondrinaSolid-Black.ttf")

@@ -7,6 +7,7 @@ script = ExtResource("1_l2mxt")
 token_name = "Rampart"
 token_type = 1
 effect = 2
+description = "Doubles every DEF token on the line."
 value = 0
 shop_drop_weight = 0.3
 metadata/_custom_type_script = "uid://cgmlktf00g143"

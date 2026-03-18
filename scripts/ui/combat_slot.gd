@@ -1,6 +1,7 @@
 extends Control
 
 signal token_dropped(slot_index: int, token: TokenResource)
+signal slot_clicked(slot_index: int)
 
 const TokenCardScene := preload("res://token_card.tscn")
 
@@ -55,6 +56,11 @@ func pop_card() -> Control:
 	if card:
 		remove_child(card)
 	return card
+
+func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		if is_empty():
+			slot_clicked.emit(slot_index)
 
 func _can_drop_data(_pos: Vector2, data: Variant) -> bool:
 	return is_empty() and data is Dictionary and data.get("type") == "revealed_token"

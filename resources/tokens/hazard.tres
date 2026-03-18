@@ -6,6 +6,6 @@
 script = ExtResource("1_g5qc1")
 token_name = "Hazard"
 token_type = 5
+description = "Placed automatically on a random free slot when drawn. Two Hazards on the line triggers a CRASH."
 value = 0
 shop_drop_weight = 0.0
-metadata/_custom_type_script = "uid://cgmlktf00g143"

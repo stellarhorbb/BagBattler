@@ -8,6 +8,8 @@ var _style: StyleBoxFlat
 
 func setup(token: TokenResource) -> void:
 	token_data = token
+	mouse_entered.connect(_on_hover)
+	mouse_exited.connect(_on_unhover)
 	_style = StyleBoxFlat.new()
 	_style.corner_radius_top_left = 70
 	_style.corner_radius_top_right = 70
@@ -30,6 +32,14 @@ func setup(token: TokenResource) -> void:
 	icon_texture.position = Vector2(30, 30)
 	_load_icon()
 
+
+func _on_hover() -> void:
+	if mouse_filter == MOUSE_FILTER_IGNORE:
+		return
+	TooltipManager.show_token(token_data, global_position, size)
+
+func _on_unhover() -> void:
+	TooltipManager.hide_tooltip()
 
 func _load_icon() -> void:
 	var icon_map = {

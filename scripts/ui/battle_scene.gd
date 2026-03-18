@@ -70,7 +70,7 @@ var hud: BattleHUD
 func _ready():
 	vfx = BattleVFX.new()
 	add_child(vfx)
-	vfx.setup(flash_overlay, vignette_overlay, crash_banner, saved_banner)
+	vfx.setup(flash_overlay, vignette_overlay, crash_banner, saved_banner, self)
 
 	drag_controller = DragController.new()
 	add_child(drag_controller)
@@ -106,6 +106,7 @@ func _ready():
 	for i in _slots.size():
 		_slots[i].setup(i)
 		_slots[i].token_dropped.connect(_on_token_placed_in_slot)
+		_slots[i].slot_clicked.connect(_on_slot_clicked)
 
 	drag_controller.setup(_slots, revealed_token_holder, token_card_scene, self)
 	drag_controller.drag_dropped.connect(_on_token_placed_in_slot)
@@ -219,14 +220,23 @@ func _on_button_draw_pressed() -> void:
 
 	update_ui()
 
+func _on_slot_clicked(slot_index: int) -> void:
+	var token: TokenResource = revealed_token_holder.get_token()
+	if token == null or drag_controller.is_dragging():
+		return
+	revealed_token_holder.clear()
+	_slots[slot_index].place_token(token)
+	await _on_token_placed_in_slot(slot_index, token)
+
 func _on_token_placed_in_slot(_slot_index: int, _token: TokenResource) -> void:
 	revealed_token_holder.clear()
 
 	var hazard_count := _count_hazards_in_slots()
 	if hazard_count >= 2:
+		vfx.trigger_screen_shake()
+		await get_tree().create_timer(0.5).timeout
 		await _handle_crash()
 	else:
-		button_draw.disabled = false
 		update_ui()
 
 func _handle_crash() -> void:
@@ -236,10 +246,12 @@ func _handle_crash() -> void:
 	var protected := RelicManager.trigger_before_crash(placed_count, _count_hazards_in_slots())
 	button_draw.disabled = true
 	button_execute.disabled = true
+	TooltipManager.set_enabled(false)
 	if protected:
 		await vfx.trigger_saved_effect()
 	else:
 		await vfx.trigger_crash_effect()
+	TooltipManager.set_enabled(true)
 	button_draw.disabled = false
 	button_execute.disabled = false
 
@@ -440,6 +452,29 @@ func update_ui() -> void:
 	hud.update_hud()
 	var any_filled = _slots.any(func(s): return not s.is_empty())
 	button_execute.disabled = not any_filled
+	_refresh_draw_button()
+
+func _refresh_draw_button() -> void:
+	var slots_full := _slots.all(func(s): return not s.is_empty())
+	var token_pending := revealed_token_holder.get_token() != null
+	button_draw.disabled = slots_full or token_pending
+	var s := StyleBoxFlat.new()
+	s.corner_radius_top_left = 70
+	s.corner_radius_top_right = 70
+	s.corner_radius_bottom_right = 70
+	s.corner_radius_bottom_left = 70
+	if slots_full:
+		s.bg_color = Color(0.08, 0.08, 0.08, 1)
+		for state in ["normal", "hover", "pressed", "disabled"]:
+			button_draw.add_theme_stylebox_override(state, s)
+		button_draw.add_theme_color_override("font_color", Color(0.35, 0.35, 0.35, 1))
+		button_draw.add_theme_color_override("font_disabled_color", Color(0.35, 0.35, 0.35, 1))
+	else:
+		s.bg_color = Color(1, 1, 1, 1)
+		for state in ["normal", "hover", "pressed", "disabled"]:
+			button_draw.add_theme_stylebox_override(state, s)
+		button_draw.add_theme_color_override("font_color", Color(0, 0, 0, 1))
+		button_draw.add_theme_color_override("font_disabled_color", Color(0, 0, 0, 1))
 
 func _get_slot_cards() -> Array:
 	var cards := []

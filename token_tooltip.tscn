@@ -1,0 +1,102 @@
+[gd_scene format=3 uid="uid://dxlap2mtoktip"]
+
+[ext_resource type="Script" path="res://scripts/ui/token_tooltip.gd" id="1_ttgd"]
+[ext_resource type="FontFile" uid="uid://bolt1salj5evg" path="res://font/LondrinaSolid-Black.ttf" id="2_font"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_outer"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[node name="TokenTooltip" type="PanelContainer" unique_id=1001]
+custom_minimum_size = Vector2(520, 0)
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_outer")
+script = ExtResource("1_ttgd")
+
+[node name="VBox" type="VBoxContainer" parent="." unique_id=1002]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="BodyMargin" type="MarginContainer" parent="VBox" unique_id=1003]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 24
+
+[node name="BodyContent" type="VBoxContainer" parent="VBox/BodyMargin" unique_id=1004]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 14
+
+[node name="LabelName" type="Label" parent="VBox/BodyMargin/BodyContent" unique_id=1005]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 52
+text = "TOKEN NAME"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="LabelType" type="Label" parent="VBox/BodyMargin/BodyContent" unique_id=1006]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 28
+text = "TYPE"
+horizontal_alignment = 1
+
+[node name="DividerBase" type="ColorRect" parent="VBox/BodyMargin/BodyContent" unique_id=1007]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 1)
+color = Color(1, 1, 1, 0.15)
+
+[node name="LabelDescription" type="Label" parent="VBox/BodyMargin/BodyContent" unique_id=1008]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 26
+text = "Description."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="EffectBlock" type="VBoxContainer" parent="VBox/BodyMargin/BodyContent" unique_id=1009]
+layout_mode = 2
+visible = false
+theme_override_constants/separation = 12
+
+[node name="DividerEffect" type="ColorRect" parent="VBox/BodyMargin/BodyContent/EffectBlock" unique_id=1010]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 1)
+color = Color(1, 1, 1, 0.15)
+
+[node name="SlotDotsRow" type="HBoxContainer" parent="VBox/BodyMargin/BodyContent/EffectBlock" unique_id=1011]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="LabelEffect" type="Label" parent="VBox/BodyMargin/BodyContent/EffectBlock" unique_id=1012]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 22
+text = "Effect label."
+horizontal_alignment = 1
+autowrap_mode = 3
