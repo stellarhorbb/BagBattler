@@ -6,6 +6,10 @@ extends PanelContainer
 @onready var effect_block: VBoxContainer = $VBox/BodyMargin/BodyContent/EffectBlock
 @onready var slot_dots_row: HBoxContainer = $VBox/BodyMargin/BodyContent/EffectBlock/SlotDotsRow
 @onready var label_effect: Label = $VBox/BodyMargin/BodyContent/EffectBlock/LabelEffect
+@onready var combo_block: VBoxContainer = $VBox/BodyMargin/BodyContent/ComboBlock
+@onready var combo_rules_container: VBoxContainer = $VBox/BodyMargin/BodyContent/ComboBlock/ComboRulesContainer
+
+const FONT_BLACK = preload("res://font/LondrinaSolid-Black.ttf")
 
 const TYPE_NAMES := {
 	TokenResource.TokenType.ATTACK:   "ATTACK",
@@ -43,6 +47,12 @@ func setup(data: TokenResource) -> void:
 	else:
 		effect_block.visible = false
 
+	if not data.combo_thresholds.is_empty():
+		combo_block.visible = true
+		_build_combo_rules(data, type_color)
+	else:
+		combo_block.visible = false
+
 func _build_slot_dots(effect: TokenResource.TokenEffect, color: Color) -> void:
 	for child in slot_dots_row.get_children():
 		slot_dots_row.remove_child(child)
@@ -73,6 +83,58 @@ func _build_slot_dots(effect: TokenResource.TokenEffect, color: Color) -> void:
 		style.bg_color = color if active_indices.has(i) else Color("#444444")
 		dot.add_theme_stylebox_override("panel", style)
 		slot_dots_row.add_child(dot)
+
+func _build_combo_rules(data: TokenResource, color: Color) -> void:
+	for child in combo_rules_container.get_children():
+		combo_rules_container.remove_child(child)
+		child.free()
+
+	var type_suffix := ""
+	match data.token_type:
+		TokenResource.TokenType.ATTACK:  type_suffix = "ATK"
+		TokenResource.TokenType.DEFENSE: type_suffix = "DEF"
+
+	for i in data.combo_thresholds.size():
+		var count: int = int(data.combo_thresholds[i])
+		var mult: float = float(data.combo_multipliers[i])
+
+		var row := HBoxContainer.new()
+		row.alignment = BoxContainer.ALIGNMENT_CENTER
+		row.add_theme_constant_override("separation", 6)
+
+		# Connected colored dots (all active, linked)
+		for j in count:
+			if j > 0:
+				var connector := ColorRect.new()
+				connector.custom_minimum_size = Vector2(14, 4)
+				connector.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+				connector.color = color
+				row.add_child(connector)
+			var dot := Panel.new()
+			dot.custom_minimum_size = Vector2(22, 22)
+			dot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			var style := StyleBoxFlat.new()
+			style.corner_radius_top_left = 11
+			style.corner_radius_top_right = 11
+			style.corner_radius_bottom_right = 11
+			style.corner_radius_bottom_left = 11
+			style.bg_color = color
+			dot.add_theme_stylebox_override("panel", style)
+			row.add_child(dot)
+
+		# Multiplier label
+		var spacer := Control.new()
+		spacer.custom_minimum_size = Vector2(14, 0)
+		row.add_child(spacer)
+
+		var lbl := Label.new()
+		lbl.text = "x" + str(mult) + " " + type_suffix
+		lbl.add_theme_font_override("font", FONT_BLACK)
+		lbl.add_theme_font_size_override("font_size", 24)
+		lbl.add_theme_color_override("font_color", color)
+		row.add_child(lbl)
+
+		combo_rules_container.add_child(row)
 
 func _set_effect_label(effect: TokenResource.TokenEffect) -> void:
 	match effect:

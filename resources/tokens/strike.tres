@@ -6,5 +6,7 @@
 script = ExtResource("1_r5oys")
 token_name = "Strike"
 description = "Deals base ATK damage to the Entity. Stacks with every Strike on the line."
+combo_thresholds = [2, 3]
+combo_multipliers = [1.5, 2.0]
 value = 3
 metadata/_custom_type_script = "uid://cgmlktf00g143"

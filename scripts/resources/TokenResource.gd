@@ -22,6 +22,8 @@ enum TokenEffect {
 @export var token_type: TokenType = TokenType.ATTACK # Le type de jeton + valeur par défault
 @export var effect: TokenEffect = TokenEffect.NONE
 @export var description: String = ""
+@export var combo_thresholds: Array = []   # e.g. [2, 3]
+@export var combo_multipliers: Array = []  # e.g. [1.5, 2.0]
 @export var value: int = 1 # La valeur du jeton (nombre entier) + valeur par défault
 @export var weight: float = 1 # Le poid du jeton dans le sac par défaut
 @export var shop_drop_weight: float = 1.0

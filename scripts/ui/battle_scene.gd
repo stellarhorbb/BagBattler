@@ -66,6 +66,7 @@ var _slots: Array[Node] = []
 
 var drag_controller: DragController
 var hud: BattleHUD
+var _death_blow_active: bool = false
 
 func _ready():
 	vfx = BattleVFX.new()
@@ -333,6 +334,10 @@ func _on_button_execute_pressed() -> void:
 	await hud.animate_pressure_on_stat(label_turn_def, "%d" % final_defense, def_color)
 	await get_tree().create_timer(0.2).timeout
 
+	# Pre-compute enemy attack so it's available for death blow if enemy dies
+	var modified_damage: int = roundi(current_enemy.current_damage * result.damage_multiplier)
+	var incoming_damage: int = max(0, modified_damage - final_defense)
+
 	# Player hits enemy — wait for HP bar to finish
 	print("Joueur inflige %d dégâts à l'ennemi (pression: %.1f)" % [final_attack, context.get("pressure", current_pressure)])
 	current_enemy.take_damage(final_attack)
@@ -344,12 +349,39 @@ func _on_button_execute_pressed() -> void:
 		for t in tokens_to_return:
 			bag_manager.bag.append(t)
 		bag_manager.shuffle()
+		# Death blow — enemy still deals 50% of what it would have
+		var death_blow_damage := roundi(incoming_damage * 0.5)
+		if death_blow_damage > 0:
+			_death_blow_active = true
+			TooltipManager.set_enabled(false)
+			var intention_box: Control = $EnemyZone/IntentionBox
+			label_intention_type.text = "DEATH BLOW"
+			label_enemy_intention.text = ""
+			intention_box.pivot_offset = intention_box.size / 2.0
+			intention_box.rotation_degrees = -10.0
+			intention_box.scale = Vector2(0.6, 0.6)
+			var tween_a = create_tween().set_parallel(true)
+			tween_a.tween_property(intention_box, "rotation_degrees", 0.0, 0.45).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+			tween_a.tween_property(intention_box, "scale", Vector2(1.0, 1.0), 0.45).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+			await tween_a.finished
+			await get_tree().create_timer(0.2).timeout
+			label_enemy_intention.text = "-%d HP" % death_blow_damage
+			intention_box.rotation_degrees = 5.0
+			var tween_b = create_tween()
+			tween_b.tween_property(intention_box, "rotation_degrees", 0.0, 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+			await tween_b.finished
+			player_current_hp = max(0, player_current_hp - death_blow_damage)
+			hud.update_player_hp()
+			await get_tree().create_timer(1.0).timeout
+			TooltipManager.set_enabled(true)
+			if player_current_hp <= 0:
+				_handle_player_death()
+				return
+			get_tree().change_scene_to_file("res://reward_screen.tscn")
+			return
 		return
 
 	# Enemy hits player — wait for HP bar to finish
-	var base_damage = current_enemy.current_damage
-	var modified_damage = roundi(base_damage * result.damage_multiplier)
-	var incoming_damage = max(0, modified_damage - final_defense)
 	print("Ennemi attaque pour %d (défense: %d) = %d dégâts reçus" % [modified_damage, final_defense, incoming_damage])
 	player_current_hp -= incoming_damage
 	player_current_hp = max(player_current_hp, 0)
@@ -496,6 +528,8 @@ func _on_enemy_died() -> void:
 	button_draw.disabled = true
 	button_execute.disabled = true
 	await get_tree().create_timer(1.0).timeout
+	if _death_blow_active:
+		return
 	get_tree().change_scene_to_file("res://reward_screen.tscn")
 
 func _on_button_next_pressed() -> void:

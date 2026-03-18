@@ -133,21 +133,16 @@ func update_combat_line_totals() -> void:
 				if filled[j].get_card().token_data.token_type == TokenResource.TokenType.DEFENSE:
 					activated = true
 					break
+		if not activated and result.active_combo_slots.has(i):
+			activated = true
 		if activated:
 			slot.set_effect_state(true, token_type_color(card.token_data.token_type))
 		else:
 			slot.set_effect_state(false)
 
-	# Pressure row ATK — dynamic, colored
-	var atk_count := 0
-	var def_count := 0
-	for card in cards:
-		match card.token_data.token_type:
-			TokenResource.TokenType.ATTACK: atk_count += 1
-			TokenResource.TokenType.DEFENSE: def_count += 1
-
-	if atk_count > 0:
-		_s.label_turn_atk.text = "%d" % (atk_count * GameManager.base_damage)
+	# Pressure row ATK — use resolved total (includes combo multipliers)
+	if result.total_attack > 0:
+		_s.label_turn_atk.text = "%d" % result.total_attack
 		_s.label_turn_atk.add_theme_color_override("font_color", Color(0.91, 0.16, 0.29, 1))
 	else:
 		_s.label_turn_atk.text = "0"
@@ -158,7 +153,7 @@ func update_combat_line_totals() -> void:
 		var pre_rampart: int = result.total_defense / 2
 		_s.label_turn_def.text = "%d → %d" % [pre_rampart, result.total_defense]
 		_s.label_turn_def.add_theme_color_override("font_color", Color(0.24, 0.4, 1, 1))
-	elif def_count > 0:
+	elif result.total_defense > 0:
 		_s.label_turn_def.text = "%d" % result.total_defense
 		_s.label_turn_def.add_theme_color_override("font_color", Color(0.24, 0.4, 1, 1))
 	else:
