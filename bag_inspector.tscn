@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dmx4ppn2y5g2j"]
 
-[ext_resource type="Script" path="res://scripts/ui/bag_inspector.gd" id="1_7mi55"]
+[ext_resource type="Script" uid="uid://de0r1gym3p56e" path="res://scripts/ui/bag_inspector.gd" id="1_7mi55"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7mi55"]
 
@@ -11,6 +11,18 @@
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mn346"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_m30iq"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal"]
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 80
+corner_radius_top_right = 80
+corner_radius_bottom_right = 80
+corner_radius_bottom_left = 80
 
 [node name="BagInspector" type="Control" unique_id=1361147510]
 layout_mode = 3
@@ -49,16 +61,53 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="ModalView" type="PanelContainer" parent="." unique_id=1736658694]
+[node name="ModalView" type="Control" parent="." unique_id=1736658694]
 visible = false
-custom_minimum_size = Vector2(400, 0)
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+modulate = Color(1, 1, 1, 0)
+z_index = 100
+z_as_relative = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="ScrollContainer" type="ScrollContainer" parent="ModalView" unique_id=1976831057]
-custom_minimum_size = Vector2(400, 500)
-layout_mode = 2
+[node name="Dimmer" type="ColorRect" parent="ModalView" unique_id=700000001]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.72)
 
-[node name="ModalContent" type="VBoxContainer" parent="ModalView/ScrollContainer" unique_id=708901826]
-layout_mode = 2
+[node name="ModalPanel" type="Panel" parent="ModalView" unique_id=700000002]
+custom_minimum_size = Vector2(910, 520)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -455.0
+offset_top = -338.0
+offset_right = 455.0
+offset_bottom = 338.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal")
+
+[node name="ModalContent" type="VBoxContainer" parent="ModalView/ModalPanel" unique_id=708901826]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 70.0
+offset_top = 50.0
+offset_right = -70.0
+offset_bottom = -50.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 13

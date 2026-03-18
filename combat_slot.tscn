@@ -1,0 +1,56 @@
+[gd_scene format=3 uid="uid://c7yf1hyaoulfc"]
+
+[ext_resource type="Script" path="res://scripts/ui/combat_slot.gd" id="1_cslot"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot"]
+bg_color = Color(0.125, 0.125, 0.125, 1)
+corner_radius_top_left = 70
+corner_radius_top_right = 70
+corner_radius_bottom_right = 70
+corner_radius_bottom_left = 70
+anti_aliasing_size = 1.5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_border"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 15
+border_width_top = 15
+border_width_right = 15
+border_width_bottom = 15
+border_color = Color(0.082, 0.082, 0.082, 1)
+corner_radius_top_left = 85
+corner_radius_top_right = 85
+corner_radius_bottom_right = 85
+corner_radius_bottom_left = 85
+anti_aliasing_size = 1.5
+
+[node name="CombatSlot" type="Control" unique_id=158517494]
+custom_minimum_size = Vector2(140, 140)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 140.0
+offset_bottom = 140.0
+script = ExtResource("1_cslot")
+
+[node name="BgPanel" type="Panel" parent="." unique_id=840740571]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="BorderOverlay" type="Panel" parent="." unique_id=1797391185]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -15.0
+offset_top = -15.0
+offset_right = 15.0
+offset_bottom = 15.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_border")

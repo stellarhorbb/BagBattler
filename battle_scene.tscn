@@ -3,9 +3,74 @@
 [ext_resource type="Script" uid="uid://c7jugbm2yf0rg" path="res://scripts/ui/battle_scene.gd" id="1_fw8re"]
 [ext_resource type="PackedScene" uid="uid://dmx4ppn2y5g2j" path="res://bag_inspector.tscn" id="2_r5l0u"]
 [ext_resource type="PackedScene" path="res://relic_line.tscn" id="3_relline"]
+[ext_resource type="PackedScene" uid="uid://c7yf1hyaoulfc" path="res://combat_slot.tscn" id="4_cslot"]
+[ext_resource type="Texture2D" uid="uid://do4cc1pn1rhwh" path="res://assets/icons/ui/attack-icon.png" id="6_atkicon"]
+[ext_resource type="Texture2D" uid="uid://cuubpyby0njyq" path="res://assets/icons/ui/defense-icon.png" id="7_deficon"]
+[ext_resource type="FontFile" uid="uid://bolt1salj5evg" path="res://font/LondrinaSolid-Black.ttf" id="8_font_black"]
+[ext_resource type="Script" uid="uid://bxrevtokenhld" path="res://scripts/ui/revealed_token_holder.gd" id="9_revholder"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ip1la"]
-bg_color = Color(0.059185125, 0.46805102, 0.79853326, 1)
+[sub_resource type="Shader" id="Shader_eblob"]
+code = "shader_type canvas_item;
+
+uniform float wave_y : hint_range(0.0, 1.0) = 0.78;
+uniform float speed : hint_range(0.0, 5.0) = 0.35;
+uniform float amplitude : hint_range(0.0, 0.3) = 0.10;
+uniform vec4 color : source_color = vec4(1.0, 1.0, 1.0, 1.0);
+
+void fragment() {
+	float x = UV.x;
+	float y = UV.y;
+
+	float wave = sin(x * 1.7 + TIME * speed * 0.8 + 1.3) * amplitude * 0.55;
+	wave += sin(x * 3.9 - TIME * speed * 1.1 + 0.7) * amplitude * 0.35;
+	wave += sin(x * 6.2 + TIME * speed * 0.5 + 2.1) * amplitude * 0.20;
+	wave += sin(x * 11.4 - TIME * speed * 1.7 + 0.4) * amplitude * 0.10;
+	wave += sin(x * 17.8 + TIME * speed * 2.3 + 3.5) * amplitude * 0.05;
+	wave += sin(x * 0.6 - TIME * speed * 0.3 + 1.9) * amplitude * 0.30;
+
+	float edge = wave_y + wave;
+	float blend = smoothstep(edge + 0.0005, edge - 0.0005, y);
+	COLOR = vec4(color.rgb, blend * color.a);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_eblob"]
+shader = SubResource("Shader_eblob")
+shader_parameter/wave_y = 0.84
+shader_parameter/speed = 0.35
+shader_parameter/amplitude = 0.1
+shader_parameter/color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hpbg"]
+bg_color = Color(0.72, 0.72, 0.72, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hpfill"]
+bg_color = Color(0.08, 0.08, 0.08, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_5g7vw"]
+load_path = "res://.godot/imported/salt-icon-black.png-62ef06d880d9a69e8bf4edc8295c56e6.ctex"
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_draw"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 70
+corner_radius_top_right = 70
+corner_radius_bottom_right = 70
+corner_radius_bottom_left = 70
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hn8js"]
 bg_color = Color(0.22569287, 0.5143949, 0.16542158, 1)
@@ -37,56 +102,431 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.101960786, 0.101960786, 0.101960786, 1)
+color = Color(0, 0, 0, 1)
 
 [node name="BagInspector" parent="." unique_id=1361147510 instance=ExtResource("2_r5l0u")]
 layout_mode = 1
 
-[node name="CombatLine" type="HBoxContainer" parent="." unique_id=220632362]
-custom_minimum_size = Vector2(1200, 300)
+[node name="EnemyZone" type="Control" parent="." unique_id=971891270]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 360.0
+grow_horizontal = 2
+
+[node name="BlobBG" type="ColorRect" parent="EnemyZone" unique_id=971891271]
+material = SubResource("ShaderMaterial_eblob")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="EnemyContent" type="VBoxContainer" parent="EnemyZone" unique_id=971891272]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -500.0
+offset_top = 28.0
+offset_right = 500.0
+offset_bottom = 160.0
+grow_horizontal = 2
+theme_override_constants/separation = 10
+
+[node name="NameRow" type="HBoxContainer" parent="EnemyZone/EnemyContent" unique_id=971891273]
+layout_mode = 2
+
+[node name="LabelEnemyName" type="Label" parent="EnemyZone/EnemyContent/NameRow" unique_id=1013805118]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 32
+text = "THE ENTITY"
+
+[node name="LabelEnemyHP" type="Label" parent="EnemyZone/EnemyContent/NameRow" unique_id=1632338886]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 32
+text = "20/20"
+horizontal_alignment = 2
+
+[node name="EnemyHPBar" type="ProgressBar" parent="EnemyZone/EnemyContent" unique_id=971891274]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/background = SubResource("StyleBoxFlat_hpbg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_hpfill")
+value = 100.0
+show_percentage = false
+
+[node name="IntentionBox" type="VBoxContainer" parent="EnemyZone" unique_id=971891275]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 123.0
+offset_right = 200.0
+offset_bottom = 257.0
+grow_horizontal = 2
+alignment = 1
+
+[node name="LabelIntentionType" type="Label" parent="EnemyZone/IntentionBox" unique_id=971891276]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 22
+text = "ATTACK"
+horizontal_alignment = 1
+
+[node name="LabelEnemyIntention" type="Label" parent="EnemyZone/IntentionBox" unique_id=1516359842]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 72
+text = "◆ 5"
+horizontal_alignment = 1
+
+[node name="HUDTurns" type="VBoxContainer" parent="." unique_id=112233445]
+layout_mode = 1
+offset_left = 40.0
+offset_top = 30.0
+offset_right = 200.0
+offset_bottom = 130.0
+
+[node name="LabelTurnsTitle" type="Label" parent="HUDTurns" unique_id=112233447]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 26
+text = "TURN"
+
+[node name="LabelTurns" type="Label" parent="HUDTurns" unique_id=112233448]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 64
+text = "0"
+
+[node name="HUDSalt" type="VBoxContainer" parent="." unique_id=112233446]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -200.0
+offset_top = 30.0
+offset_right = -40.0
+offset_bottom = 130.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="LabelSaltTitle" type="Label" parent="HUDSalt" unique_id=112233449]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 26
+text = "SALT"
+horizontal_alignment = 2
+
+[node name="SaltValueRow" type="HBoxContainer" parent="HUDSalt" unique_id=112233451]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 2
+
+[node name="SaltIcon" type="TextureRect" parent="HUDSalt/SaltValueRow" unique_id=112233452]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+size_flags_vertical = 4
+texture = SubResource("CompressedTexture2D_5g7vw")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LabelGold" type="Label" parent="HUDSalt/SaltValueRow" unique_id=112233450]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 64
+text = "0"
+
+[node name="PreviewRow" type="HBoxContainer" parent="." unique_id=334455700]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.5
-anchor_top = 0.48981482
 anchor_right = 0.5
-anchor_bottom = 0.48981482
-offset_left = -600.0
-offset_top = -150.0
-offset_right = 600.0
-offset_bottom = 150.0
+offset_left = -200.0
+offset_top = 374.0
+offset_right = 200.0
+offset_bottom = 436.0
 grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/separation = 10
-metadata/_edit_use_anchors_ = true
+theme_override_constants/separation = 40
+alignment = 1
 
-[node name="ButtonDraw" type="Button" parent="." unique_id=755668552]
+[node name="DamagePreviewBox" type="HBoxContainer" parent="PreviewRow" unique_id=334455667]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 2
+
+[node name="DmgIcon" type="TextureRect" parent="PreviewRow/DamagePreviewBox" unique_id=1480135543]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("6_atkicon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LabelDamagePreview" type="Label" parent="PreviewRow/DamagePreviewBox" unique_id=967213686]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.91, 0.16, 0.29, 1)
+theme_override_font_sizes/font_size = 56
+vertical_alignment = 1
+
+[node name="DefensePreviewBox" type="HBoxContainer" parent="PreviewRow" unique_id=334455672]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="DefIcon" type="TextureRect" parent="PreviewRow/DefensePreviewBox" unique_id=1110549634]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("7_deficon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LabelDefensePreview" type="Label" parent="PreviewRow/DefensePreviewBox" unique_id=334455671]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.24, 0.4, 1, 1)
+theme_override_font_sizes/font_size = 56
+vertical_alignment = 1
+
+[node name="CombatSlotsRow" type="HBoxContainer" parent="." unique_id=700000001]
 layout_mode = 1
-anchors_preset = 8
+anchors_preset = -1
 anchor_left = 0.5
-anchor_top = 0.5
 anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -272.0
-offset_top = 215.0
-offset_right = 12.0
-offset_bottom = 281.0
+offset_left = -390.0
+offset_top = 474.0
+offset_right = 390.0
+offset_bottom = 614.0
 grow_horizontal = 2
-grow_vertical = 2
-scale = Vector2(1.0081645, 0.9962998)
-theme_override_font_sizes/font_size = 42
-theme_override_styles/normal = SubResource("StyleBoxFlat_ip1la")
-text = "Tirer un jeton"
+theme_override_constants/separation = 40
+alignment = 1
+
+[node name="Slot0" parent="CombatSlotsRow" unique_id=700000002 instance=ExtResource("4_cslot")]
+layout_mode = 2
+
+[node name="Slot1" parent="CombatSlotsRow" unique_id=700000003 instance=ExtResource("4_cslot")]
+layout_mode = 2
+
+[node name="Slot2" parent="CombatSlotsRow" unique_id=700000004 instance=ExtResource("4_cslot")]
+layout_mode = 2
+
+[node name="Slot3" parent="CombatSlotsRow" unique_id=700000005 instance=ExtResource("4_cslot")]
+layout_mode = 2
+
+[node name="Slot4" parent="CombatSlotsRow" unique_id=700000006 instance=ExtResource("4_cslot")]
+layout_mode = 2
 
 [node name="ButtonExecute" type="Button" parent="." unique_id=951555009]
+custom_minimum_size = Vector2(280, 70)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -140.0
+offset_top = 671.0
+offset_right = 140.0
+offset_bottom = 741.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 36
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn")
+text = "EXECUTE"
+
+[node name="DrawArea" type="Control" parent="." unique_id=700000020]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -430.0
+offset_top = -430.0
+offset_right = -30.0
+offset_bottom = -30.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="DrawPileStack" type="Control" parent="DrawArea" unique_id=700000030]
+anchors_preset = 0
+offset_left = 109.0
+offset_top = 94.0
+offset_right = 269.0
+offset_bottom = 234.0
+mouse_filter = 2
+
+[node name="ButtonDraw" type="Button" parent="DrawArea" unique_id=755668552]
+custom_minimum_size = Vector2(140, 140)
 layout_mode = 0
-offset_left = 1004.0
-offset_top = 753.0
-offset_right = 1217.0
-offset_bottom = 819.0
-scale = Vector2(1, 0.9992878)
-theme_override_font_sizes/font_size = 42
-theme_override_styles/normal = SubResource("StyleBoxFlat_hn8js")
-text = "Executer"
+offset_left = 111.0
+offset_top = 30.0
+offset_right = 251.0
+offset_bottom = 170.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("8_font_black")
+theme_override_font_sizes/font_size = 32
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_draw")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_draw")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_draw")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_btn_draw")
+text = "DRAW"
+
+[node name="RevealedTokenHolder" type="Control" parent="DrawArea" unique_id=700000010]
+custom_minimum_size = Vector2(140, 140)
+anchors_preset = 0
+offset_left = 111.0
+offset_top = 30.0
+offset_right = 251.0
+offset_bottom = 170.0
+script = ExtResource("9_revholder")
+
+[node name="BagInfoArea" type="Control" parent="DrawArea" unique_id=700000023]
+anchors_preset = 0
+offset_left = 317.0
+offset_top = 88.0
+offset_right = 452.0
+offset_bottom = 448.0
+
+[node name="DrawCountLabel" type="Label" parent="DrawArea/BagInfoArea" unique_id=700000021]
+layout_mode = 0
+offset_left = 13.0
+offset_right = 148.0
+offset_bottom = 50.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("8_font_black")
+theme_override_font_sizes/font_size = 38
+text = "0"
+
+[node name="TypeBreakdownBox" type="VBoxContainer" parent="DrawArea/BagInfoArea" unique_id=700000022]
+layout_mode = 0
+offset_top = 58.0
+offset_right = 135.0
+offset_bottom = 320.0
+theme_override_constants/separation = 12
+
+[node name="PlayerBottomBar" type="HBoxContainer" parent="." unique_id=600000001]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -585.0
+offset_top = -250.0
+offset_right = 585.0
+offset_bottom = -60.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 40
+alignment = 1
+
+[node name="LeftStatSection" type="VBoxContainer" parent="PlayerBottomBar" unique_id=600000003]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="TopRow" type="HBoxContainer" parent="PlayerBottomBar/LeftStatSection" unique_id=600000011]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="DmgIcon" type="TextureRect" parent="PlayerBottomBar/LeftStatSection/TopRow" unique_id=600000005]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("6_atkicon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LabelBaseDamage" type="Label" parent="PlayerBottomBar/LeftStatSection/TopRow" unique_id=334455669]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 72
+text = "3"
+vertical_alignment = 1
+
+[node name="LabelDmgTitle" type="Label" parent="PlayerBottomBar/LeftStatSection" unique_id=600000013]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "BASE DMG"
+horizontal_alignment = 1
+
+[node name="CenterSection" type="VBoxContainer" parent="PlayerBottomBar" unique_id=600000006]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="RelicLine" parent="PlayerBottomBar/CenterSection" unique_id=1494610562 instance=ExtResource("3_relline")]
+layout_mode = 2
+alignment = 1
+
+[node name="PlayerHPBar" type="ProgressBar" parent="PlayerBottomBar/CenterSection" unique_id=600000007]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/background = SubResource("StyleBoxFlat_hpbg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_hpfill")
+value = 100.0
+show_percentage = false
+
+[node name="LabelPlayerHP" type="Label" parent="PlayerBottomBar/CenterSection" unique_id=50330458]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "30/30"
+horizontal_alignment = 1
+
+[node name="RightStatSection" type="VBoxContainer" parent="PlayerBottomBar" unique_id=600000008]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="TopRow" type="HBoxContainer" parent="PlayerBottomBar/RightStatSection" unique_id=600000012]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="DefIcon" type="TextureRect" parent="PlayerBottomBar/RightStatSection/TopRow" unique_id=600000010]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("7_deficon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LabelBaseDefense" type="Label" parent="PlayerBottomBar/RightStatSection/TopRow" unique_id=334455670]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 72
+text = "10"
+vertical_alignment = 1
+
+[node name="LabelDefTitle" type="Label" parent="PlayerBottomBar/RightStatSection" unique_id=600000014]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "BASE DEF"
+horizontal_alignment = 1
 
 [node name="ButtonNext" type="Button" parent="." unique_id=1970767732]
 visible = false
@@ -109,184 +549,20 @@ text = "Combat suivant"
 
 [node name="ButtonBackToMenu" type="Button" parent="." unique_id=107403228]
 visible = false
-layout_mode = 0
-offset_left = 806.0
-offset_top = 510.0
-offset_right = 1125.0
-offset_bottom = 576.0
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.47200003
+anchor_right = 0.5
+anchor_bottom = 0.47200003
+offset_left = -154.0
+offset_top = 0.23995972
+offset_right = 165.0
+offset_bottom = 66.23996
 scale = Vector2(1, 0.9992878)
 theme_override_font_sizes/font_size = 42
 theme_override_styles/normal = SubResource("StyleBoxFlat_hn8js")
 text = "RETOUR AU MENU"
-
-[node name="ButtonReset" type="Button" parent="." unique_id=822512083]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -47.0
-offset_top = 293.0
-offset_right = 47.0
-offset_bottom = 346.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.92941177, 0.24313726, 0.105882354, 1)
-theme_override_font_sizes/font_size = 32
-text = "Reset"
-
-[node name="EnemyZone" type="VBoxContainer" parent="." unique_id=971891270]
-custom_minimum_size = Vector2(500, 200)
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -250.0
-offset_top = 56.0
-offset_right = 250.0
-offset_bottom = 256.0
-grow_horizontal = 2
-
-[node name="LabelEnemyIntention" type="Label" parent="EnemyZone" unique_id=1516359842]
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_colors/font_color = Color(1, 0.39215687, 0.39215687, 1)
-theme_override_font_sizes/font_size = 42
-text = "⚔️ 5"
-horizontal_alignment = 1
-
-[node name="LabelEnemyName" type="Label" parent="EnemyZone" unique_id=1013805118]
-layout_mode = 2
-theme_override_font_sizes/font_size = 36
-text = "Entity"
-horizontal_alignment = 1
-
-[node name="LabelEnemyHP" type="Label" parent="EnemyZone" unique_id=1632338886]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.13725491, 0.23137255, 1)
-theme_override_font_sizes/font_size = 24
-text = "HP: 20 / 20"
-horizontal_alignment = 1
-
-[node name="RelicLine" parent="." unique_id=1494610562 instance=ExtResource("3_relline")]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -199.0
-offset_top = 134.0
-offset_right = 201.0
-offset_bottom = 198.0
-grow_horizontal = 2
-grow_vertical = 2
-alignment = 1
-
-[node name="LabelTurns" type="Label" parent="." unique_id=112233445]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -1866.0
-offset_top = -1043.0
-offset_right = -1666.0
-offset_bottom = -1009.0
-grow_horizontal = 0
-grow_vertical = 0
-theme_override_font_sizes/font_size = 24
-text = "Turns: 0"
-
-[node name="LabelGold" type="Label" parent="." unique_id=112233446]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -1870.0
-offset_top = -1006.0
-offset_right = -1670.0
-offset_bottom = -972.0
-grow_horizontal = 0
-grow_vertical = 0
-theme_override_colors/font_color = Color(1, 0.84314, 0, 1)
-theme_override_font_sizes/font_size = 24
-text = "💰 0"
-
-[node name="LabelDamagePreview" type="Label" parent="." unique_id=334455667]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -620.0
-offset_top = -230.0
-offset_right = -20.0
-offset_bottom = -160.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(1, 0.39215687, 0.39215687, 1)
-theme_override_font_sizes/font_size = 52
-horizontal_alignment = 2
-vertical_alignment = 1
-
-[node name="LabelDefensePreview" type="Label" parent="." unique_id=334455671]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = 20.0
-offset_top = -230.0
-offset_right = 620.0
-offset_bottom = -160.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.30980393, 0.6392157, 1, 1)
-theme_override_font_sizes/font_size = 52
-vertical_alignment = 1
-
-[node name="StatsBar" type="HBoxContainer" parent="." unique_id=334455668]
-layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = -50.0
-offset_right = -20.0
-offset_bottom = -10.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_constants/separation = 40
-alignment = 1
-
-[node name="LabelBaseDamage" type="Label" parent="StatsBar" unique_id=334455669]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.39215687, 0.39215687, 1)
-theme_override_font_sizes/font_size = 22
-text = "⚔️ Base DMG: 3"
-
-[node name="LabelPlayerHP" type="Label" parent="StatsBar" unique_id=50330458]
-layout_mode = 2
-size_flags_horizontal = 6
-theme_override_colors/font_color = Color(0.25490198, 1, 0.101960786, 1)
-theme_override_font_sizes/font_size = 24
-text = "HP: 30 / 30"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="LabelBaseDefense" type="Label" parent="StatsBar" unique_id=334455670]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.30980393, 0.6392157, 1, 1)
-theme_override_font_sizes/font_size = 22
-text = "🛡️ Base DEF: 10"
 
 [node name="VignetteOverlay" type="ColorRect" parent="." unique_id=445566778]
 visible = false
@@ -313,17 +589,15 @@ mouse_filter = 2
 color = Color(1, 0, 0, 1)
 
 [node name="CrashBanner" type="Control" parent="." unique_id=445566780]
-visible = false
+modulate = Color(1, 1, 1, 0)
 z_index = 11
 layout_mode = 1
-anchors_preset = 14
-anchor_top = 0.5
+anchors_preset = 15
 anchor_right = 1.0
-anchor_bottom = 0.5
-offset_top = -80.0
-offset_bottom = 80.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
 [node name="BannerBG" type="ColorRect" parent="CrashBanner" unique_id=445566781]
 layout_mode = 1
@@ -332,7 +606,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.8, 0.04, 0.04, 1)
+mouse_filter = 2
+color = Color(0.929, 0.129, 0.227, 1)
 
 [node name="LabelCrash" type="Label" parent="CrashBanner" unique_id=445566782]
 layout_mode = 1
@@ -342,10 +617,47 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 96
-text = "CRASH !"
+theme_override_fonts/font = ExtResource("8_font_black")
+theme_override_font_sizes/font_size = 220
+text = "CRASH"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="SavedBanner" type="Control" parent="." unique_id=445566790]
+modulate = Color(1, 1, 1, 0)
+z_index = 11
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="BannerBG" type="ColorRect" parent="SavedBanner" unique_id=445566791]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="LabelSaved" type="Label" parent="SavedBanner" unique_id=445566792]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("8_font_black")
+theme_override_font_sizes/font_size = 220
+text = "SAVED"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[connection signal="pressed" from="ButtonExecute" to="." method="_on_button_execute_pressed"]
 [connection signal="pressed" from="ButtonNext" to="." method="_on_button_next_pressed"]
 [connection signal="pressed" from="ButtonBackToMenu" to="." method="_on_button_back_to_menu_pressed"]

@@ -2,51 +2,66 @@
 
 [ext_resource type="Script" uid="uid://o2ym7w5mqw0c" path="res://scripts/ui/token_card.gd" id="1_cdf47"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cdf47"]
-bg_color = Color(1, 1, 1, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_default"]
+bg_color = Color(0.267, 0.267, 0.267, 1)
+corner_radius_top_left = 70
+corner_radius_top_right = 70
+corner_radius_bottom_right = 70
+corner_radius_bottom_left = 70
+anti_aliasing_size = 1.5
 
-[node name="TokenCard" type="Panel" unique_id=1329535017]
-custom_minimum_size = Vector2(250, 250)
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = 1.0
-offset_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="TokenCard" type="Control" unique_id=1593258989]
+custom_minimum_size = Vector2(140, 140)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 140.0
+offset_bottom = 140.0
 size_flags_horizontal = 4
 size_flags_vertical = 4
-theme_override_styles/panel = SubResource("StyleBoxFlat_cdf47")
 script = ExtResource("1_cdf47")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=467528974]
+[node name="CirclePanel" type="Panel" parent="." unique_id=1622226529]
+layout_mode = 0
+offset_right = 140.0
+offset_bottom = 140.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_default")
+
+[node name="IconTexture" type="TextureRect" parent="CirclePanel" unique_id=397188450]
+texture_filter = 6
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -81.5
-offset_top = -22.5
-offset_right = 81.5
-offset_bottom = 22.5
+offset_left = -26.0
+offset_top = -26.0
+offset_right = 26.0
+offset_bottom = 26.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
 
-[node name="LabelIcon" type="Label" parent="VBoxContainer" unique_id=1128863565]
-layout_mode = 2
-theme_override_font_sizes/font_size = 32
-text = "⚔️ "
-horizontal_alignment = 1
-
-[node name="LabelName" type="Label" parent="VBoxContainer" unique_id=1525452754]
-layout_mode = 2
-theme_override_font_sizes/font_size = 32
-text = "ATTACK"
-horizontal_alignment = 1
-
-[node name="LabelValue" type="Label" parent="VBoxContainer" unique_id=1493386416]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 58
-horizontal_alignment = 1
+[node name="Particles" type="CPUParticles2D" parent="." unique_id=500000001]
+position = Vector2(70, 70)
+emitting = false
+amount = 12
+lifetime = 1.2
+randomness = 0.5
+emission_shape = 2
+emission_sphere_radius = 62.0
+direction = Vector2(0, -1)
+spread = 180.0
+gravity = Vector2(0, -15)
+initial_velocity_min = 15.0
+initial_velocity_max = 45.0
+angular_velocity_min = -120.0
+angular_velocity_max = 120.0
+scale_amount_min = 2.5
+scale_amount_max = 4.5
+color = Color(1, 0.84, 0, 1)
