@@ -82,20 +82,15 @@ func _apply_btn_style(btn: Button, selected: bool) -> void:
 	style.corner_radius_bottom_right = 8
 	style.corner_radius_bottom_left = 8
 	if selected:
-		style.bg_color = Color.WHITE
-		btn.add_theme_color_override("font_color", BG_COLOR)
-		btn.add_theme_color_override("font_hover_color", BG_COLOR)
-		btn.add_theme_color_override("font_pressed_color", BG_COLOR)
-	else:
-		style.bg_color = Color(0, 0, 0, 0)
-		style.border_width_left = 3
-		style.border_width_top = 3
-		style.border_width_right = 3
-		style.border_width_bottom = 3
-		style.border_color = Color.WHITE
+		style.bg_color = BG_COLOR
 		btn.add_theme_color_override("font_color", Color.WHITE)
 		btn.add_theme_color_override("font_hover_color", Color.WHITE)
 		btn.add_theme_color_override("font_pressed_color", Color.WHITE)
+	else:
+		style.bg_color = Color.WHITE
+		btn.add_theme_color_override("font_color", Color(0.08, 0.08, 0.08, 1))
+		btn.add_theme_color_override("font_hover_color", Color(0.08, 0.08, 0.08, 1))
+		btn.add_theme_color_override("font_pressed_color", Color(0.08, 0.08, 0.08, 1))
 	btn.add_theme_stylebox_override("normal", style)
 	btn.add_theme_stylebox_override("hover", style)
 	btn.add_theme_stylebox_override("pressed", style)

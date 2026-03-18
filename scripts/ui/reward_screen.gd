@@ -74,5 +74,8 @@ func _on_reward_chosen(reward: RewardResource) -> void:
 		RewardResource.RewardType.HEAL:
 			GameManager.player_current_hp = min(GameManager.player_current_hp + reward.value, GameManager.player_max_hp)
 
-	GameManager.advance_round()
-	get_tree().change_scene_to_file("res://shop_screen.tscn")
+	if GameManager.is_boss_round():
+		get_tree().change_scene_to_file("res://sacrifice_screen.tscn")
+	else:
+		GameManager.advance_round()
+		get_tree().change_scene_to_file("res://shop_screen.tscn")

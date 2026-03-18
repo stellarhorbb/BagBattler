@@ -2,7 +2,6 @@ extends Control
 
 @onready var circle_panel = $CirclePanel
 @onready var icon_texture = $CirclePanel/IconTexture
-@onready var particles = $Particles
 
 var token_data: TokenResource
 var _style: StyleBoxFlat
@@ -31,39 +30,6 @@ func setup(token: TokenResource) -> void:
 	icon_texture.position = Vector2(30, 30)
 	_load_icon()
 
-func set_effect_state(state: String) -> void:
-	match state:
-		"none":
-			_style.border_color = Color("#FFFFFF")
-			_style.border_width_left = 6
-			_style.border_width_top = 6
-			_style.border_width_right = 6
-			_style.border_width_bottom = 6
-			particles.emitting = false
-		"basic":
-			_style.border_color = Color("#FFD700")
-			_style.border_width_left = 6
-			_style.border_width_top = 6
-			_style.border_width_right = 6
-			_style.border_width_bottom = 6
-			particles.amount = 8
-			particles.initial_velocity_min = 15.0
-			particles.initial_velocity_max = 40.0
-			particles.scale_amount_min = 2.0
-			particles.scale_amount_max = 3.5
-			particles.emitting = true
-		"superior":
-			_style.border_color = Color("#FFD700")
-			_style.border_width_left = 10
-			_style.border_width_top = 10
-			_style.border_width_right = 10
-			_style.border_width_bottom = 10
-			particles.amount = 20
-			particles.initial_velocity_min = 30.0
-			particles.initial_velocity_max = 70.0
-			particles.scale_amount_min = 3.0
-			particles.scale_amount_max = 5.5
-			particles.emitting = true
 
 func _load_icon() -> void:
 	var icon_map = {

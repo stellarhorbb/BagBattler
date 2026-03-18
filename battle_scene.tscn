@@ -4,8 +4,6 @@
 [ext_resource type="PackedScene" uid="uid://dmx4ppn2y5g2j" path="res://bag_inspector.tscn" id="2_r5l0u"]
 [ext_resource type="PackedScene" path="res://relic_line.tscn" id="3_relline"]
 [ext_resource type="PackedScene" uid="uid://c7yf1hyaoulfc" path="res://combat_slot.tscn" id="4_cslot"]
-[ext_resource type="Texture2D" uid="uid://do4cc1pn1rhwh" path="res://assets/icons/ui/attack-icon.png" id="6_atkicon"]
-[ext_resource type="Texture2D" uid="uid://cuubpyby0njyq" path="res://assets/icons/ui/defense-icon.png" id="7_deficon"]
 [ext_resource type="FontFile" uid="uid://bolt1salj5evg" path="res://font/LondrinaSolid-Black.ttf" id="8_font_black"]
 [ext_resource type="Script" uid="uid://bxrevtokenhld" path="res://scripts/ui/revealed_token_holder.gd" id="9_revholder"]
 
@@ -54,9 +52,6 @@ corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
-
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_5g7vw"]
-load_path = "res://.godot/imported/salt-icon-black.png-62ef06d880d9a69e8bf4edc8295c56e6.ctex"
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
 bg_color = Color(1, 1, 1, 1)
@@ -120,6 +115,8 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_top = 1.0
+offset_bottom = -19.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
@@ -168,16 +165,16 @@ anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -200.0
-offset_top = 123.0
+offset_top = 119.0
 offset_right = 200.0
-offset_bottom = 257.0
+offset_bottom = 238.0
 grow_horizontal = 2
 alignment = 1
 
 [node name="LabelIntentionType" type="Label" parent="EnemyZone/IntentionBox" unique_id=971891276]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 32
 text = "ATTACK"
 horizontal_alignment = 1
 
@@ -188,124 +185,140 @@ theme_override_font_sizes/font_size = 72
 text = "◆ 5"
 horizontal_alignment = 1
 
-[node name="HUDTurns" type="VBoxContainer" parent="." unique_id=112233445]
+[node name="PlayerHUDRow" type="HBoxContainer" parent="." unique_id=334455700]
 layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
 offset_left = 40.0
-offset_top = 30.0
-offset_right = 200.0
-offset_bottom = 130.0
+offset_top = 321.0
+offset_right = -40.0
+offset_bottom = 481.0
+grow_horizontal = 2
+alignment = 1
 
-[node name="LabelTurnsTitle" type="Label" parent="HUDTurns" unique_id=112233447]
+[node name="TurnSection" type="VBoxContainer" parent="PlayerHUDRow" unique_id=112233445]
+custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/separation = 4
+
+[node name="LabelTurnsTitle" type="Label" parent="PlayerHUDRow/TurnSection" unique_id=112233447]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("8_font_black")
 theme_override_font_sizes/font_size = 26
 text = "TURN"
 
-[node name="LabelTurns" type="Label" parent="HUDTurns" unique_id=112233448]
+[node name="LabelTurns" type="Label" parent="PlayerHUDRow/TurnSection" unique_id=112233448]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("8_font_black")
 theme_override_font_sizes/font_size = 64
 text = "0"
 
-[node name="HUDSalt" type="VBoxContainer" parent="." unique_id=112233446]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -200.0
-offset_top = 30.0
-offset_right = -40.0
-offset_bottom = 130.0
-grow_horizontal = 0
-grow_vertical = 0
-
-[node name="LabelSaltTitle" type="Label" parent="HUDSalt" unique_id=112233449]
+[node name="SpacerLeft" type="Control" parent="PlayerHUDRow" unique_id=334455800]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+size_flags_horizontal = 3
+
+[node name="ATKSection" type="VBoxContainer" parent="PlayerHUDRow" unique_id=334455801]
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="LabelATKTitle" type="Label" parent="PlayerHUDRow/ATKSection" unique_id=334455803]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("8_font_black")
+theme_override_font_sizes/font_size = 26
+text = "ATK"
+horizontal_alignment = 1
+
+[node name="LabelTurnATK" type="Label" parent="PlayerHUDRow/ATKSection" unique_id=334455804]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("8_font_black")
+theme_override_font_sizes/font_size = 64
+text = "0"
+horizontal_alignment = 1
+
+[node name="PressureSection" type="VBoxContainer" parent="PlayerHUDRow" unique_id=334455701]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="LabelPressureTitle" type="Label" parent="PlayerHUDRow/PressureSection" unique_id=334455702]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("8_font_black")
+theme_override_font_sizes/font_size = 28
+text = "PRESSURE"
+horizontal_alignment = 1
+
+[node name="LabelPressureValue" type="Label" parent="PlayerHUDRow/PressureSection" unique_id=334455703]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("8_font_black")
+theme_override_font_sizes/font_size = 80
+text = "x1.0"
+horizontal_alignment = 1
+
+[node name="DEFSection" type="VBoxContainer" parent="PlayerHUDRow" unique_id=334455805]
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="LabelDEFTitle" type="Label" parent="PlayerHUDRow/DEFSection" unique_id=334455806]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("8_font_black")
+theme_override_font_sizes/font_size = 26
+text = "DEF"
+horizontal_alignment = 1
+
+[node name="LabelTurnDEF" type="Label" parent="PlayerHUDRow/DEFSection" unique_id=334455807]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("8_font_black")
+theme_override_font_sizes/font_size = 64
+text = "0"
+horizontal_alignment = 1
+
+[node name="SpacerRight" type="Control" parent="PlayerHUDRow" unique_id=334455808]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SaltSection" type="VBoxContainer" parent="PlayerHUDRow" unique_id=112233446]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="LabelSaltTitle" type="Label" parent="PlayerHUDRow/SaltSection" unique_id=112233449]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("8_font_black")
 theme_override_font_sizes/font_size = 26
 text = "SALT"
 horizontal_alignment = 2
 
-[node name="SaltValueRow" type="HBoxContainer" parent="HUDSalt" unique_id=112233451]
+[node name="LabelGold" type="Label" parent="PlayerHUDRow/SaltSection" unique_id=112233450]
 layout_mode = 2
-theme_override_constants/separation = 8
-alignment = 2
-
-[node name="SaltIcon" type="TextureRect" parent="HUDSalt/SaltValueRow" unique_id=112233452]
-custom_minimum_size = Vector2(36, 36)
-layout_mode = 2
-size_flags_vertical = 4
-texture = SubResource("CompressedTexture2D_5g7vw")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="LabelGold" type="Label" parent="HUDSalt/SaltValueRow" unique_id=112233450]
-layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("8_font_black")
 theme_override_font_sizes/font_size = 64
-text = "0"
-
-[node name="PreviewRow" type="HBoxContainer" parent="." unique_id=334455700]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -200.0
-offset_top = 374.0
-offset_right = 200.0
-offset_bottom = 436.0
-grow_horizontal = 2
-theme_override_constants/separation = 40
-alignment = 1
-
-[node name="DamagePreviewBox" type="HBoxContainer" parent="PreviewRow" unique_id=334455667]
-visible = false
-layout_mode = 2
-theme_override_constants/separation = 8
-alignment = 2
-
-[node name="DmgIcon" type="TextureRect" parent="PreviewRow/DamagePreviewBox" unique_id=1480135543]
-custom_minimum_size = Vector2(32, 32)
-layout_mode = 2
-size_flags_vertical = 4
-texture = ExtResource("6_atkicon")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="LabelDamagePreview" type="Label" parent="PreviewRow/DamagePreviewBox" unique_id=967213686]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.91, 0.16, 0.29, 1)
-theme_override_font_sizes/font_size = 56
-vertical_alignment = 1
-
-[node name="DefensePreviewBox" type="HBoxContainer" parent="PreviewRow" unique_id=334455672]
-visible = false
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="DefIcon" type="TextureRect" parent="PreviewRow/DefensePreviewBox" unique_id=1110549634]
-custom_minimum_size = Vector2(32, 32)
-layout_mode = 2
-size_flags_vertical = 4
-texture = ExtResource("7_deficon")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="LabelDefensePreview" type="Label" parent="PreviewRow/DefensePreviewBox" unique_id=334455671]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.24, 0.4, 1, 1)
-theme_override_font_sizes/font_size = 56
-vertical_alignment = 1
+text = "♦ 0"
+horizontal_alignment = 2
 
 [node name="CombatSlotsRow" type="HBoxContainer" parent="." unique_id=700000001]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -390.0
-offset_top = 474.0
-offset_right = 390.0
-offset_bottom = 614.0
+offset_left = -430.0
+offset_top = 503.0
+offset_right = 430.0
+offset_bottom = 643.0
 grow_horizontal = 2
 theme_override_constants/separation = 40
 alignment = 1
@@ -332,9 +345,9 @@ anchors_preset = -1
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -140.0
-offset_top = 671.0
+offset_top = 705.0
 offset_right = 140.0
-offset_bottom = 741.0
+offset_bottom = 775.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
@@ -353,9 +366,9 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -430.0
-offset_top = -430.0
+offset_top = -410.0
 offset_right = -30.0
-offset_bottom = -30.0
+offset_bottom = -10.0
 grow_horizontal = 0
 grow_vertical = 0
 
@@ -446,14 +459,6 @@ layout_mode = 2
 theme_override_constants/separation = 6
 alignment = 1
 
-[node name="DmgIcon" type="TextureRect" parent="PlayerBottomBar/LeftStatSection/TopRow" unique_id=600000005]
-custom_minimum_size = Vector2(36, 36)
-layout_mode = 2
-size_flags_vertical = 4
-texture = ExtResource("6_atkicon")
-expand_mode = 1
-stretch_mode = 5
-
 [node name="LabelBaseDamage" type="Label" parent="PlayerBottomBar/LeftStatSection/TopRow" unique_id=334455669]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
@@ -465,7 +470,7 @@ vertical_alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 22
-text = "BASE DMG"
+text = "BASE ATK"
 horizontal_alignment = 1
 
 [node name="CenterSection" type="VBoxContainer" parent="PlayerBottomBar" unique_id=600000006]
@@ -505,14 +510,6 @@ alignment = 1
 layout_mode = 2
 theme_override_constants/separation = 6
 alignment = 1
-
-[node name="DefIcon" type="TextureRect" parent="PlayerBottomBar/RightStatSection/TopRow" unique_id=600000010]
-custom_minimum_size = Vector2(36, 36)
-layout_mode = 2
-size_flags_vertical = 4
-texture = ExtResource("7_deficon")
-expand_mode = 1
-stretch_mode = 5
 
 [node name="LabelBaseDefense" type="Label" parent="PlayerBottomBar/RightStatSection/TopRow" unique_id=334455670]
 layout_mode = 2
@@ -607,7 +604,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.929, 0.129, 0.227, 1)
 
 [node name="LabelCrash" type="Label" parent="CrashBanner" unique_id=445566782]
 layout_mode = 1
@@ -616,7 +612,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_fonts/font = ExtResource("8_font_black")
 theme_override_font_sizes/font_size = 220
 text = "CRASH"

@@ -57,7 +57,7 @@ func _populate_shop() -> void:
 	# 1 random relic
 	var shop_relics := [
 		[preload("res://resources/relics/crown_of_fool.tres"), RelicCrownOfFool],
-		[preload("res://resources/relics/jellyfish.tres"), RelicJellyfish],
+		[preload("res://resources/relics/jellyfish.tres"), RelicTrident],
 		[preload("res://resources/relics/angel.tres"), RelicAngel],
 	]
 	var entry = shop_relics[randi() % shop_relics.size()]

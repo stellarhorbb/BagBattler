@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://c7yf1hyaoulfc"]
 
 [ext_resource type="Script" path="res://scripts/ui/combat_slot.gd" id="1_cslot"]
+[ext_resource type="Script" path="res://scripts/ui/wave_ring.gd" id="2_wavering"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot"]
 bg_color = Color(0.125, 0.125, 0.125, 1)
@@ -54,3 +55,12 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_border")
+
+[node name="WaveRing" type="Control" parent="." unique_id=2000000001]
+layout_mode = 0
+offset_left = -15.0
+offset_top = -15.0
+offset_right = 155.0
+offset_bottom = 155.0
+mouse_filter = 2
+script = ExtResource("2_wavering")

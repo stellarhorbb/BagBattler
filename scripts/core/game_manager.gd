@@ -6,6 +6,7 @@ var gold: int = 0
 var turns_played_last_combat: int = 0
 var base_damage: int
 var base_defense: int
+var pressure_increment: float = 0.1
 var player_max_hp: int
 var player_current_hp: int = 80
 var purchased_tokens: Array[TokenResource] = []
@@ -31,6 +32,7 @@ func reset_run() -> void:
 func init_run_stats(job: JobResource) -> void:
 	base_damage = job.base_damage
 	base_defense = job.base_defense
+	pressure_increment = 0.1
 	player_max_hp = job.base_hp
 	player_current_hp = player_max_hp
 

@@ -9,9 +9,13 @@ var _token: TokenResource = null
 var _card: Control = null
 
 @onready var bg_panel: Panel = $BgPanel
+@onready var wave_ring = $WaveRing
 
 func setup(i: int) -> void:
 	slot_index = i
+
+func set_effect_state(active: bool, color: Color = Color.WHITE) -> void:
+	wave_ring.set_ring(active, color)
 
 func is_empty() -> bool:
 	return _token == null
@@ -44,6 +48,13 @@ func get_token() -> TokenResource:
 
 func get_card() -> Control:
 	return _card
+
+func pop_card() -> Control:
+	var card := _card
+	_card = null
+	if card:
+		remove_child(card)
+	return card
 
 func _can_drop_data(_pos: Vector2, data: Variant) -> bool:
 	return is_empty() and data is Dictionary and data.get("type") == "revealed_token"

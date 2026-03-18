@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://biphawqen3uq3"
-path="res://.godot/imported/sacrifice.png-302cb5b10b7d6baf71bbcbcee83e61e2.ctex"
+uid="uid://0g3fhtgfm513"
+path="res://.godot/imported/pressure-after.png-ae39d0d227a66289a1be3b4a73c090b8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://docs/ui/sacrifice.png"
-dest_files=["res://.godot/imported/sacrifice.png-302cb5b10b7d6baf71bbcbcee83e61e2.ctex"]
+source_file="res://docs/ui/pressure/pressure-after.png"
+dest_files=["res://.godot/imported/pressure-after.png-ae39d0d227a66289a1be3b4a73c090b8.ctex"]
 
 [params]
 
