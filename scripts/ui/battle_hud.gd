@@ -1,6 +1,8 @@
 class_name BattleHUD
 extends Node
 
+const FONT_BLACK = preload("res://font/LondrinaSolid-Black.ttf")
+
 var _s: CanvasItem  # reference to battle_scene instance
 
 func setup(scene: CanvasItem) -> void:
@@ -88,93 +90,111 @@ func update_draw_pile(bag_manager) -> void:
 		row.add_child(lbl)
 		_s.type_breakdown_box.add_child(row)
 
+static func _stat_formula(base: float, count: int) -> String:
+	if count == 0:
+		return "0"
+	return _fmt_number(base * count)
+
+static func _fmt_number(v: float) -> String:
+	if v == float(int(v)):
+		return "%d" % int(v)
+	return "%.1f" % v
+
+static func _formula_bbcode(formula: String, color: Color) -> String:
+	return "[center][color=#%s]%s[/color][/center]" % [color.to_html(false), formula]
+
 func update_combat_line_totals() -> void:
 	var cards = _s._get_slot_cards()
 
-	_s.label_pressure_value.text = "x%.1f" % _s.current_pressure
-
 	# Bottom bar always shows static base per-token values
-	_s.label_base_damage.text = "%d" % GameManager.base_damage
+	var atk_val := GameManager.base_damage + GameManager.base_damage_fractional
+	_s.label_base_damage.text = ("%.1f" % atk_val) if GameManager.base_damage_fractional > 0.0 else ("%d" % GameManager.base_damage)
 	_s.label_base_damage.add_theme_color_override("font_color", Color(1, 1, 1, 1))
 	_s.label_base_defense.text = "%d" % GameManager.base_defense
 	_s.label_base_defense.add_theme_color_override("font_color", Color(1, 1, 1, 1))
 
 	if cards.is_empty():
+		_s.label_pressure_value.text = "x%.2f" % _s.current_pressure
 		_s.vfx.update_vignette(0)
-		_s.label_turn_atk.text = "0"
-		_s.label_turn_atk.add_theme_color_override("font_color", Color(1, 1, 1, 1))
-		_s.label_turn_def.text = "0"
-		_s.label_turn_def.add_theme_color_override("font_color", Color(1, 1, 1, 1))
+		_s.label_turn_atk.parse_bbcode("[center]0[/center]")
+		_s.label_turn_def.parse_bbcode("[center]0[/center]")
 		_s.label_intention_type.text = "ATTACK"
 		_s.label_enemy_intention.text = "◆ %d" % _s.current_enemy.current_damage
 		_s.label_enemy_intention.add_theme_color_override("font_color", intention_color())
 		_s.label_intention_type.add_theme_color_override("font_color", intention_color())
 		for slot in _s._slots:
 			slot.set_effect_state(false)
+			slot.set_streak_active(false)
+			if slot.get_card():
+				slot.get_card().set_streak_pulse(false)
 		return
 
-	var result = TokenEffectResolver.resolve(cards)
+	var result = TokenEffectResolver.resolve(cards, _s._slots.size())
 
-	# Gather filled slots in order for effect index logic
+	_s.label_pressure_value.text = "x%.2f" % _s.current_pressure
+
 	var filled: Array = []
 	for slot in _s._slots:
 		if not slot.is_empty() and slot.get_card() != null:
 			filled.append(slot)
-	var last_index := filled.size() - 1
 	for i in range(filled.size()):
 		var slot = filled[i]
 		var card = slot.get_card()
-		var effect = card.token_data.effect
-		var activated := false
-		if effect == TokenResource.TokenEffect.PROVOCATION:
-			activated = true
-		elif effect == TokenResource.TokenEffect.RAMPART and i == last_index:
-			for j in range(i):
-				if filled[j].get_card().token_data.token_type == TokenResource.TokenType.DEFENSE:
-					activated = true
-					break
-		if not activated and result.active_combo_slots.has(i):
-			activated = true
-		if activated:
-			slot.set_effect_state(true, token_type_color(card.token_data.token_type))
-		else:
-			slot.set_effect_state(false)
+		var color := token_type_color(card.token_data.token_type)
+		card.set_inactive(result.inactive_slots.has(i))
+		card.set_streak_pulse(result.streak_active_slots.has(i))
+		slot.set_streak_active(result.streak_active_slots.has(i), color)
+		slot.set_effect_state(result.placement_active_slots.has(i), color)
 
-	# Pressure row ATK — use resolved total (includes combo multipliers)
-	if result.total_attack > 0:
-		_s.label_turn_atk.text = "%d" % result.total_attack
-		_s.label_turn_atk.add_theme_color_override("font_color", Color(0.91, 0.16, 0.29, 1))
-	else:
-		_s.label_turn_atk.text = "0"
-		_s.label_turn_atk.add_theme_color_override("font_color", Color(1, 1, 1, 1))
-
-	# Pressure row DEF — show pre→post arrow when Rampart doubles it
-	if result.rampart_active:
-		var pre_rampart: int = result.total_defense / 2
-		_s.label_turn_def.text = "%d → %d" % [pre_rampart, result.total_defense]
-		_s.label_turn_def.add_theme_color_override("font_color", Color(0.24, 0.4, 1, 1))
-	elif result.total_defense > 0:
-		_s.label_turn_def.text = "%d" % result.total_defense
-		_s.label_turn_def.add_theme_color_override("font_color", Color(0.24, 0.4, 1, 1))
-	else:
-		_s.label_turn_def.text = "0"
-		_s.label_turn_def.add_theme_color_override("font_color", Color(1, 1, 1, 1))
+	# Show base x count during placement
+	var atk_col := Color(0.91, 0.16, 0.29, 1) if result.atk_count > 0 else Color(1, 1, 1, 1)
+	var def_col := Color(0.24, 0.4, 1, 1) if result.def_count > 0 else Color(1, 1, 1, 1)
+	var atk_base := GameManager.base_damage + GameManager.base_damage_fractional
+	var atk_str := _stat_formula(atk_base, result.atk_count)
+	var def_str := _stat_formula(float(GameManager.base_defense), result.def_count)
+	_s.label_turn_atk.parse_bbcode(_formula_bbcode(atk_str, atk_col))
+	_s.label_turn_def.parse_bbcode(_formula_bbcode(def_str, def_col))
 
 	# Enemy intention — arrow when Provocation reduces it
 	_s.label_intention_type.text = "ATTACK"
 	_s.label_intention_type.add_theme_color_override("font_color", intention_color())
 	if result.damage_multiplier < 1.0:
 		var modified_damage := roundi(_s.current_enemy.current_damage * result.damage_multiplier)
-		_s.label_enemy_intention.text = "◆ %d → %d" % [_s.current_enemy.current_damage, modified_damage]
+		_s.label_enemy_intention.text = "◆ %d" % modified_damage
 	else:
 		_s.label_enemy_intention.text = "◆ %d" % _s.current_enemy.current_damage
 	_s.label_enemy_intention.add_theme_color_override("font_color", intention_color())
 
 	_s.vfx.update_vignette(_s._count_hazards_in_slots())
 
-func animate_pressure_on_stat(label: Label, new_text: String, color: Color) -> void:
-	label.text = new_text
-	label.add_theme_color_override("font_color", color)
+func tilt_hard(node: Control) -> void:
+	node.pivot_offset = node.size / 2.0
+	var t = node.create_tween()
+	t.set_parallel(true)
+	t.tween_property(node, "scale", Vector2(1.7, 1.7), 0.08).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	t.tween_property(node, "rotation", deg_to_rad(14.0), 0.08)
+	await t.finished
+	var t2 = node.create_tween()
+	t2.set_parallel(true)
+	t2.tween_property(node, "scale", Vector2(1.0, 1.0), 0.45).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SPRING)
+	t2.tween_property(node, "rotation", 0.0, 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	await t2.finished
+
+func animate_pressure_label(label: Label) -> void:
+	label.pivot_offset = label.size / 2.0
+	var t = label.create_tween()
+	t.set_parallel(true)
+	t.tween_property(label, "scale", Vector2(1.7, 1.7), 0.12).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	t.tween_property(label, "rotation", deg_to_rad(14.0), 0.12).set_ease(Tween.EASE_OUT)
+	await t.finished
+	var t2 = label.create_tween()
+	t2.set_parallel(true)
+	t2.tween_property(label, "scale", Vector2(1.0, 1.0), 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SPRING)
+	t2.tween_property(label, "rotation", 0.0, 0.28).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	await t2.finished
+
+func animate_pressure_on_stat(label: RichTextLabel, new_text: String, color: Color) -> void:
+	label.parse_bbcode(_formula_bbcode(new_text, color))
 	label.pivot_offset = label.size / 2.0
 	var tilt := deg_to_rad(8.0) if color.r > 0.5 else deg_to_rad(-8.0)
 	var t = label.create_tween()
@@ -188,6 +208,21 @@ func animate_pressure_on_stat(label: Label, new_text: String, color: Color) -> v
 	t2.tween_property(label, "rotation", 0.0, 0.22).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	await t2.finished
 
+func show_floating_text(pos: Vector2, text: String, color: Color, duration: float = 1.4) -> void:
+	var lbl := Label.new()
+	lbl.text = text
+	lbl.add_theme_font_override("font", FONT_BLACK)
+	lbl.add_theme_font_size_override("font_size", 52)
+	lbl.add_theme_color_override("font_color", color)
+	_s.add_child(lbl)
+	lbl.global_position = pos
+	lbl.z_index = 100
+	var t = lbl.create_tween()
+	t.set_parallel(true)
+	t.tween_property(lbl, "global_position", pos + Vector2(0, -140), duration).set_ease(Tween.EASE_OUT)
+	t.tween_property(lbl, "modulate:a", 0.0, duration).set_delay(duration * 0.45)
+	t.finished.connect(lbl.queue_free)
+
 func on_enemy_hp_changed(new_hp: int, max_hp: int) -> void:
 	_s.label_enemy_hp.text = "%d/%d" % [new_hp, max_hp]
 	var t = _s.create_tween()
@@ -198,9 +233,10 @@ func on_enemy_intention_changed(_intention_type: String, damage: int) -> void:
 
 func token_type_color(type: TokenResource.TokenType) -> Color:
 	match type:
-		TokenResource.TokenType.ATTACK:  return Color("#E8294A")
-		TokenResource.TokenType.DEFENSE: return Color("#3D4CE8")
+		TokenResource.TokenType.ATTACK:   return Color("#E8294A")
+		TokenResource.TokenType.DEFENSE:  return Color("#3D4CE8")
 		TokenResource.TokenType.MODIFIER: return Color("#7B2FE8")
+		TokenResource.TokenType.UTILITY:  return Color("#EAA21C")
 		_: return Color.WHITE
 
 func intention_color() -> Color:

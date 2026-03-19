@@ -29,8 +29,8 @@ extends Control
 
 # Pressure row
 @onready var label_pressure_value = $PlayerHUDRow/PressureSection/LabelPressureValue
-@onready var label_turn_atk = $PlayerHUDRow/ATKSection/LabelTurnATK
-@onready var label_turn_def = $PlayerHUDRow/DEFSection/LabelTurnDEF
+@onready var label_turn_atk = $PlayerHUDRow/ATKSection/ATKBox/LabelTurnATK
+@onready var label_turn_def = $PlayerHUDRow/DEFSection/DEFBox/LabelTurnDEF
 
 # Player bottom bar
 @onready var relic_line = $PlayerBottomBar/CenterSection/RelicLine
@@ -38,8 +38,6 @@ extends Control
 @onready var label_player_hp = $PlayerBottomBar/CenterSection/LabelPlayerHP
 @onready var label_base_damage = $PlayerBottomBar/LeftStatSection/TopRow/LabelBaseDamage
 @onready var label_base_defense = $PlayerBottomBar/RightStatSection/TopRow/LabelBaseDefense
-@onready var label_dmg_title = $PlayerBottomBar/LeftStatSection/LabelDmgTitle
-@onready var label_def_title = $PlayerBottomBar/RightStatSection/LabelDefTitle
 
 # VFX
 @onready var flash_overlay = $FlashOverlay
@@ -191,13 +189,17 @@ func _on_btn_hover(btn: Button, hovering: bool) -> void:
 func _on_button_draw_pressed() -> void:
 	if _count_hazards_in_slots() > 0:
 		current_pressure += GameManager.pressure_increment
+		label_pressure_value.text = "x%.2f" % current_pressure
+		hud.animate_pressure_label(label_pressure_value)
 
 	var token = bag_manager.draw_token()
 	if token == null:
 		return
 
 	if token.token_type == TokenResource.TokenType.HAZARD:
+		SFXManager.play("hazard")
 		vfx.trigger_hazard_flash()
+		vfx.trigger_screen_shake(5.0, 0.25)
 		var bonus_dmg := RelicManager.trigger_hazard_drawn()
 		if bonus_dmg > 0 and current_enemy != null:
 			current_enemy.take_damage(bonus_dmg)
@@ -231,10 +233,11 @@ func _on_slot_clicked(slot_index: int) -> void:
 
 func _on_token_placed_in_slot(_slot_index: int, _token: TokenResource) -> void:
 	revealed_token_holder.clear()
+	SFXManager.play("draw")
 
 	var hazard_count := _count_hazards_in_slots()
 	if hazard_count >= 2:
-		vfx.trigger_screen_shake()
+		vfx.trigger_screen_shake(18.0, 0.55)
 		await get_tree().create_timer(0.5).timeout
 		await _handle_crash()
 	else:
@@ -242,22 +245,23 @@ func _on_token_placed_in_slot(_slot_index: int, _token: TokenResource) -> void:
 
 func _handle_crash() -> void:
 	print("💥 CRASH!")
-	current_pressure += GameManager.pressure_increment * 2.0
 	var placed_count := _get_slot_cards().size()
 	var protected := RelicManager.trigger_before_crash(placed_count, _count_hazards_in_slots())
 	button_draw.disabled = true
 	button_execute.disabled = true
 	TooltipManager.set_enabled(false)
 	if protected:
+		SFXManager.play("saved")
 		await vfx.trigger_saved_effect()
 	else:
+		SFXManager.play("crash")
 		await vfx.trigger_crash_effect()
 	TooltipManager.set_enabled(true)
 	button_draw.disabled = false
 	button_execute.disabled = false
 
 	var cards = _get_slot_cards()
-	var result = TokenEffectResolver.resolve(cards) if not cards.is_empty() else null
+	var result = TokenEffectResolver.resolve(cards, _slots.size()) if not cards.is_empty() else null
 	var crash_damage := roundi(current_enemy.current_damage * result.damage_multiplier) if result != null else current_enemy.current_damage
 	var incoming_damage := 0 if protected else crash_damage
 	player_current_hp -= incoming_damage
@@ -269,6 +273,10 @@ func _handle_crash() -> void:
 		return
 
 	current_enemy.prepare_next_intention()
+
+	for slot in _slots:
+		slot.set_effect_state(false)
+		slot.set_streak_active(false)
 
 	await _animate_tokens_to_draw_area()
 
@@ -305,23 +313,95 @@ func _on_button_execute_pressed() -> void:
 		if t:
 			tokens_to_return.append(t)
 
-	var result = TokenEffectResolver.resolve(cards)
+	button_draw.disabled = true
+	button_execute.disabled = true
 
-	# Apply token side effects immediately
-	if result.heal_percent > 0.0:
-		var heal_amount := roundi(GameManager.player_max_hp * result.heal_percent)
-		player_current_hp = min(player_current_hp + heal_amount, GameManager.player_max_hp)
-		hud.update_player_hp()
-	if result.bonus_gold > 0:
-		GameManager.gold += result.bonus_gold
-	if result.reckless_triggered:
-		GameManager.base_damage_fractional += 0.5
-		if GameManager.base_damage_fractional >= 1.0:
-			GameManager.base_damage += 1
-			GameManager.base_damage_fractional -= 1.0
-	if result.resonance_triggered:
-		GameManager.base_damage += 1
+	var result = TokenEffectResolver.resolve(cards, _slots.size())
+	label_pressure_value.text = "x%.2f" % current_pressure
 
+	# Step 1.2 — passive tokens fire left-to-right with floating text
+	var filled_slots: Array = []
+	for slot in _slots:
+		if not slot.is_empty() and slot.get_card() != null:
+			filled_slots.append(slot)
+
+	# Grey out inactive placement tokens
+	for i in result.inactive_slots:
+		if i < filled_slots.size():
+			var c = filled_slots[i].get_card()
+			if c:
+				c.set_inactive(true)
+				filled_slots[i].set_effect_state(false)
+
+	# Step 1.25 — all resolution events (pressure + heal) animate left-to-right, card by card
+	var all_events: Array = []
+	for ev in result.pressure_events:
+		all_events.append({"kind": "pressure", "slots": ev["slots"], "bonus": ev["bonus"]})
+	for ev in result.heal_events:
+		all_events.append({"kind": "heal", "slots": [ev["slot_index"]], "bonus": ev["value"]})
+	all_events.sort_custom(func(a, b): return a["slots"][0] < b["slots"][0])
+
+	var running_pressure := current_pressure
+	for event in all_events:
+		var slots: Array = event["slots"]
+		var value_per_card: float = event["bonus"] / slots.size()
+		for slot_idx in slots:
+			if slot_idx >= filled_slots.size():
+				continue
+			var c = filled_slots[slot_idx].get_card()
+			if c == null:
+				continue
+			var token_color: Color = hud.token_type_color(c.token_data.token_type)
+
+			# Tilt card
+			SFXManager.play("resolution")
+			c.pivot_offset = c.size / 2.0
+			var tw = c.create_tween()
+			tw.tween_property(c, "rotation_degrees", -18.0, 0.4).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+			tw.tween_property(c, "rotation_degrees", 0.0, 1.6).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SPRING)
+
+			# Ring pulse from card center
+			var ring := Panel.new()
+			var ring_style := StyleBoxFlat.new()
+			ring_style.bg_color = Color(0, 0, 0, 0)
+			ring_style.border_width_left = 5
+			ring_style.border_width_top = 5
+			ring_style.border_width_right = 5
+			ring_style.border_width_bottom = 5
+			ring_style.border_color = token_color
+			ring_style.corner_radius_top_left = 70
+			ring_style.corner_radius_top_right = 70
+			ring_style.corner_radius_bottom_right = 70
+			ring_style.corner_radius_bottom_left = 70
+			ring.add_theme_stylebox_override("panel", ring_style)
+			ring.size = c.size
+			ring.pivot_offset = c.size / 2.0
+			ring.global_position = c.global_position
+			ring.z_index = 100
+			ring.z_as_relative = false
+			add_child(ring)
+			var rt = ring.create_tween()
+			rt.set_parallel(true)
+			rt.tween_property(ring, "scale", Vector2(2.2, 2.2), 1.5).set_ease(Tween.EASE_OUT)
+			rt.tween_property(ring, "modulate:a", 0.0, 1.5).set_ease(Tween.EASE_IN)
+			rt.finished.connect(ring.queue_free)
+
+			# Apply effect at the moment the card tilts
+			if event["kind"] == "pressure":
+				running_pressure += value_per_card
+				label_pressure_value.text = "x%.2f" % running_pressure
+			else:
+				var heal_amount := roundi(GameManager.player_max_hp * value_per_card)
+				player_current_hp = min(player_current_hp + heal_amount, GameManager.player_max_hp)
+				hud.update_player_hp()
+				var slot_center: Vector2 = filled_slots[slot_idx].global_position + filled_slots[slot_idx].size / 2.0
+				hud.show_floating_text(slot_center, "+%d HP" % heal_amount, Color("#EAA21C"))
+
+			await get_tree().create_timer(0.75).timeout
+
+	current_pressure += result.pressure_bonus
+
+	# Step 2 — relics react left-to-right
 	var hazard_count := _count_hazards_in_slots()
 	var context := {
 		"hazard_count": hazard_count,
@@ -330,31 +410,28 @@ func _on_button_execute_pressed() -> void:
 		"total_defense": result.total_defense,
 		"pressure": current_pressure,
 	}
-	# Echoes trigger left to right, can modify ATK, DEF, or Pressure
 	context = RelicManager.trigger_execute(context)
 	GameManager.gold = context["gold"]
 	hud.update_hud()
 
-	# Apply Pressure to both ATK and DEF simultaneously
-	var final_attack := roundi(context.get("total_attack", result.total_attack) * context.get("pressure", current_pressure))
-	var final_defense := roundi(context.get("total_defense", result.total_defense) * context.get("pressure", current_pressure))
-
-	# Animate pressure multiplication visually — ATK first, then DEF
-	button_draw.disabled = true
-	button_execute.disabled = true
-	var atk_color := Color(0.91, 0.16, 0.29, 1) if final_attack > 0 else Color(1, 1, 1, 1)
-	var def_color := Color(0.24, 0.4, 1, 1) if final_defense > 0 else Color(1, 1, 1, 1)
-	await hud.animate_pressure_on_stat(label_turn_atk, "%d" % final_attack, atk_color)
-	await get_tree().create_timer(0.15).timeout
-	await hud.animate_pressure_on_stat(label_turn_def, "%d" % final_defense, def_color)
-	await get_tree().create_timer(0.2).timeout
-
-	# Pre-compute enemy attack so it's available for death blow if enemy dies
+	# Step 3 — pressure multiplies ATK and DEF labels
+	var atk_color := Color(0.91, 0.16, 0.29, 1) if result.total_attack > 0 else Color(1, 1, 1, 1)
+	var def_color := Color(0.24, 0.4, 1, 1) if result.total_defense > 0 else Color(1, 1, 1, 1)
+	var eff_pressure: float = context.get("pressure", current_pressure)
+	var final_attack := roundi(context.get("total_attack", result.total_attack) * eff_pressure)
+	var final_defense := roundi(context.get("total_defense", result.total_defense) * eff_pressure)
 	var modified_damage: int = roundi(current_enemy.current_damage * result.damage_multiplier)
 	var incoming_damage: int = max(0, modified_damage - final_defense)
+	SFXManager.play("pressure-resolution")
+	hud.animate_pressure_label(label_pressure_value)
+	hud.animate_pressure_on_stat(label_turn_atk, "%d" % final_attack, atk_color)
+	await hud.animate_pressure_on_stat(label_turn_def, "%d" % final_defense, def_color)
+	await get_tree().create_timer(0.6).timeout
 
-	# Player hits enemy — wait for HP bar to finish
-	print("Joueur inflige %d dégâts à l'ennemi (pression: %.1f)" % [final_attack, context.get("pressure", current_pressure)])
+	# Step 4 — ATK label strikes, entity loses HP
+	await hud.tilt_hard(label_turn_atk)
+	if final_attack > 0:
+		SFXManager.play("damage")
 	current_enemy.take_damage(final_attack)
 	await get_tree().create_timer(0.7).timeout
 
@@ -396,8 +473,18 @@ func _on_button_execute_pressed() -> void:
 			return
 		return
 
-	# Enemy hits player — wait for HP bar to finish
-	print("Ennemi attaque pour %d (défense: %d) = %d dégâts reçus" % [modified_damage, final_defense, incoming_damage])
+	# Step 5 — DEF label fires, entity intention updates to show remaining damage
+	await hud.tilt_hard(label_turn_def)
+	if final_defense > 0:
+		label_enemy_intention.text = "◆ %d" % incoming_damage
+	await get_tree().create_timer(0.5).timeout
+
+	# Step 6 — entity intention strikes, player loses HP
+	await hud.tilt_hard(label_enemy_intention)
+	if incoming_damage == 0:
+		SFXManager.play("safe")
+	else:
+		SFXManager.play("damage")
 	player_current_hp -= incoming_damage
 	player_current_hp = max(player_current_hp, 0)
 	hud.update_player_hp()
@@ -408,6 +495,11 @@ func _on_button_execute_pressed() -> void:
 		return
 
 	current_enemy.prepare_next_intention()
+
+	# Clear slot effects before animating tokens back
+	for slot in _slots:
+		slot.set_effect_state(false)
+		slot.set_streak_active(false)
 
 	# Pause, then animate tokens back to draw pile
 	await get_tree().create_timer(0.3).timeout
@@ -529,6 +621,7 @@ func _get_slot_cards() -> Array:
 		if not slot.is_empty() and slot.get_card() != null:
 			cards.append(slot.get_card())
 	return cards
+
 
 func _count_hazards_in_slots() -> int:
 	var count := 0

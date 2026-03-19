@@ -24,11 +24,7 @@ func _ready() -> void:
 		preload("res://resources/tokens/guard.tres"),
 		preload("res://resources/tokens/provocation.tres"),
 		preload("res://resources/tokens/rampart.tres"),
-		preload("res://resources/tokens/frenzy.tres"),
 		preload("res://resources/tokens/heal.tres"),
-		preload("res://resources/tokens/reckless.tres"),
-		preload("res://resources/tokens/resonance.tres"),
-		preload("res://resources/tokens/gamble.tres"),
 	]
 	relic_line.setup()
 	_populate_shop()

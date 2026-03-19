@@ -24,7 +24,7 @@ const TYPE_COLORS := {
 	TokenResource.TokenType.ATTACK:   Color("#E8294A"),
 	TokenResource.TokenType.DEFENSE:  Color("#3D4CE8"),
 	TokenResource.TokenType.MODIFIER: Color("#7B2FE8"),
-	TokenResource.TokenType.UTILITY:  Color("#44AA66"),
+	TokenResource.TokenType.UTILITY:  Color("#EAA21C"),
 	TokenResource.TokenType.CLEANSER: Color("#44AACC"),
 	TokenResource.TokenType.HAZARD:   Color("#888888"),
 }
@@ -40,30 +40,31 @@ func setup(data: TokenResource) -> void:
 
 	label_description.text = data.description if data.description != "" else "No description."
 
-	if data.effect != TokenResource.TokenEffect.NONE:
+	var has_effect := data.placement_slot != TokenResource.SlotPosition.NONE or \
+					  data.base_target != TokenResource.EffectTarget.NONE
+	if has_effect:
 		effect_block.visible = true
-		_build_slot_dots(data.effect, type_color)
-		_set_effect_label(data.effect)
+		_build_slot_dots(data, type_color)
+		label_effect.text = _build_effect_label(data)
 	else:
 		effect_block.visible = false
 
-	if not data.combo_thresholds.is_empty():
+	if data.streak_target != TokenResource.EffectTarget.NONE:
 		combo_block.visible = true
-		_build_combo_rules(data, type_color)
+		_build_streak_block(data, type_color)
 	else:
 		combo_block.visible = false
 
-func _build_slot_dots(effect: TokenResource.TokenEffect, color: Color) -> void:
+
+func _build_slot_dots(data: TokenResource, color: Color) -> void:
 	for child in slot_dots_row.get_children():
 		slot_dots_row.remove_child(child)
 		child.free()
 
-	# active_indices: which slots are highlighted. Connectors only drawn between two adjacent active slots.
 	var active_indices: Array[int] = []
-	match effect:
-		TokenResource.TokenEffect.PROVOCATION: active_indices = [0]
-		TokenResource.TokenEffect.RAMPART:     active_indices = [N_SLOTS - 1]
-		TokenResource.TokenEffect.HEAL:        active_indices = [N_SLOTS - 1]
+	match data.placement_slot:
+		TokenResource.SlotPosition.FIRST: active_indices = [0]
+		TokenResource.SlotPosition.LAST:  active_indices = [N_SLOTS - 1]
 
 	for i in N_SLOTS:
 		if i > 0:
@@ -85,65 +86,88 @@ func _build_slot_dots(effect: TokenResource.TokenEffect, color: Color) -> void:
 		dot.add_theme_stylebox_override("panel", style)
 		slot_dots_row.add_child(dot)
 
-func _build_combo_rules(data: TokenResource, color: Color) -> void:
+
+func _build_effect_label(data: TokenResource) -> String:
+	var parts: Array[String] = []
+
+	# Base effect (always-on)
+	if data.base_target != TokenResource.EffectTarget.NONE:
+		match data.base_target:
+			TokenResource.EffectTarget.DAMAGE_MULT:
+				parts.append("Reduces incoming damage by %d%%." % roundi(abs(data.base_value) * 100))
+			TokenResource.EffectTarget.HP:
+				parts.append("Recovers %d%% max HP." % roundi(data.base_value * 100))
+
+	# Placement effect
+	if data.placement_slot != TokenResource.SlotPosition.NONE and data.placement_target != TokenResource.EffectTarget.NONE:
+		var slot_name := "first" if data.placement_slot == TokenResource.SlotPosition.FIRST else "last"
+		match data.placement_target:
+			TokenResource.EffectTarget.DAMAGE_MULT:
+				var base_contrib: float = data.base_value if data.base_target == data.placement_target else 0.0
+				var total: float = absf(base_contrib + data.placement_value)
+				parts.append("At %s slot: total -%d%% damage." % [slot_name, roundi(total * 100)])
+			TokenResource.EffectTarget.HP:
+				if data.base_target == TokenResource.EffectTarget.HP:
+					var total: float = data.base_value + data.placement_value
+					parts.append("At %s slot: %d%% instead." % [slot_name, roundi(total * 100)])
+				else:
+					parts.append("At %s slot: +%d%% HP." % [slot_name, roundi(data.placement_value * 100)])
+			TokenResource.EffectTarget.PRESSURE:
+				if data.placement_count_scale:
+					var type_name: String = TYPE_NAMES.get(data.placement_count_type, "token")
+					parts.append("At %s slot: +%.2f Pressure per %s token." % [slot_name, data.placement_value, type_name])
+				else:
+					parts.append("At %s slot: +%.2f Pressure." % [slot_name, data.placement_value])
+
+	return "\n".join(parts)
+
+
+func _build_streak_block(data: TokenResource, color: Color) -> void:
 	for child in combo_rules_container.get_children():
 		combo_rules_container.remove_child(child)
 		child.free()
 
-	var type_suffix := ""
-	match data.token_type:
-		TokenResource.TokenType.ATTACK:  type_suffix = "ATK"
-		TokenResource.TokenType.DEFENSE: type_suffix = "DEF"
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 6)
 
-	for i in data.combo_thresholds.size():
-		var count: int = int(data.combo_thresholds[i])
-		var mult: float = float(data.combo_multipliers[i])
+	# Dot count to show: streak_min dots (connected)
+	var dot_count := data.streak_min
+	if data.streak_scope == TokenResource.StreakScope.ADJACENT:
+		dot_count = 2  # show 2 neighbors
 
-		var row := HBoxContainer.new()
-		row.alignment = BoxContainer.ALIGNMENT_CENTER
-		row.add_theme_constant_override("separation", 6)
+	for j in dot_count:
+		if j > 0:
+			var connector := ColorRect.new()
+			connector.custom_minimum_size = Vector2(14, 4)
+			connector.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			connector.color = color
+			row.add_child(connector)
+		var dot := Panel.new()
+		dot.custom_minimum_size = Vector2(22, 22)
+		dot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		var style := StyleBoxFlat.new()
+		style.corner_radius_top_left = 11
+		style.corner_radius_top_right = 11
+		style.corner_radius_bottom_right = 11
+		style.corner_radius_bottom_left = 11
+		style.bg_color = color
+		dot.add_theme_stylebox_override("panel", style)
+		row.add_child(dot)
 
-		# Connected colored dots (all active, linked)
-		for j in count:
-			if j > 0:
-				var connector := ColorRect.new()
-				connector.custom_minimum_size = Vector2(14, 4)
-				connector.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-				connector.color = color
-				row.add_child(connector)
-			var dot := Panel.new()
-			dot.custom_minimum_size = Vector2(22, 22)
-			dot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-			var style := StyleBoxFlat.new()
-			style.corner_radius_top_left = 11
-			style.corner_radius_top_right = 11
-			style.corner_radius_bottom_right = 11
-			style.corner_radius_bottom_left = 11
-			style.bg_color = color
-			dot.add_theme_stylebox_override("panel", style)
-			row.add_child(dot)
+	var spacer := Control.new()
+	spacer.custom_minimum_size = Vector2(14, 0)
+	row.add_child(spacer)
 
-		# Multiplier label
-		var spacer := Control.new()
-		spacer.custom_minimum_size = Vector2(14, 0)
-		row.add_child(spacer)
+	var lbl := Label.new()
+	match data.streak_target:
+		TokenResource.EffectTarget.PRESSURE:
+			lbl.text = "+%.2f Pressure/token" % data.streak_value_per_token
+		TokenResource.EffectTarget.HP:
+			lbl.text = "+%d%% HP/neighbor" % roundi(data.streak_value_per_token * 100)
+	lbl.add_theme_font_override("font", FONT_BLACK)
+	lbl.add_theme_font_size_override("font_size", 24)
+	lbl.add_theme_color_override("font_color", color)
+	row.add_child(lbl)
 
-		var lbl := Label.new()
-		lbl.text = "x" + str(mult) + " " + type_suffix
-		lbl.add_theme_font_override("font", FONT_BLACK)
-		lbl.add_theme_font_size_override("font_size", 24)
-		lbl.add_theme_color_override("font_color", color)
-		row.add_child(lbl)
-
-		combo_rules_container.add_child(row)
-
-func _set_effect_label(effect: TokenResource.TokenEffect) -> void:
-	match effect:
-		TokenResource.TokenEffect.PROVOCATION:
-			label_effect.text = "Reduces Entity DMG by 75% if placed on the first slot."
-		TokenResource.TokenEffect.RAMPART:
-			label_effect.text = "Only activates if placed on the last slot with at least one DEF token before it."
-		TokenResource.TokenEffect.HEAL:
-			label_effect.text = "Restores 20% max HP if placed on the last slot. 10% otherwise."
-		_:
-			label_effect.text = ""
+	combo_rules_container.add_child(row)

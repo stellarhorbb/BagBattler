@@ -337,6 +337,68 @@ Remplacement du système "tirer → auto-placer" par un flux en trois phases :
 
 ---
 
+## 19 Mars 2026 — Session : Refonte Data-Driven des Tokens & Polish Combat
+
+**Suppression des tokens instables ✅**
+- Supprimés : Gamble, Resonance, Reckless, Frenzy (+ effets GDScript associés)
+- Conservé : Heal avec nouvelle mécanique (15% HP de base, +5% par token adjacent, 25% si premier slot)
+
+**Refonte complète du système de tokens — architecture data-driven ✅**
+
+Remplacement du système `TokenEffect` enum + code hardcodé par deux types d'effets composables directement dans les `.tres` :
+
+- **Placement** : se déclenche quand le token est au bon slot (FIRST ou LAST)
+- **Streak** : bonus par token dans un run (CONSECUTIVE = même type adjacent / ADJACENT = voisins quelconques)
+
+Nouveau schéma `TokenResource` :
+```
+Placement : placement_slot, placement_target, placement_value, placement_count_scale, placement_count_type
+Streak    : streak_target, streak_scope, streak_min, streak_value_per_token
+Base      : base_target, base_value  (toujours actif)
+```
+
+Mapping des tokens existants :
+- **Strike / Guard** : streak CONSECUTIVE ≥2 → +0.05 Pressure/token
+- **Provocation** : base DAMAGE_MULT −20% + placement FIRST −10% supplémentaire
+- **Rampart** : placement LAST → +0.05 Pressure × nb tokens DEF sur la ligne
+- **Heal** : base HP 15% + placement FIRST +10% + streak ADJACENT ≥1 +5%/voisin
+
+**Fichiers supprimés ✅**
+- `BaseEffect.gd`, `CombatContext.gd`, `EffectProvocation.gd`, `EffectRampart.gd`, `EffectHeal.gd`
+- `EffectFrenzy.gd`, `EffectGamble.gd`, `EffectReckless.gd`, `EffectResonance.gd`
+
+**Resolver entièrement data-driven ✅**
+- `TokenEffectResolver` lit directement les champs du resource, zéro `match token.effect`
+- Ajouter un token = créer un `.tres`, aucun code à toucher
+- `ResolveResult` : `placement_active_slots`, `streak_active_slots`, `inactive_slots`, `heal_events`
+
+**Tooltip auto-généré ✅**
+- `token_tooltip.gd` génère les labels d'effet et le bloc streak depuis les champs du resource
+- Plus de `_set_effect_label()` avec match hardcodé
+
+**Visuels de slots ✅**
+- **Wave ring** : slot avec placement actif (Provocation, Rampart en position, Heal en premier)
+- **Bordure colorée du slot** : streak actif ≥ streak_min (rouge ATK, bleu DEF)
+- **Pulse heartbeat** : token card pulse à ~10% de taille quand streak actif
+- Rampart grisé (token card) quand pas sur le dernier slot
+- Provocation reste coloré même hors premier slot (base effect toujours actif)
+
+**Décomposition du combat en étapes distinctes ✅**
+- Tous les events (pressure + heal) résolus dans une seule boucle left-to-right, même timing 0.75s/carte
+- **Étape 3** : Pressure × ATK/DEF labels animent
+- **Étape 4** : ATK label tilt hard → Entity HP drop + SFX damage
+- **Étape 5** : DEF label tilt hard → IntentionBox met à jour le DMG restant
+- **Étape 6** : IntentionBox label tilt hard → Player HP drop + SFX damage ou safe
+- Intention affiche directement la valeur finale (plus de "X → Y")
+
+**SFX ✅**
+- `damage.wav` : joueur frappe entité + entité frappe joueur (si dégâts > 0)
+- `safe.wav` : DEF réduit les dégâts entité à 0
+- `saved.wav` : banner Saved (relic protection), `crash.wav` uniquement sur vrai crash
+- Musique en combat mise en sourdine temporairement
+
+---
+
 ## 18 Mars 2026 — Session 5 : Système de Combo & Death Blow
 
 **Système de Combo ✅**

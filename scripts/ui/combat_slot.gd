@@ -10,13 +10,21 @@ var _token: TokenResource = null
 var _card: Control = null
 
 @onready var bg_panel: Panel = $BgPanel
+@onready var border_overlay: Panel = $BorderOverlay
 @onready var wave_ring = $WaveRing
+
+var _border_style: StyleBoxFlat
 
 func setup(i: int) -> void:
 	slot_index = i
+	_border_style = border_overlay.get_theme_stylebox("panel").duplicate()
+	border_overlay.add_theme_stylebox_override("panel", _border_style)
 
 func set_effect_state(active: bool, color: Color = Color.WHITE) -> void:
 	wave_ring.set_ring(active, color)
+
+func set_streak_active(active: bool, color: Color = Color.WHITE) -> void:
+	_border_style.border_color = color if active else Color(0.082, 0.082, 0.082, 1)
 
 func is_empty() -> bool:
 	return _token == null

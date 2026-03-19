@@ -5,64 +5,96 @@
 
 [sub_resource type="Resource" id="Resource_oc5d8"]
 script = ExtResource("1_oc5d8")
+round_number = 0
 hp = 1
 atk = 5
 
 [sub_resource type="Resource" id="Resource_oi8th"]
 script = ExtResource("1_oc5d8")
-round_number = 2
-hp = 10
-atk = 7
+hp = 15
+atk = 5
 
 [sub_resource type="Resource" id="Resource_u26b2"]
 script = ExtResource("1_oc5d8")
-round_number = 3
-hp = 20
-atk = 10
+round_number = 2
+hp = 22
+atk = 6
 
 [sub_resource type="Resource" id="Resource_74566"]
 script = ExtResource("1_oc5d8")
-round_number = 4
-hp = 35
-atk = 12
-mutations = 1
-is_boss = true
+round_number = 3
+hp = 30
 
 [sub_resource type="Resource" id="Resource_x5pso"]
 script = ExtResource("1_oc5d8")
-round_number = 5
-hp = 40
-atk = 17
+round_number = 4
+hp = 45
+atk = 10
 mutations = 1
+is_boss = true
 
 [sub_resource type="Resource" id="Resource_sr5d3"]
 script = ExtResource("1_oc5d8")
-round_number = 6
-atk = 20
+round_number = 5
+hp = 55
+atk = 12
 mutations = 1
 
 [sub_resource type="Resource" id="Resource_qhwgh"]
 script = ExtResource("1_oc5d8")
-round_number = 7
-hp = 75
-atk = 25
+round_number = 6
+hp = 65
+atk = 14
 mutations = 1
 
 [sub_resource type="Resource" id="Resource_6rd15"]
 script = ExtResource("1_oc5d8")
-round_number = 8
-hp = 90
-atk = 35
-mutations = 2
-is_boss = true
+round_number = 7
+hp = 80
+atk = 16
+mutations = 1
 
 [sub_resource type="Resource" id="Resource_xaiba"]
 script = ExtResource("1_oc5d8")
-round_number = 9
-hp = 200
-atk = 75
+round_number = 8
+hp = 105
+atk = 20
 mutations = 2
+is_boss = true
+
+[sub_resource type="Resource" id="Resource_ugnbj"]
+script = ExtResource("1_oc5d8")
+round_number = 9
+hp = 125
+atk = 24
+mutations = 2
+metadata/_custom_type_script = "uid://dk6c5s7isee0a"
+
+[sub_resource type="Resource" id="Resource_br1lb"]
+script = ExtResource("1_oc5d8")
+round_number = 10
+hp = 145
+atk = 27
+mutations = 2
+metadata/_custom_type_script = "uid://dk6c5s7isee0a"
+
+[sub_resource type="Resource" id="Resource_vt7nw"]
+script = ExtResource("1_oc5d8")
+round_number = 11
+hp = 170
+atk = 30
+mutations = 2
+metadata/_custom_type_script = "uid://dk6c5s7isee0a"
+
+[sub_resource type="Resource" id="Resource_yr7df"]
+script = ExtResource("1_oc5d8")
+round_number = 12
+hp = 210
+atk = 35
+mutations = 3
+is_boss = true
+metadata/_custom_type_script = "uid://dk6c5s7isee0a"
 
 [resource]
 script = ExtResource("2_oi8th")
-rounds = Array[ExtResource("1_oc5d8")]([SubResource("Resource_oc5d8"), SubResource("Resource_oi8th"), SubResource("Resource_u26b2"), SubResource("Resource_74566"), SubResource("Resource_x5pso"), SubResource("Resource_sr5d3"), SubResource("Resource_qhwgh"), SubResource("Resource_6rd15"), SubResource("Resource_xaiba")])
+rounds = Array[ExtResource("1_oc5d8")]([SubResource("Resource_oc5d8"), SubResource("Resource_oi8th"), SubResource("Resource_u26b2"), SubResource("Resource_74566"), SubResource("Resource_x5pso"), SubResource("Resource_sr5d3"), SubResource("Resource_qhwgh"), SubResource("Resource_6rd15"), SubResource("Resource_xaiba"), SubResource("Resource_ugnbj"), SubResource("Resource_br1lb"), SubResource("Resource_vt7nw"), SubResource("Resource_yr7df")])
