@@ -4,18 +4,18 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_default"]
 bg_color = Color(0.267, 0.267, 0.267, 1)
-corner_radius_top_left = 70
-corner_radius_top_right = 70
-corner_radius_bottom_right = 70
-corner_radius_bottom_left = 70
+corner_radius_top_left = 55
+corner_radius_top_right = 55
+corner_radius_bottom_right = 55
+corner_radius_bottom_left = 55
 anti_aliasing_size = 1.5
 
 [node name="TokenCard" type="Control" unique_id=1593258989]
-custom_minimum_size = Vector2(140, 140)
+custom_minimum_size = Vector2(110, 110)
 layout_mode = 3
 anchors_preset = 0
-offset_right = 140.0
-offset_bottom = 140.0
+offset_right = 110.0
+offset_bottom = 110.0
 size_flags_horizontal = 4
 size_flags_vertical = 4
 script = ExtResource("1_cdf47")
@@ -23,8 +23,8 @@ script = ExtResource("1_cdf47")
 
 [node name="CirclePanel" type="Panel" parent="." unique_id=1622226529]
 layout_mode = 0
-offset_right = 140.0
-offset_bottom = 140.0
+offset_right = 110.0
+offset_bottom = 110.0
 size_flags_horizontal = 4
 size_flags_vertical = 4
 mouse_filter = 2

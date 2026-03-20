@@ -19,17 +19,17 @@ func _draw() -> void:
 	if not _active:
 		return
 
-	var cx := 85.0
-	var cy := 85.0
-	var base_r := 83.0
+	var cx := 70.0
+	var cy := 70.0
+	var base_r := 70.0
 	var amplitude := 3.5
-	var n_waves := 6
+	var n_waves := 10
 	var n_pts := 80
 
 	var pts := PackedVector2Array()
 	for i in range(n_pts + 1):
 		var angle := float(i) / n_pts * TAU
-		var r := base_r + amplitude * sin(n_waves * angle + _time * 3.5)
+		var r := base_r + amplitude * sin(n_waves * angle + _time * 5)
 		pts.append(Vector2(cx + r * cos(angle), cy + r * sin(angle)))
 
 	draw_polyline(pts, _color, 4.0, true)

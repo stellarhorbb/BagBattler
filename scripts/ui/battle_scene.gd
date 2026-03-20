@@ -10,11 +10,10 @@ const CombatSlotScene := preload("res://combat_slot.tscn")
 @onready var label_intention_type = $EnemyZone/IntentionBox/LabelIntentionType
 @onready var label_enemy_intention = $EnemyZone/IntentionBox/LabelEnemyIntention
 
-# HUD
-@onready var label_turns = $TurnSection/LabelTurns
-@onready var label_turns_title = $TurnSection/LabelTurnsTitle
-@onready var label_gold = $SaltSection/GoldRow/LabelGold
-@onready var label_salt_title = $SaltSection/LabelSaltTitle
+# HUD (forwarded from RunHUD in _ready)
+var label_turns: Label
+var label_turns_title: Label
+var label_gold: Label
 
 # Combat slots + controls
 @onready var combat_slots_row = $CombatSlotsRow
@@ -25,9 +24,9 @@ const CombatSlotScene := preload("res://combat_slot.tscn")
 @onready var draw_area = $DrawArea
 @onready var button_draw = $DrawArea/ButtonDraw
 @onready var draw_pile_stack = $DrawArea/DrawPileStack
-@onready var bag_info_area = $DrawArea/BagInfoArea
-@onready var draw_count_label = $DrawArea/BagInfoArea/DrawCountLabel
-@onready var type_breakdown_box = $DrawArea/BagInfoArea/TypeBreakdownBox
+var bag_info_area: Control
+var draw_count_label: Label
+var type_breakdown_box: VBoxContainer
 
 # Pressure row
 @onready var label_pressure_value = $PlayerHUDRow/PressureSection/LabelPressureValue
@@ -36,12 +35,12 @@ const CombatSlotScene := preload("res://combat_slot.tscn")
 @onready var atk_box = $PlayerHUDRow/ATKSection/ATKBox
 @onready var def_box = $PlayerHUDRow/DEFSection/DEFBox
 
-# Player bottom bar
-@onready var relic_line = $PlayerBottomBar/CenterSection/RelicLine
-@onready var player_hp_bar = $PlayerBottomBar/CenterSection/PlayerHPBar
-@onready var label_player_hp = $PlayerBottomBar/CenterSection/BottomStatsRow/LabelPlayerHP
-@onready var label_base_damage = $PlayerBottomBar/CenterSection/BottomStatsRow/ATKStatLeft/LabelBaseDamage
-@onready var label_base_defense = $PlayerBottomBar/CenterSection/BottomStatsRow/DEFStatRight/LabelBaseDefense
+# Player bottom bar (forwarded from RunHUD in _ready)
+var relic_line: Node
+var player_hp_bar: ProgressBar
+var label_player_hp: Label
+var label_base_damage: Label
+var label_base_defense: Label
 
 # VFX
 @onready var flash_overlay = $FlashOverlay
@@ -53,9 +52,6 @@ var vfx: BattleVFX
 # Nav
 @onready var button_next = $ButtonNext
 @onready var button_back_to_menu = $ButtonBackToMenu
-
-# Bag inspector
-@onready var bag_inspector = $BagInspector
 
 # State
 var token_card_scene = preload("res://token_card.tscn")
@@ -71,6 +67,21 @@ var hud: BattleHUD
 var _death_blow_active: bool = false
 
 func _ready():
+	RunHUD.visible = true
+	RunHUD.set_info_color(Color.BLACK)
+	# Forward RunHUD node refs so BattleHUD and this script can access via local var names
+	label_turns = RunHUD.label_turns
+	label_turns_title = RunHUD.label_turns_title
+	label_gold = RunHUD.label_gold
+	relic_line = RunHUD.relic_line
+	player_hp_bar = RunHUD.player_hp_bar
+	label_player_hp = RunHUD.label_player_hp
+	label_base_damage = RunHUD.label_base_damage
+	label_base_defense = RunHUD.label_base_defense
+	draw_count_label = RunHUD.draw_count_label
+	type_breakdown_box = RunHUD.type_breakdown_box
+	bag_info_area = RunHUD.bag_info_area
+
 	vfx = BattleVFX.new()
 	add_child(vfx)
 	vfx.setup(flash_overlay, vignette_overlay, crash_banner, saved_banner, self)
@@ -123,8 +134,7 @@ func _ready():
 	for btn in [button_draw, button_execute, button_next, button_back_to_menu]:
 		btn.focus_mode = Control.FOCUS_NONE
 
-	bag_inspector.setup(bag_manager)
-	bag_inspector.get_node("CompactView").visible = false
+	RunHUD.bag_inspector.setup(bag_manager)
 
 	player_hp_bar.max_value = GameManager.player_max_hp
 	player_hp_bar.value = player_current_hp
@@ -134,11 +144,11 @@ func _ready():
 
 	MusicManager.play_game()
 
-	relic_line.setup()
-	RelicManager.relic_triggered.connect(relic_line.trigger_pulse)
+	relic_line.refresh()
+	if not RelicManager.relic_triggered.is_connected(relic_line.trigger_pulse):
+		RelicManager.relic_triggered.connect(relic_line.trigger_pulse)
 
-	bag_info_area.mouse_entered.connect(bag_inspector.open_modal)
-	bag_info_area.mouse_exited.connect(bag_inspector.close_modal)
+
 	revealed_token_holder.drag_started.connect(drag_controller.start_drag)
 	revealed_token_holder.clear()
 
@@ -259,6 +269,7 @@ func _handle_crash() -> void:
 	button_draw.disabled = true
 	button_execute.disabled = true
 	TooltipManager.set_enabled(false)
+	RunHUD.visible = false
 	if protected:
 		SFXManager.play("saved")
 		await vfx.trigger_saved_effect()
@@ -266,6 +277,7 @@ func _handle_crash() -> void:
 		SFXManager.play("crash")
 		await vfx.trigger_crash_effect()
 	TooltipManager.set_enabled(true)
+	RunHUD.visible = true
 	button_draw.disabled = false
 	button_execute.disabled = false
 
@@ -596,16 +608,12 @@ func _input(event: InputEvent) -> void:
 				if event.pressed and not button_execute.disabled:
 					_on_button_execute_pressed()
 			KEY_TAB:
-				get_viewport().set_input_as_handled()
-				if event.pressed:
-					bag_inspector.open_modal()
-				else:
-					bag_inspector.close_modal()
+				pass  # handled by RunHUD
 
 func update_ui() -> void:
 	hud.update_combat_line_totals()
 	hud.update_draw_pile(bag_manager)
-	bag_inspector.refresh()
+	RunHUD.bag_inspector.refresh()
 	hud.update_hud()
 	var any_filled = _slots.any(func(s): return not s.is_empty())
 	button_execute.disabled = not any_filled

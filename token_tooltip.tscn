@@ -86,6 +86,14 @@ layout_mode = 2
 size_flags_horizontal = 3
 color = Color(1, 1, 1, 0.15)
 
+[node name="LabelEffectTitle" type="Label" parent="VBox/BodyMargin/BodyContent/EffectBlock" unique_id=1017]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+text = "PLACEMENT"
+horizontal_alignment = 1
+
 [node name="SlotDotsRow" type="HBoxContainer" parent="VBox/BodyMargin/BodyContent/EffectBlock" unique_id=1011]
 layout_mode = 2
 size_flags_horizontal = 4
@@ -117,7 +125,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 22
-text = "COMBO"
+text = "STREAK"
 horizontal_alignment = 1
 
 [node name="ComboRulesContainer" type="VBoxContainer" parent="VBox/BodyMargin/BodyContent/ComboBlock" unique_id=1016]

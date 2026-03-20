@@ -2,9 +2,9 @@ extends Panel
 
 @onready var label_rarity: Label = $LayoutBox/RarityHeader/LabelRarity
 @onready var rarity_header: Panel = $LayoutBox/RarityHeader
-@onready var icon_texture: TextureRect = $LayoutBox/ContentBox/IconTexture
+@onready var icon_texture: TextureRect = $LayoutBox/ContentBox/ValueRow/IconTexture
 @onready var label_type_name: Label = $LayoutBox/ContentBox/LabelTypeName
-@onready var label_value: Label = $LayoutBox/ContentBox/LabelValue
+@onready var label_value: Label = $LayoutBox/ContentBox/ValueRow/LabelValue
 
 var _callback: Callable
 
@@ -27,15 +27,15 @@ const RARITY_NAMES = {
 const TYPE_ICONS = {
 	RewardResource.RewardType.UPGRADE_DAMAGE:  "res://assets/icons/ui/attack-icon.png",
 	RewardResource.RewardType.UPGRADE_DEFENSE: "res://assets/icons/ui/defense-icon.png",
-	RewardResource.RewardType.HP_MAX:          "res://assets/icons/ui/max-health-icon.png",
-	RewardResource.RewardType.HEAL:            "res://assets/icons/ui/heal-icon.png",
+	RewardResource.RewardType.HP_MAX:          "res://assets/icons/ui/max-hp.png",
+	RewardResource.RewardType.HEAL:            "res://assets/icons/ui/heal.png",
 	RewardResource.RewardType.GOLD:            "res://assets/icons/ui/salt-icon.png",
 }
 
 const TYPE_NAMES = {
-	RewardResource.RewardType.UPGRADE_DAMAGE:  "BASE ATTACK",
-	RewardResource.RewardType.UPGRADE_DEFENSE: "BASE DEFENSE",
-	RewardResource.RewardType.HP_MAX:          "MAX HEALTH",
+	RewardResource.RewardType.UPGRADE_DAMAGE:  "BASE ATK",
+	RewardResource.RewardType.UPGRADE_DEFENSE: "BASE DEF",
+	RewardResource.RewardType.HP_MAX:          "MAX HP",
 	RewardResource.RewardType.HEAL:            "HEAL",
 	RewardResource.RewardType.GOLD:            "SALT",
 }

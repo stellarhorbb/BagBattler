@@ -5,12 +5,20 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dark"]
 bg_color = Color(0.133, 0.133, 0.133, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_header"]
 bg_color = Color(0.25, 0.25, 0.25, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
 
 [node name="RewardCard" type="Panel" unique_id=2078882831]
-custom_minimum_size = Vector2(260, 220)
+custom_minimum_size = Vector2(220, 190)
+size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_dark")
 script = ExtResource("1_rc001")
 
@@ -21,6 +29,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/separation = 0
 
 [node name="RarityHeader" type="Panel" parent="LayoutBox" unique_id=1693342329]
 custom_minimum_size = Vector2(0, 52)
@@ -36,7 +45,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("2_font_black")
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 24
 text = "COMMON"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -45,35 +54,34 @@ vertical_alignment = 1
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 3
-theme_override_constants/separation = 6
+theme_override_constants/separation = 4
+alignment = 1
 
-[node name="Spacer" type="Control" parent="LayoutBox/ContentBox" unique_id=1069459006]
-custom_minimum_size = Vector2(0, 18)
-layout_mode = 2
-
-[node name="IconTexture" type="TextureRect" parent="LayoutBox/ContentBox" unique_id=1779048719]
-custom_minimum_size = Vector2(52, 52)
+[node name="ValueRow" type="HBoxContainer" parent="LayoutBox/ContentBox" unique_id=300000001]
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="LabelValue" type="Label" parent="LayoutBox/ContentBox/ValueRow" unique_id=300000002]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font_black")
+theme_override_font_sizes/font_size = 56
+text = "+1"
+vertical_alignment = 1
+
+[node name="IconTexture" type="TextureRect" parent="LayoutBox/ContentBox/ValueRow" unique_id=1779048719]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_vertical = 4
 expand_mode = 1
 stretch_mode = 5
 
 [node name="LabelTypeName" type="Label" parent="LayoutBox/ContentBox" unique_id=381523372]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 0.75)
 theme_override_fonts/font = ExtResource("2_font_black")
-theme_override_font_sizes/font_size = 26
-text = "BASE ATTACK"
+theme_override_font_sizes/font_size = 22
+text = "BASE ATK"
 horizontal_alignment = 1
-
-[node name="LabelValue" type="Label" parent="LayoutBox/ContentBox" unique_id=882430668]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_fonts/font = ExtResource("2_font_black")
-theme_override_font_sizes/font_size = 52
-text = "+1"
-horizontal_alignment = 1
-
-[node name="BottomSpacer" type="Control" parent="LayoutBox/ContentBox" unique_id=1441429882]
-custom_minimum_size = Vector2(0, 48)
-layout_mode = 2

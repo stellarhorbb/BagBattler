@@ -1,0 +1,242 @@
+[gd_scene format=3 uid="uid://dr2p00fuyyyi8"]
+
+[ext_resource type="PackedScene" path="res://relic_line.tscn" id="1_relline"]
+[ext_resource type="FontFile" uid="uid://bolt1salj5evg" path="res://font/LondrinaSolid-Black.ttf" id="2_font_black"]
+[ext_resource type="Texture2D" uid="uid://do4cc1pn1rhwh" path="res://assets/icons/ui/attack-icon.png" id="3_atkicon"]
+[ext_resource type="Texture2D" uid="uid://cuubpyby0njyq" path="res://assets/icons/ui/defense-icon.png" id="4_deficon"]
+[ext_resource type="Texture2D" uid="uid://c58smwpwjv62p" path="res://assets/icons/ui/salt-icon-black.png" id="5_salticon"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hpbg"]
+bg_color = Color(0.72, 0.72, 0.72, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hpfill"]
+bg_color = Color(0.08, 0.08, 0.08, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="HUDRoot" type="Control" unique_id=1704886051]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TurnSection" type="VBoxContainer" parent="." unique_id=539705136]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -914.0
+offset_top = -508.0
+offset_right = -706.0
+offset_bottom = -348.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 4
+
+[node name="LabelTurnsTitle" type="Label" parent="TurnSection" unique_id=787011734]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_font_black")
+theme_override_font_sizes/font_size = 36
+text = "THE SURFACE"
+
+[node name="LabelTurns" type="Label" parent="TurnSection" unique_id=400049477]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_font_black")
+theme_override_font_sizes/font_size = 64
+text = "0.1"
+
+[node name="SaltSection" type="VBoxContainer" parent="." unique_id=2114763732]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 810.0
+offset_top = -507.0
+offset_right = 920.0
+offset_bottom = -347.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 4
+
+[node name="LabelSaltTitle" type="Label" parent="SaltSection" unique_id=852936704]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_font_black")
+theme_override_font_sizes/font_size = 36
+text = "SALT"
+horizontal_alignment = 2
+
+[node name="GoldRow" type="HBoxContainer" parent="SaltSection" unique_id=1201969626]
+layout_mode = 2
+size_flags_horizontal = 8
+theme_override_constants/separation = 6
+
+[node name="SaltIcon" type="TextureRect" parent="SaltSection/GoldRow" unique_id=227333754]
+custom_minimum_size = Vector2(26, 26)
+layout_mode = 2
+texture = ExtResource("5_salticon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LabelGold" type="Label" parent="SaltSection/GoldRow" unique_id=1763248628]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_font_black")
+theme_override_font_sizes/font_size = 64
+text = "0"
+horizontal_alignment = 2
+
+[node name="PlayerBottomBar" type="HBoxContainer" parent="." unique_id=1636463562]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -585.0
+offset_top = -250.0
+offset_right = 585.0
+offset_bottom = -60.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 40
+alignment = 1
+
+[node name="LeftStatSection" type="VBoxContainer" parent="PlayerBottomBar" unique_id=1280454182]
+visible = false
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="CenterSection" type="VBoxContainer" parent="PlayerBottomBar" unique_id=896933758]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="RelicLine" parent="PlayerBottomBar/CenterSection" unique_id=1753627180 instance=ExtResource("1_relline")]
+layout_mode = 2
+alignment = 1
+
+[node name="PlayerHPBar" type="ProgressBar" parent="PlayerBottomBar/CenterSection" unique_id=350965277]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/background = SubResource("StyleBoxFlat_hpbg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_hpfill")
+value = 100.0
+show_percentage = false
+
+[node name="BottomStatsRow" type="HBoxContainer" parent="PlayerBottomBar/CenterSection" unique_id=608528772]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="ATKStatLeft" type="HBoxContainer" parent="PlayerBottomBar/CenterSection/BottomStatsRow" unique_id=1057996357]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="ATKIconSm" type="TextureRect" parent="PlayerBottomBar/CenterSection/BottomStatsRow/ATKStatLeft" unique_id=2050549869]
+modulate = Color(0.91, 0.16, 0.29, 1)
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+texture = ExtResource("3_atkicon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LabelBaseDamage" type="Label" parent="PlayerBottomBar/CenterSection/BottomStatsRow/ATKStatLeft" unique_id=885795752]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font_black")
+theme_override_font_sizes/font_size = 42
+text = "3"
+
+[node name="LabelPlayerHP" type="Label" parent="PlayerBottomBar/CenterSection/BottomStatsRow" unique_id=2017043036]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font_black")
+theme_override_font_sizes/font_size = 42
+text = "30/30"
+horizontal_alignment = 1
+
+[node name="DEFStatRight" type="HBoxContainer" parent="PlayerBottomBar/CenterSection/BottomStatsRow" unique_id=132709346]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="DEFIconSm" type="TextureRect" parent="PlayerBottomBar/CenterSection/BottomStatsRow/DEFStatRight" unique_id=1339907578]
+modulate = Color(0.24, 0.4, 1, 1)
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+texture = ExtResource("4_deficon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LabelBaseDefense" type="Label" parent="PlayerBottomBar/CenterSection/BottomStatsRow/DEFStatRight" unique_id=613587967]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font_black")
+theme_override_font_sizes/font_size = 42
+text = "10"
+
+[node name="RightStatSection" type="VBoxContainer" parent="PlayerBottomBar" unique_id=2059187706]
+visible = false
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="BagInfoArea" type="Control" parent="." unique_id=1144729950]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -113.0
+offset_top = -322.0
+offset_right = 22.0
+offset_bottom = 38.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 1
+
+[node name="DrawCountLabel" type="Label" parent="BagInfoArea" unique_id=1628134791]
+layout_mode = 0
+offset_left = 13.0
+offset_right = 148.0
+offset_bottom = 50.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font_black")
+theme_override_font_sizes/font_size = 38
+text = "0"
+
+[node name="TypeBreakdownBox" type="VBoxContainer" parent="BagInfoArea" unique_id=2093471721]
+layout_mode = 0
+offset_top = 58.0
+offset_right = 135.0
+offset_bottom = 320.0
+theme_override_constants/separation = 12

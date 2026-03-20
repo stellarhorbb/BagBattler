@@ -1,9 +1,54 @@
 [gd_scene format=3 uid="uid://b83gph874w4sr"]
 
 [ext_resource type="Script" uid="uid://bexu24vf2l133" path="res://scripts/ui/job_selection.gd" id="1_2fi1s"]
+[ext_resource type="FontFile" uid="uid://bolt1salj5evg" path="res://font/LondrinaSolid-Black.ttf" id="2_font"]
+[ext_resource type="Texture2D" uid="uid://cuubpyby0njyq" path="res://assets/icons/ui/defense-icon.png" id="3_deficon"]
+[ext_resource type="Texture2D" uid="uid://do4cc1pn1rhwh" path="res://assets/icons/ui/attack-icon.png" id="4_atkicon"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2fi1s"]
-bg_color = Color(0.38009015, 0.2524632, 0.5755956, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nav"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_focus"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+content_margin_left = 28.0
+content_margin_top = 22.0
+content_margin_right = 28.0
+content_margin_bottom = 22.0
+bg_color = Color(0.13, 0.13, 0.13, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stat"]
+content_margin_left = 24.0
+content_margin_top = 18.0
+content_margin_right = 24.0
+content_margin_bottom = 18.0
+bg_color = Color(0.13, 0.13, 0.13, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_start"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_start_dis"]
+bg_color = Color(0.25, 0.25, 0.25, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 
 [node name="WeaponSelection" type="Control" unique_id=1984351059]
 layout_mode = 3
@@ -21,120 +66,269 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 color = Color(0, 0, 0, 1)
 
-[node name="LabelTitle" type="Label" parent="." unique_id=675910048]
+[node name="ButtonPrev" type="Button" parent="." unique_id=100000001]
+custom_minimum_size = Vector2(140, 56)
 layout_mode = 1
-anchors_preset = 5
+anchors_preset = 8
 anchor_left = 0.5
+anchor_top = 0.5
 anchor_right = 0.5
-offset_left = -255.5
-offset_top = 121.0
-offset_right = 255.5
-offset_bottom = 188.0
+anchor_bottom = 0.5
+offset_left = -580.0
+offset_top = -330.0
+offset_right = -440.0
+offset_bottom = -274.0
 grow_horizontal = 2
-theme_override_font_sizes/font_size = 48
-text = "Choisissez votre Arme"
+grow_vertical = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.1, 0.1, 0.1, 1)
+theme_override_colors/font_pressed_color = Color(0.1, 0.1, 0.1, 0.7)
+theme_override_colors/font_hover_color = Color(0.1, 0.1, 0.1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 28
+theme_override_styles/normal = SubResource("StyleBoxFlat_nav")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_nav")
+theme_override_styles/hover = SubResource("StyleBoxFlat_nav")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_focus")
+text = "PREV"
+
+[node name="ButtonNext" type="Button" parent="." unique_id=100000002]
+custom_minimum_size = Vector2(140, 56)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 440.0
+offset_top = -330.0
+offset_right = 580.0
+offset_bottom = -274.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.1, 0.1, 0.1, 1)
+theme_override_colors/font_pressed_color = Color(0.1, 0.1, 0.1, 0.7)
+theme_override_colors/font_hover_color = Color(0.1, 0.1, 0.1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 28
+theme_override_styles/normal = SubResource("StyleBoxFlat_nav")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_nav")
+theme_override_styles/hover = SubResource("StyleBoxFlat_nav")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_focus")
+text = "NEXT"
+
+[node name="ContentVBox" type="VBoxContainer" parent="." unique_id=200000001]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -580.0
+offset_top = -340.0
+offset_right = 580.0
+offset_bottom = 340.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="LabelTitle" type="Label" parent="ContentVBox" unique_id=200000002]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 110
+text = "THE KNIGHT"
 horizontal_alignment = 1
 
-[node name="WeaponCards" type="HBoxContainer" parent="." unique_id=1169305167]
-custom_minimum_size = Vector2(1200, 600)
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/separation = 50
-
-[node name="SwordCard" type="Panel" parent="WeaponCards" unique_id=1677653946]
-custom_minimum_size = Vector2(350, 600)
+[node name="LabelDesc" type="Label" parent="ContentVBox" unique_id=200000003]
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_2fi1s")
+theme_override_colors/font_color = Color(1, 1, 1, 0.8)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 28
+text = "Balanced class, defense oriented, great to start"
+horizontal_alignment = 1
 
-[node name="VBoxContainer" type="VBoxContainer" parent="WeaponCards/SwordCard" unique_id=540225593]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -244.0
-offset_top = -197.0
-offset_right = 244.0
-offset_bottom = 197.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/separation = 15
+[node name="SpacerTop" type="Control" parent="ContentVBox" unique_id=200000004]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
+[node name="ContentRow" type="HBoxContainer" parent="ContentVBox" unique_id=200000005]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="BagPanel" type="PanelContainer" parent="ContentVBox/ContentRow" unique_id=200000006]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="BagVBox" type="VBoxContainer" parent="ContentVBox/ContentRow/BagPanel" unique_id=200000007]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 24
+
+[node name="LabelBagTitle" type="Label" parent="ContentVBox/ContentRow/BagPanel/BagVBox" unique_id=200000008]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 34
+text = "STARTING BAG"
+horizontal_alignment = 1
+
+[node name="TokenPilesRow" type="HBoxContainer" parent="ContentVBox/ContentRow/BagPanel/BagVBox" unique_id=200000009]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 3
+theme_override_constants/separation = 32
 alignment = 1
 
-[node name="Title" type="Label" parent="WeaponCards/SwordCard/VBoxContainer" unique_id=1630667453]
+[node name="StatsColumn" type="VBoxContainer" parent="ContentVBox/ContentRow" unique_id=200000010]
+custom_minimum_size = Vector2(260, 0)
 layout_mode = 2
-size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 48
-text = "Knight"
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="StatRow" type="HBoxContainer" parent="ContentVBox/ContentRow/StatsColumn" unique_id=200000011]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 16
+
+[node name="BaseATKPanel" type="PanelContainer" parent="ContentVBox/ContentRow/StatsColumn/StatRow" unique_id=200000012]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_stat")
+
+[node name="ATKVBox" type="VBoxContainer" parent="ContentVBox/ContentRow/StatsColumn/StatRow/BaseATKPanel" unique_id=200000013]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="LabelATKTitle" type="Label" parent="ContentVBox/ContentRow/StatsColumn/StatRow/BaseATKPanel/ATKVBox" unique_id=200000014]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 22
+text = "BASE ATK"
 horizontal_alignment = 1
 
-[node name="Difficulty" type="Label" parent="WeaponCards/SwordCard/VBoxContainer" unique_id=944773552]
+[node name="ATKValueRow" type="HBoxContainer" parent="ContentVBox/ContentRow/StatsColumn/StatRow/BaseATKPanel/ATKVBox" unique_id=200000015]
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_colors/font_color = Color(0.26666668, 1, 0.2509804, 1)
-theme_override_font_sizes/font_size = 18
-text = "Difficulty: Easy"
-horizontal_alignment = 1
+theme_override_constants/separation = 4
+alignment = 1
 
-[node name="Control" type="Control" parent="WeaponCards/SwordCard/VBoxContainer" unique_id=426656433]
-custom_minimum_size = Vector2(0, 20)
+[node name="ATKIcon" type="TextureRect" parent="ContentVBox/ContentRow/StatsColumn/StatRow/BaseATKPanel/ATKVBox/ATKValueRow" unique_id=200000016]
+custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("4_atkicon")
+expand_mode = 1
+stretch_mode = 5
 
-[node name="TitleBag" type="Label" parent="WeaponCards/SwordCard/VBoxContainer" unique_id=1536645445]
+[node name="LabelATKValue" type="Label" parent="ContentVBox/ContentRow/StatsColumn/StatRow/BaseATKPanel/ATKVBox/ATKValueRow" unique_id=200000017]
 layout_mode = 2
-size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 25
-text = "Starting Bag:"
-horizontal_alignment = 1
-
-[node name="Composition" type="Label" parent="WeaponCards/SwordCard/VBoxContainer" unique_id=922179950]
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 25
-text = "⚔️ x4 Attack
-🛡️ x3 Defense
-💀 x2 Hazards"
-horizontal_alignment = 1
-
-[node name="Control2" type="Control" parent="WeaponCards/SwordCard/VBoxContainer" unique_id=828908294]
-custom_minimum_size = Vector2(0, 20)
-layout_mode = 2
-
-[node name="SpecialSkill" type="Label" parent="WeaponCards/SwordCard/VBoxContainer" unique_id=2114833162]
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_colors/font_color = Color(1, 0.7607843, 0.2509804, 1)
-theme_override_font_sizes/font_size = 21
-text = "Steady Hand
-Premier tirage sans Hazard"
-horizontal_alignment = 1
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 56
+text = "3"
 vertical_alignment = 1
 
-[node name="ButtonSelect" type="Button" parent="WeaponCards/SwordCard/VBoxContainer" unique_id=1907604520]
+[node name="BaseDEFPanel" type="PanelContainer" parent="ContentVBox/ContentRow/StatsColumn/StatRow" unique_id=200000018]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_stat")
+
+[node name="DEFVBox" type="VBoxContainer" parent="ContentVBox/ContentRow/StatsColumn/StatRow/BaseDEFPanel" unique_id=200000019]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="LabelDEFTitle" type="Label" parent="ContentVBox/ContentRow/StatsColumn/StatRow/BaseDEFPanel/DEFVBox" unique_id=200000020]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 22
+text = "BASE DEF"
+horizontal_alignment = 1
+
+[node name="DEFValueRow" type="HBoxContainer" parent="ContentVBox/ContentRow/StatsColumn/StatRow/BaseDEFPanel/DEFVBox" unique_id=200000021]
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 39
-text = "SELECT"
+theme_override_constants/separation = 4
+alignment = 1
 
-[node name="MagicCard" type="Panel" parent="WeaponCards" unique_id=1515031013]
-modulate = Color(0.20392157, 0.20392157, 0.20392157, 0.31764707)
-custom_minimum_size = Vector2(350, 500)
+[node name="DEFIcon" type="TextureRect" parent="ContentVBox/ContentRow/StatsColumn/StatRow/BaseDEFPanel/DEFVBox/DEFValueRow" unique_id=200000022]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("3_deficon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LabelDEFValue" type="Label" parent="ContentVBox/ContentRow/StatsColumn/StatRow/BaseDEFPanel/DEFVBox/DEFValueRow" unique_id=200000023]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 56
+text = "3"
+vertical_alignment = 1
+
+[node name="SlotsPanel" type="PanelContainer" parent="ContentVBox/ContentRow/StatsColumn" unique_id=200000024]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_stat")
+
+[node name="SlotsVBox" type="VBoxContainer" parent="ContentVBox/ContentRow/StatsColumn/SlotsPanel" unique_id=200000025]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 4
+
+[node name="LabelSlotsTitle" type="Label" parent="ContentVBox/ContentRow/StatsColumn/SlotsPanel/SlotsVBox" unique_id=200000026]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 22
+text = "SLOTS"
+horizontal_alignment = 1
+
+[node name="LabelSlotsValue" type="Label" parent="ContentVBox/ContentRow/StatsColumn/SlotsPanel/SlotsVBox" unique_id=200000027]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 72
+text = "6"
+horizontal_alignment = 1
+
+[node name="SpacerBottom" type="Control" parent="ContentVBox" unique_id=200000028]
+custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
 
-[node name="DaggerCard" type="Panel" parent="WeaponCards" unique_id=665321008]
-modulate = Color(0.20392157, 0.20392157, 0.20392157, 0.31764707)
-custom_minimum_size = Vector2(350, 500)
+[node name="ButtonStart" type="Button" parent="ContentVBox" unique_id=200000029]
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.1, 0.1, 0.1, 1)
+theme_override_colors/font_pressed_color = Color(0.1, 0.1, 0.1, 0.7)
+theme_override_colors/font_hover_color = Color(0.1, 0.1, 0.1, 1)
+theme_override_colors/font_disabled_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/normal = SubResource("StyleBoxFlat_start")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_start")
+theme_override_styles/hover = SubResource("StyleBoxFlat_start")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_start_dis")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_focus")
+text = "START THE RUN"
+
+[connection signal="pressed" from="ButtonPrev" to="." method="_on_prev_pressed"]
+[connection signal="pressed" from="ButtonNext" to="." method="_on_next_pressed"]
+[connection signal="pressed" from="ContentVBox/ButtonStart" to="." method="_on_start_pressed"]

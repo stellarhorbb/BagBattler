@@ -11,3 +11,4 @@ lore = "There's a place where nobody can get wounded."
 rarity = 2
 cost = 7
 icon = ExtResource("2_icon")
+trigger_step = 0

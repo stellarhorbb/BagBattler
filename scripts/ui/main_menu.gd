@@ -5,6 +5,7 @@ extends Control
 @onready var button_quit = $VBoxContainer/ButtonQuit
 
 func _ready():
+	RunHUD.visible = false
 	MusicManager.play_menu()
 	button_start.pressed.connect(_on_start_pressed)
 	button_quit.pressed.connect(_on_quit_pressed)

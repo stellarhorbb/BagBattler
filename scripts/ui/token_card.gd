@@ -48,6 +48,20 @@ func set_streak_pulse(active: bool) -> void:
 	_pulse_tween.tween_property(self, "scale", Vector2(1.0, 1.0), 0.25).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_SINE)
 	_pulse_tween.tween_interval(0.5)
 
+func set_selected(selected: bool) -> void:
+	if selected:
+		_style.border_color = Color("000000ff")
+		_style.border_width_left = 10
+		_style.border_width_top = 10
+		_style.border_width_right = 10
+		_style.border_width_bottom = 10
+	else:
+		_style.border_color = Color("#FFFFFF")
+		_style.border_width_left = 6
+		_style.border_width_top = 6
+		_style.border_width_right = 6
+		_style.border_width_bottom = 6
+
 func set_inactive(inactive: bool) -> void:
 	if inactive:
 		_style.bg_color = Color("#4C4C4C")

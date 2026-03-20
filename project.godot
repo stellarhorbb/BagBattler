@@ -22,14 +22,15 @@ RelicManager="*res://scripts/relics/RelicManager.gd"
 ColorPalette="*res://scripts/core/color_palette.gd"
 Palette="*res://scripts/core/color_palette.gd"
 MusicManager="*res://scripts/core/music_manager.gd"
-SFXManager="*res://scripts/core/sfx_manager.gd"
 TooltipManager="*res://scripts/ui/tooltip_manager.gd"
+SFXManager="*res://scripts/core/sfx_manager.gd"
+RunHUD="*res://scripts/ui/run_hud.gd"
 
 [display]
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
-window/size/mode=1
+window/size/mode=2
 window/size/initial_position_type=3
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"

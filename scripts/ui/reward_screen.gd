@@ -1,62 +1,89 @@
 extends Control
 
-@onready var label_subtitle = $ContentVBox/LabelSubtitle
-@onready var stars_row = $ContentVBox/StarsRow
-@onready var reward_container = $ContentVBox/RewardContainer
-@onready var label_salt_total = $SaltHUD/SaltRow/LabelSaltTotal
-@onready var label_salt_earned = $SaltHUD/LabelSaltEarned
-@onready var player_hp_bar = $StatsBar/CenterStat/PlayerHPBar
-@onready var label_player_hp = $StatsBar/CenterStat/LabelPlayerHP
-@onready var label_dmg_value = $StatsBar/LeftStat/DmgRow/LabelDmgValue
-@onready var label_def_value = $StatsBar/RightStat/DefRow/LabelDefValue
+@onready var salt_icons_row: HBoxContainer = $ContentVBox/SaltSection/SaltIconsRow
+@onready var reward_container: HBoxContainer = $ContentVBox/RewardContainer
+@onready var label_choose: Label = $ContentVBox/LabelChoose
 
-var _font = preload("res://font/LondrinaSolid-Black.ttf")
-var reward_card_scene = preload("res://reward_card.tscn")
+var _salt_icon_tex = preload("res://assets/icons/ui/salt-icon.png")
+var _reward_card_scene = preload("res://reward_card.tscn")
+
+var _salt_reward: int = 0
+var _reward_chosen := false
 
 func _ready() -> void:
-	var reward = GameManager.calculate_combat_reward()
-	GameManager.gold += reward
+	_salt_reward = GameManager.calculate_combat_reward()
+	label_choose.modulate.a = 0.0
 
-	_build_stars()
 	_build_rewards()
-	_update_stats_bar()
-	_update_salt_hud(reward)
+	_build_salt_icons()
 
-func _build_stars() -> void:
-	var turns = GameManager.turns_played_last_combat
-	var star_count = 3 if turns < 5 else (2 if turns <= 10 else 1)
-	for child in stars_row.get_children():
-		child.queue_free()
-	for i in 3:
-		var star = Label.new()
-		star.text = "★"
-		star.add_theme_font_override("font", _font)
-		star.add_theme_font_size_override("font_size", 52)
-		star.add_theme_color_override("font_color",
-			Color(1.0, 0.78, 0.1, 1) if i < star_count else Color(0.35, 0.35, 0.35, 1))
-		stars_row.add_child(star)
+	RunHUD.visible = true
+	RunHUD.set_info_color(Color.WHITE)
+	RunHUD.refresh()
+
+	_animate_salt()
 
 func _build_rewards() -> void:
 	for child in reward_container.get_children():
 		child.queue_free()
 	for i in 3:
 		var r = RewardResource.generate_random()
-		var card = reward_card_scene.instantiate()
+		var card = _reward_card_scene.instantiate()
 		reward_container.add_child(card)
 		card.setup(r, func(): _on_reward_chosen(r))
 
-func _update_stats_bar() -> void:
-	label_dmg_value.text = "%d" % GameManager.base_damage
-	label_def_value.text = "%d" % GameManager.base_defense
-	player_hp_bar.max_value = GameManager.player_max_hp
-	player_hp_bar.value = GameManager.player_current_hp
-	label_player_hp.text = "%d/%d" % [GameManager.player_current_hp, GameManager.player_max_hp]
+func _build_salt_icons() -> void:
+	for child in salt_icons_row.get_children():
+		child.queue_free()
+	for i in _salt_reward:
+		var icon = TextureRect.new()
+		icon.texture = _salt_icon_tex
+		icon.custom_minimum_size = Vector2(32, 32)
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.pivot_offset = Vector2(16, 16)
+		icon.rotation_degrees = randf_range(-20.0, 20.0)
+		icon.modulate.a = 0.0
+		salt_icons_row.add_child(icon)
 
-func _update_salt_hud(earned: int) -> void:
-	label_salt_total.text = "%d" % GameManager.gold
-	label_salt_earned.text = "+%d" % earned
+func _animate_salt() -> void:
+	var icons = salt_icons_row.get_children()
+	if icons.is_empty():
+		_show_cards()
+		return
+
+	for i in icons.size():
+		var icon: TextureRect = icons[i]
+		var t = create_tween()
+		t.tween_interval(i * 0.18)
+		t.tween_property(icon, "modulate:a", 1.0, 0.12)
+		t.tween_callback(func():
+			GameManager.gold += 1
+			RunHUD.refresh()
+			_tilt_salt_counter()
+		)
+
+	var total_time := (icons.size() - 1) * 0.18 + 0.12 + 0.5
+	var seq = create_tween()
+	seq.tween_interval(total_time)
+	seq.tween_callback(_show_cards)
+
+func _tilt_salt_counter() -> void:
+	var lbl = RunHUD.label_gold
+	lbl.pivot_offset = lbl.size / 2.0
+	var t = create_tween()
+	t.tween_property(lbl, "rotation_degrees", randf_range(-12.0, 12.0), 0.07).set_trans(Tween.TRANS_SINE)
+	t.tween_property(lbl, "rotation_degrees", 0.0, 0.15).set_trans(Tween.TRANS_SPRING)
+
+func _show_cards() -> void:
+	var tween = create_tween()
+	tween.tween_property(label_choose, "modulate:a", 1.0, 0.3)
 
 func _on_reward_chosen(reward: RewardResource) -> void:
+	if _reward_chosen:
+		return
+	_reward_chosen = true
+
 	match reward.reward_type:
 		RewardResource.RewardType.GOLD:
 			GameManager.gold += reward.value

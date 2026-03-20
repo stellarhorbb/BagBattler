@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dokorik31dwvs" path="res://scripts/ui/sacrifice_screen.gd" id="1_sacr"]
 [ext_resource type="FontFile" uid="uid://bolt1salj5evg" path="res://font/LondrinaSolid-Black.ttf" id="2_font"]
-[ext_resource type="Script" uid="uid://dop2ejy7x0bus" path="res://scripts/ui/bottom_wave.gd" id="3_wave"]
+[ext_resource type="Script" path="res://scripts/ui/middle_wave.gd" id="3_mwave"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_confirm"]
 bg_color = Color(0.91, 0.16, 0.29, 1)
@@ -38,54 +38,56 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.013, 0.0002, 0.001, 1)
 
-[node name="BottomWave" type="Control" parent="." unique_id=-1294967295]
+[node name="MiddleWave" type="Control" parent="." unique_id=100000001]
 layout_mode = 1
-anchor_top = 0.62
+anchor_top = 0.22
 anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = 212.40002
-offset_bottom = 2.0
+anchor_bottom = 0.67
+offset_top = 36.399994
+offset_bottom = 110.39996
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-script = ExtResource("3_wave")
+script = ExtResource("3_mwave")
 
-[node name="ContentVBox" type="VBoxContainer" parent="." unique_id=1667708105]
+[node name="LabelTitle" type="Label" parent="." unique_id=61547533]
 layout_mode = 1
-anchors_preset = 15
+anchors_preset = 10
 anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 80.0
-offset_top = 111.0
-offset_right = -80.0
-offset_bottom = -49.0
+offset_top = 40.0
+offset_bottom = 150.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 16
-
-[node name="LabelTitle" type="Label" parent="ContentVBox" unique_id=61547533]
-layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 100
 text = "SACRIFICE"
 horizontal_alignment = 1
 
-[node name="LabelSubtitle" type="Label" parent="ContentVBox" unique_id=539026743]
-layout_mode = 2
+[node name="LabelSubtitle" type="Label" parent="." unique_id=539026743]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 155.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 32
 text = "REMOVE ONE TOKEN"
 horizontal_alignment = 1
 
-[node name="SpacerTop" type="Control" parent="ContentVBox" unique_id=2099275698]
-custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-
-[node name="TokenRow" type="HBoxContainer" parent="ContentVBox" unique_id=76343133]
-layout_mode = 2
-size_flags_horizontal = 4
+[node name="TokenRow" type="HBoxContainer" parent="." unique_id=76343133]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -135.0
+offset_bottom = 80.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_constants/separation = 32
 alignment = 1
 
@@ -98,12 +100,11 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -130.0
-offset_top = 145.0
+offset_top = 82.0
 offset_right = 130.0
-offset_bottom = 209.0
+offset_bottom = 146.0
 grow_horizontal = 2
 grow_vertical = 2
-size_flags_horizontal = 4
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
@@ -116,4 +117,4 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_confirm")
 theme_override_styles/disabled = SubResource("StyleBoxFlat_confirm_disabled")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_focus")
 disabled = true
-text = "CONFIRMER"
+text = "CONFIRM"

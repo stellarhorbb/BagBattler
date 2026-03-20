@@ -11,3 +11,4 @@ lore = "Someone lost his faithful trident thousands of years ago, but this thing
 rarity = 1
 cost = 6
 icon = ExtResource("2_icon")
+trigger_step = 0

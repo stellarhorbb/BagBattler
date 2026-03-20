@@ -1,11 +1,11 @@
 [gd_scene format=3 uid="uid://j5tbbfvkq2v2"]
 
 [ext_resource type="Script" uid="uid://c7jugbm2yf0rg" path="res://scripts/ui/battle_scene.gd" id="1_fw8re"]
-[ext_resource type="PackedScene" uid="uid://dmx4ppn2y5g2j" path="res://bag_inspector.tscn" id="2_r5l0u"]
-[ext_resource type="PackedScene" path="res://relic_line.tscn" id="3_relline"]
 [ext_resource type="PackedScene" uid="uid://c7yf1hyaoulfc" path="res://combat_slot.tscn" id="4_cslot"]
 [ext_resource type="FontFile" uid="uid://bolt1salj5evg" path="res://font/LondrinaSolid-Black.ttf" id="8_font_black"]
 [ext_resource type="Script" uid="uid://bxrevtokenhld" path="res://scripts/ui/revealed_token_holder.gd" id="9_revholder"]
+[ext_resource type="Texture2D" uid="uid://do4cc1pn1rhwh" path="res://assets/icons/ui/attack-icon.png" id="10_atkicon"]
+[ext_resource type="Texture2D" uid="uid://cuubpyby0njyq" path="res://assets/icons/ui/defense-icon.png" id="11_deficon"]
 
 [sub_resource type="Shader" id="Shader_eblob"]
 code = "shader_type canvas_item;
@@ -106,9 +106,6 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 1)
 
-[node name="BagInspector" parent="." unique_id=1361147510 instance=ExtResource("2_r5l0u")]
-layout_mode = 1
-
 [node name="EnemyZone" type="Control" parent="." unique_id=971891270]
 layout_mode = 1
 anchors_preset = 10
@@ -122,8 +119,8 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = 1.0
-offset_bottom = -19.0
+offset_top = -1.0
+offset_bottom = -61.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
@@ -141,6 +138,7 @@ grow_horizontal = 2
 theme_override_constants/separation = 10
 
 [node name="NameRow" type="HBoxContainer" parent="EnemyZone/EnemyContent" unique_id=971891273]
+visible = false
 layout_mode = 2
 
 [node name="LabelEnemyName" type="Label" parent="EnemyZone/EnemyContent/NameRow" unique_id=1013805118]
@@ -157,6 +155,15 @@ theme_override_font_sizes/font_size = 32
 text = "20/20"
 horizontal_alignment = 2
 
+[node name="LabelEnemyHPCenter" type="Label" parent="EnemyZone/EnemyContent" unique_id=1632338900]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("8_font_black")
+theme_override_font_sizes/font_size = 42
+text = "20/20"
+horizontal_alignment = 1
+
 [node name="EnemyHPBar" type="ProgressBar" parent="EnemyZone/EnemyContent" unique_id=971891274]
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
@@ -171,14 +178,15 @@ layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -200.0
-offset_top = 119.0
-offset_right = 200.0
-offset_bottom = 238.0
+offset_left = -400.0
+offset_top = 100.0
+offset_right = 400.0
+offset_bottom = 175.0
 grow_horizontal = 2
 alignment = 1
 
 [node name="LabelIntentionType" type="Label" parent="EnemyZone/IntentionBox" unique_id=971891276]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 32
@@ -188,8 +196,9 @@ horizontal_alignment = 1
 [node name="LabelEnemyIntention" type="Label" parent="EnemyZone/IntentionBox" unique_id=1516359842]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 72
-text = "◆ 5"
+theme_override_fonts/font = ExtResource("8_font_black")
+theme_override_font_sizes/font_size = 38
+text = "ENTITY ATTACK ◆ 5"
 horizontal_alignment = 1
 
 [node name="PlayerHUDRow" type="HBoxContainer" parent="." unique_id=334455700]
@@ -203,25 +212,6 @@ offset_bottom = 481.0
 grow_horizontal = 2
 alignment = 1
 
-[node name="TurnSection" type="VBoxContainer" parent="PlayerHUDRow" unique_id=112233445]
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="LabelTurnsTitle" type="Label" parent="PlayerHUDRow/TurnSection" unique_id=112233447]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_fonts/font = ExtResource("8_font_black")
-theme_override_font_sizes/font_size = 26
-text = "TURN"
-
-[node name="LabelTurns" type="Label" parent="PlayerHUDRow/TurnSection" unique_id=112233448]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_fonts/font = ExtResource("8_font_black")
-theme_override_font_sizes/font_size = 64
-text = "0"
-
 [node name="SpacerLeft" type="Control" parent="PlayerHUDRow" unique_id=334455800]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -232,13 +222,26 @@ layout_mode = 2
 theme_override_constants/separation = 4
 alignment = 1
 
-[node name="LabelATKTitle" type="Label" parent="PlayerHUDRow/ATKSection" unique_id=334455803]
+[node name="ATKTitleRow" type="HBoxContainer" parent="PlayerHUDRow/ATKSection" unique_id=334455810]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="ATKIcon" type="TextureRect" parent="PlayerHUDRow/ATKSection/ATKTitleRow" unique_id=334455811]
+modulate = Color(0.91, 0.16, 0.29, 1)
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 2
+texture = ExtResource("10_atkicon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LabelATKTitle" type="Label" parent="PlayerHUDRow/ATKSection/ATKTitleRow" unique_id=334455803]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("8_font_black")
-theme_override_font_sizes/font_size = 26
+theme_override_font_sizes/font_size = 32
 text = "ATK"
-horizontal_alignment = 1
 
 [node name="ATKBox" type="PanelContainer" parent="PlayerHUDRow/ATKSection" unique_id=999000001]
 layout_mode = 2
@@ -249,7 +252,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_statbox")
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_fonts/normal_font = ExtResource("8_font_black")
-theme_override_font_sizes/normal_font_size = 64
+theme_override_font_sizes/normal_font_size = 72
 bbcode_enabled = true
 text = "[center]0[/center]"
 fit_content = true
@@ -265,7 +268,7 @@ alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("8_font_black")
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 32
 text = "PRESSURE"
 horizontal_alignment = 1
 
@@ -273,7 +276,7 @@ horizontal_alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("8_font_black")
-theme_override_font_sizes/font_size = 80
+theme_override_font_sizes/font_size = 79
 text = "x1.0"
 horizontal_alignment = 1
 
@@ -283,13 +286,26 @@ layout_mode = 2
 theme_override_constants/separation = 4
 alignment = 1
 
-[node name="LabelDEFTitle" type="Label" parent="PlayerHUDRow/DEFSection" unique_id=334455806]
+[node name="DEFTitleRow" type="HBoxContainer" parent="PlayerHUDRow/DEFSection" unique_id=334455812]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="DEFIcon" type="TextureRect" parent="PlayerHUDRow/DEFSection/DEFTitleRow" unique_id=334455813]
+modulate = Color(0.24, 0.4, 1, 1)
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 2
+texture = ExtResource("11_deficon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LabelDEFTitle" type="Label" parent="PlayerHUDRow/DEFSection/DEFTitleRow" unique_id=334455806]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("8_font_black")
-theme_override_font_sizes/font_size = 26
+theme_override_font_sizes/font_size = 32
 text = "DEF"
-horizontal_alignment = 1
 
 [node name="DEFBox" type="PanelContainer" parent="PlayerHUDRow/DEFSection" unique_id=999000002]
 layout_mode = 2
@@ -300,7 +316,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_statbox")
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_fonts/normal_font = ExtResource("8_font_black")
-theme_override_font_sizes/normal_font_size = 64
+theme_override_font_sizes/normal_font_size = 72
 bbcode_enabled = true
 text = "[center]0[/center]"
 fit_content = true
@@ -310,38 +326,17 @@ scroll_active = false
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="SaltSection" type="VBoxContainer" parent="PlayerHUDRow" unique_id=112233446]
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="LabelSaltTitle" type="Label" parent="PlayerHUDRow/SaltSection" unique_id=112233449]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_fonts/font = ExtResource("8_font_black")
-theme_override_font_sizes/font_size = 26
-text = "SALT"
-horizontal_alignment = 2
-
-[node name="LabelGold" type="Label" parent="PlayerHUDRow/SaltSection" unique_id=112233450]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_fonts/font = ExtResource("8_font_black")
-theme_override_font_sizes/font_size = 64
-text = "♦ 0"
-horizontal_alignment = 2
-
 [node name="CombatSlotsRow" type="HBoxContainer" parent="." unique_id=700000001]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -430.0
-offset_top = 503.0
-offset_right = 430.0
-offset_bottom = 643.0
+offset_left = -375.0
+offset_top = 519.0
+offset_right = 375.0
+offset_bottom = 629.0
 grow_horizontal = 2
-theme_override_constants/separation = 40
+theme_override_constants/separation = 50
 alignment = 1
 
 [node name="Slot0" parent="CombatSlotsRow" unique_id=700000002 instance=ExtResource("4_cslot")]
@@ -364,11 +359,13 @@ custom_minimum_size = Vector2(280, 70)
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.5
+anchor_top = 0.5
 anchor_right = 0.5
+anchor_bottom = 0.5
 offset_left = -140.0
-offset_top = 705.0
+offset_top = 142.0
 offset_right = 140.0
-offset_bottom = 775.0
+offset_bottom = 212.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
@@ -397,17 +394,17 @@ grow_vertical = 0
 anchors_preset = 0
 offset_left = 109.0
 offset_top = 94.0
-offset_right = 269.0
-offset_bottom = 234.0
+offset_right = 219.0
+offset_bottom = 204.0
 mouse_filter = 2
 
 [node name="ButtonDraw" type="Button" parent="DrawArea" unique_id=755668552]
-custom_minimum_size = Vector2(140, 140)
+custom_minimum_size = Vector2(110, 110)
 layout_mode = 0
 offset_left = 111.0
 offset_top = 30.0
-offset_right = 251.0
-offset_bottom = 170.0
+offset_right = 221.0
+offset_bottom = 140.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
 theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
@@ -420,117 +417,13 @@ theme_override_styles/disabled = SubResource("StyleBoxFlat_btn_draw")
 text = "DRAW"
 
 [node name="RevealedTokenHolder" type="Control" parent="DrawArea" unique_id=700000010]
-custom_minimum_size = Vector2(140, 140)
+custom_minimum_size = Vector2(110, 110)
 anchors_preset = 0
 offset_left = 111.0
 offset_top = 30.0
-offset_right = 251.0
-offset_bottom = 170.0
+offset_right = 221.0
+offset_bottom = 140.0
 script = ExtResource("9_revholder")
-
-[node name="BagInfoArea" type="Control" parent="DrawArea" unique_id=700000023]
-anchors_preset = 0
-offset_left = 317.0
-offset_top = 88.0
-offset_right = 452.0
-offset_bottom = 448.0
-
-[node name="DrawCountLabel" type="Label" parent="DrawArea/BagInfoArea" unique_id=700000021]
-layout_mode = 0
-offset_left = 13.0
-offset_right = 148.0
-offset_bottom = 50.0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_fonts/font = ExtResource("8_font_black")
-theme_override_font_sizes/font_size = 38
-text = "0"
-
-[node name="TypeBreakdownBox" type="VBoxContainer" parent="DrawArea/BagInfoArea" unique_id=700000022]
-layout_mode = 0
-offset_top = 58.0
-offset_right = 135.0
-offset_bottom = 320.0
-theme_override_constants/separation = 12
-
-[node name="PlayerBottomBar" type="HBoxContainer" parent="." unique_id=600000001]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -585.0
-offset_top = -250.0
-offset_right = 585.0
-offset_bottom = -60.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_constants/separation = 40
-alignment = 1
-
-[node name="LeftStatSection" type="VBoxContainer" parent="PlayerBottomBar" unique_id=600000003]
-custom_minimum_size = Vector2(220, 0)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_constants/separation = 4
-alignment = 1
-
-[node name="TopRow" type="HBoxContainer" parent="PlayerBottomBar/LeftStatSection" unique_id=600000011]
-layout_mode = 2
-theme_override_constants/separation = 6
-alignment = 1
-
-[node name="LabelBaseDamage" type="Label" parent="PlayerBottomBar/LeftStatSection/TopRow" unique_id=334455669]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 72
-text = "3"
-vertical_alignment = 1
-
-[node name="CenterSection" type="VBoxContainer" parent="PlayerBottomBar" unique_id=600000006]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 10
-alignment = 1
-
-[node name="RelicLine" parent="PlayerBottomBar/CenterSection" unique_id=1494610562 instance=ExtResource("3_relline")]
-layout_mode = 2
-alignment = 1
-
-[node name="PlayerHPBar" type="ProgressBar" parent="PlayerBottomBar/CenterSection" unique_id=600000007]
-custom_minimum_size = Vector2(0, 20)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/background = SubResource("StyleBoxFlat_hpbg")
-theme_override_styles/fill = SubResource("StyleBoxFlat_hpfill")
-value = 100.0
-show_percentage = false
-
-[node name="LabelPlayerHP" type="Label" parent="PlayerBottomBar/CenterSection" unique_id=50330458]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 24
-text = "30/30"
-horizontal_alignment = 1
-
-[node name="RightStatSection" type="VBoxContainer" parent="PlayerBottomBar" unique_id=600000008]
-custom_minimum_size = Vector2(220, 0)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_constants/separation = 4
-alignment = 1
-
-[node name="TopRow" type="HBoxContainer" parent="PlayerBottomBar/RightStatSection" unique_id=600000012]
-layout_mode = 2
-theme_override_constants/separation = 6
-alignment = 1
-
-[node name="LabelBaseDefense" type="Label" parent="PlayerBottomBar/RightStatSection/TopRow" unique_id=334455670]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 72
-text = "10"
-vertical_alignment = 1
 
 [node name="ButtonNext" type="Button" parent="." unique_id=1970767732]
 visible = false
