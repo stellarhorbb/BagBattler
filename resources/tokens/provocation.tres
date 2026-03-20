@@ -6,10 +6,11 @@
 script = ExtResource("1_8uf7i")
 token_name = "Provocation"
 token_type = 2
-description = "Reduces Entity ATK by 20%. If placed on the first slot → 30%."
+description = "Reduces Entity ATK by 20%"
 shop_drop_weight = 0.5
 placement_slot = 1
 placement_target = 3
 placement_value = -0.1
+placement_bonus_description = "+10% if FIRST slot"
 base_target = 3
 base_value = -0.2

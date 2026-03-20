@@ -16,7 +16,7 @@ count = 3
 [sub_resource type="Resource" id="Resource_2hxan"]
 script = ExtResource("2_okrrx")
 token = ExtResource("4_b62gq")
-count = 2
+count = 3
 
 [sub_resource type="Resource" id="Resource_0ehes"]
 script = ExtResource("2_okrrx")
@@ -34,5 +34,6 @@ count = 2
 [resource]
 script = ExtResource("1_0w5r0")
 starting_bag = Array[ExtResource("2_okrrx")]([SubResource("Resource_jkosw"), SubResource("Resource_2hxan"), SubResource("Resource_0ehes"), SubResource("Resource_r1lkp"), SubResource("Resource_4axj8")])
-base_defense = 5
+base_defense = 3
 base_hp = 20
+slot_count = 6

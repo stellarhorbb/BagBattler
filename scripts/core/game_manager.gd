@@ -3,6 +3,7 @@ extends Node
 var selected_job: JobResource = null
 var current_round: int = 1
 var gold: int = 0
+var slot_count: int = 6
 var turns_played_last_combat: int = 0
 var base_damage: int
 var base_defense: int
@@ -22,6 +23,7 @@ func reset_run() -> void:
 	selected_job = null
 	current_round = 1
 	gold = 0
+	slot_count = 6
 	turns_played_last_combat = 0
 	base_damage_fractional = 0.0
 	purchased_tokens.clear()
@@ -38,6 +40,7 @@ func init_run_stats(job: JobResource) -> void:
 	pressure_increment = 0.1
 	player_max_hp = job.base_hp
 	player_current_hp = player_max_hp
+	slot_count = job.slot_count
 
 func calculate_combat_reward() -> int:
 	var reward = 5

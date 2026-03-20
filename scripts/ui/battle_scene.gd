@@ -1,18 +1,20 @@
 extends Control
 
+const CombatSlotScene := preload("res://combat_slot.tscn")
+
 # Enemy zone
 @onready var blob_bg = $EnemyZone/BlobBG
 @onready var label_enemy_name = $EnemyZone/EnemyContent/NameRow/LabelEnemyName
-@onready var label_enemy_hp = $EnemyZone/EnemyContent/NameRow/LabelEnemyHP
+@onready var label_enemy_hp = $EnemyZone/EnemyContent/LabelEnemyHPCenter
 @onready var enemy_hp_bar = $EnemyZone/EnemyContent/EnemyHPBar
 @onready var label_intention_type = $EnemyZone/IntentionBox/LabelIntentionType
 @onready var label_enemy_intention = $EnemyZone/IntentionBox/LabelEnemyIntention
 
 # HUD
-@onready var label_turns = $PlayerHUDRow/TurnSection/LabelTurns
-@onready var label_turns_title = $PlayerHUDRow/TurnSection/LabelTurnsTitle
-@onready var label_gold = $PlayerHUDRow/SaltSection/LabelGold
-@onready var label_salt_title = $PlayerHUDRow/SaltSection/LabelSaltTitle
+@onready var label_turns = $TurnSection/LabelTurns
+@onready var label_turns_title = $TurnSection/LabelTurnsTitle
+@onready var label_gold = $SaltSection/GoldRow/LabelGold
+@onready var label_salt_title = $SaltSection/LabelSaltTitle
 
 # Combat slots + controls
 @onready var combat_slots_row = $CombatSlotsRow
@@ -31,13 +33,15 @@ extends Control
 @onready var label_pressure_value = $PlayerHUDRow/PressureSection/LabelPressureValue
 @onready var label_turn_atk = $PlayerHUDRow/ATKSection/ATKBox/LabelTurnATK
 @onready var label_turn_def = $PlayerHUDRow/DEFSection/DEFBox/LabelTurnDEF
+@onready var atk_box = $PlayerHUDRow/ATKSection/ATKBox
+@onready var def_box = $PlayerHUDRow/DEFSection/DEFBox
 
 # Player bottom bar
 @onready var relic_line = $PlayerBottomBar/CenterSection/RelicLine
 @onready var player_hp_bar = $PlayerBottomBar/CenterSection/PlayerHPBar
-@onready var label_player_hp = $PlayerBottomBar/CenterSection/LabelPlayerHP
-@onready var label_base_damage = $PlayerBottomBar/LeftStatSection/TopRow/LabelBaseDamage
-@onready var label_base_defense = $PlayerBottomBar/RightStatSection/TopRow/LabelBaseDefense
+@onready var label_player_hp = $PlayerBottomBar/CenterSection/BottomStatsRow/LabelPlayerHP
+@onready var label_base_damage = $PlayerBottomBar/CenterSection/BottomStatsRow/ATKStatLeft/LabelBaseDamage
+@onready var label_base_defense = $PlayerBottomBar/CenterSection/BottomStatsRow/DEFStatRight/LabelBaseDefense
 
 # VFX
 @onready var flash_overlay = $FlashOverlay
@@ -101,11 +105,15 @@ func _ready():
 	setup_enemy()
 
 	# Setup combat slots
-	_slots = combat_slots_row.get_children()
-	for i in _slots.size():
-		_slots[i].setup(i)
-		_slots[i].token_dropped.connect(_on_token_placed_in_slot)
-		_slots[i].slot_clicked.connect(_on_slot_clicked)
+	for child in combat_slots_row.get_children():
+		child.queue_free()
+	for i in GameManager.slot_count:
+		var slot = CombatSlotScene.instantiate()
+		combat_slots_row.add_child(slot)
+		slot.setup(i)
+		slot.token_dropped.connect(_on_token_placed_in_slot)
+		slot.slot_clicked.connect(_on_slot_clicked)
+		_slots.append(slot)
 
 	drag_controller.setup(_slots, revealed_token_holder, token_card_scene, self)
 	drag_controller.drag_dropped.connect(_on_token_placed_in_slot)
@@ -155,14 +163,14 @@ func setup_enemy() -> void:
 
 	var display_ante = GameManager.get_current_ante() - 1
 	var display_round = GameManager.get_round_in_ante()
-	label_enemy_name.text = "%d.%d — %s" % [display_ante, display_round, GameManager.get_depth_name().to_upper()]
+	label_turns_title.text = GameManager.get_depth_name().to_upper()
+	label_turns.text = "%d.%d" % [display_ante, display_round]
 	if GameManager.is_boss_round():
-		label_enemy_name.text += " ★ BOSS"
+		label_turns_title.text += " ★ BOSS"
 	enemy_hp_bar.max_value = stats.hp
 	enemy_hp_bar.value = stats.hp
 	label_enemy_hp.text = "%d/%d" % [stats.hp, stats.hp]
-	label_intention_type.text = "ATTACK"
-	label_enemy_intention.text = "◆ %d" % stats.atk
+	label_enemy_intention.text = "ENTITY ATTACK ◆ %d" % stats.atk
 
 	if GameManager.is_boss_round():
 		blob_bg.material.set_shader_parameter("color", Color(0.85, 0.1, 0.15, 1.0))
@@ -228,6 +236,7 @@ func _on_slot_clicked(slot_index: int) -> void:
 	if token == null or drag_controller.is_dragging():
 		return
 	revealed_token_holder.clear()
+	TooltipManager.suppress_briefly()
 	_slots[slot_index].place_token(token)
 	await _on_token_placed_in_slot(slot_index, token)
 
@@ -414,18 +423,25 @@ func _on_button_execute_pressed() -> void:
 	GameManager.gold = context["gold"]
 	hud.update_hud()
 
-	# Step 3 — pressure multiplies ATK and DEF labels
-	var atk_color := Color(0.91, 0.16, 0.29, 1) if result.total_attack > 0 else Color(1, 1, 1, 1)
-	var def_color := Color(0.24, 0.4, 1, 1) if result.total_defense > 0 else Color(1, 1, 1, 1)
+	# Step 3 — pressure multiplies ATK and DEF, relics may modify final values
 	var eff_pressure: float = context.get("pressure", current_pressure)
 	var final_attack := roundi(context.get("total_attack", result.total_attack) * eff_pressure)
 	var final_defense := roundi(context.get("total_defense", result.total_defense) * eff_pressure)
 	var modified_damage: int = roundi(current_enemy.current_damage * result.damage_multiplier)
 	var incoming_damage: int = max(0, modified_damage - final_defense)
+	context["final_attack"] = final_attack
+	context["final_defense"] = final_defense
+	context["incoming_damage"] = incoming_damage
+	context = RelicManager.trigger_pressure_mult(context)
+	final_attack = context.get("final_attack", final_attack)
+	final_defense = context.get("final_defense", final_defense)
+	incoming_damage = max(0, context.get("incoming_damage", incoming_damage))
+	var atk_color := Color(0.91, 0.16, 0.29, 1) if final_attack > 0 else Color(0.1, 0.1, 0.1, 1)
+	var def_color := Color(0.24, 0.4, 1, 1) if final_defense > 0 else Color(0.1, 0.1, 0.1, 1)
 	SFXManager.play("pressure-resolution")
 	hud.animate_pressure_label(label_pressure_value)
-	hud.animate_pressure_on_stat(label_turn_atk, "%d" % final_attack, atk_color)
-	await hud.animate_pressure_on_stat(label_turn_def, "%d" % final_defense, def_color)
+	hud.animate_pressure_on_stat(label_turn_atk, "%d" % final_attack, atk_box, atk_color)
+	await hud.animate_pressure_on_stat(label_turn_def, "%d" % final_defense, def_box, def_color)
 	await get_tree().create_timer(0.6).timeout
 
 	# Step 4 — ATK label strikes, entity loses HP
@@ -441,14 +457,16 @@ func _on_button_execute_pressed() -> void:
 		for t in tokens_to_return:
 			bag_manager.bag.append(t)
 		bag_manager.shuffle()
-		# Death blow — enemy still deals 50% of what it would have
+		# Step 7 — death blow, relics may modify damage
 		var death_blow_damage := roundi(incoming_damage * 0.5)
+		var db_context := {"death_blow_damage": death_blow_damage, "incoming_damage": incoming_damage}
+		db_context = RelicManager.trigger_deathblow(db_context)
+		death_blow_damage = db_context.get("death_blow_damage", death_blow_damage)
 		if death_blow_damage > 0:
 			_death_blow_active = true
 			TooltipManager.set_enabled(false)
 			var intention_box: Control = $EnemyZone/IntentionBox
-			label_intention_type.text = "DEATH BLOW"
-			label_enemy_intention.text = ""
+			label_enemy_intention.text = "DEATH BLOW"
 			intention_box.pivot_offset = intention_box.size / 2.0
 			intention_box.rotation_degrees = -10.0
 			intention_box.scale = Vector2(0.6, 0.6)
@@ -457,7 +475,7 @@ func _on_button_execute_pressed() -> void:
 			tween_a.tween_property(intention_box, "scale", Vector2(1.0, 1.0), 0.45).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 			await tween_a.finished
 			await get_tree().create_timer(0.2).timeout
-			label_enemy_intention.text = "-%d HP" % death_blow_damage
+			label_enemy_intention.text = "DEATH BLOW  -%d HP" % death_blow_damage
 			intention_box.rotation_degrees = 5.0
 			var tween_b = create_tween()
 			tween_b.tween_property(intention_box, "rotation_degrees", 0.0, 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
@@ -476,7 +494,7 @@ func _on_button_execute_pressed() -> void:
 	# Step 5 — DEF label fires, entity intention updates to show remaining damage
 	await hud.tilt_hard(label_turn_def)
 	if final_defense > 0:
-		label_enemy_intention.text = "◆ %d" % incoming_damage
+		label_enemy_intention.text = "ENTITY ATTACK ◆ %d" % incoming_damage
 	await get_tree().create_timer(0.5).timeout
 
 	# Step 6 — entity intention strikes, player loses HP

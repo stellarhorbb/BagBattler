@@ -86,6 +86,7 @@ func end_drag() -> void:
 		await t.finished
 		card.queue_free()
 		_holder.clear()
+		TooltipManager.suppress_briefly()
 		drop_slot.place_token(_drag_token)
 		var dropped_token := _drag_token
 		_drag_token = null

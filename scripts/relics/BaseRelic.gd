@@ -12,6 +12,12 @@ func on_hazard_drawn() -> int:
 func on_before_crash(draw_count: int, hazard_count: int) -> bool:
 	return false
 
+func on_pressure_mult(context: Dictionary) -> Dictionary:
+	return context
+
+func on_deathblow(context: Dictionary) -> Dictionary:
+	return context
+
 func on_reward_screen() -> void:
 	pass
 

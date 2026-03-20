@@ -29,9 +29,9 @@ func setup(token: TokenResource) -> void:
 		TokenResource.TokenType.HAZARD:   _style.bg_color = Color("#111111")
 		_:                                _style.bg_color = Color("#444444")
 	circle_panel.add_theme_stylebox_override("panel", _style)
-	circle_panel.size = Vector2(140, 140)
-	icon_texture.size = Vector2(80, 80)
-	icon_texture.position = Vector2(30, 30)
+	circle_panel.size = Vector2(110, 110)
+	icon_texture.size = Vector2(60, 60)
+	icon_texture.position = Vector2(25, 25)
 	_load_icon()
 
 
@@ -70,12 +70,12 @@ func _on_unhover() -> void:
 
 func _load_icon() -> void:
 	var icon_map = {
-		"strike":      "res://assets/icons/tokens/strike-icon.png",
-		"guard":       "res://assets/icons/tokens/guard-icon.png",
-		"rampart":     "res://assets/icons/tokens/rampart-icon.png",
-		"provocation": "res://assets/icons/tokens/provocation-icon.png",
-		"hazard":      "res://assets/icons/tokens/skull-icon.png",
-		"heal":        "res://assets/icons/tokens/heal.png",
+		"strike":      "res://assets/icons/tokens/new/strike.png",
+		"guard":       "res://assets/icons/tokens/new/guard.png",
+		"rampart":     "res://assets/icons/tokens/new/rampart.png",
+		"provocation": "res://assets/icons/tokens/new/provocation.png",
+		"skull":       "res://assets/icons/tokens/new/skull.png",
+		"heal":        "res://assets/icons/tokens/new/heal.png",
 	}
 	var key = token_data.token_name.to_lower()
 	if icon_map.has(key) and ResourceLoader.exists(icon_map[key]):

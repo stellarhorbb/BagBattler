@@ -9,8 +9,7 @@ func setup(scene: CanvasItem) -> void:
 	_s = scene
 
 func update_hud() -> void:
-	_s.label_turns.text = "%d" % _s.turns_played
-	_s.label_gold.text = "♦ %d" % GameManager.gold
+	_s.label_gold.text = "%d" % GameManager.gold
 
 func update_player_hp() -> void:
 	GameManager.player_current_hp = _s.player_current_hp
@@ -39,8 +38,8 @@ func update_draw_pile(bag_manager) -> void:
 	# Add bottom-to-top so top circle is last child (renders in front)
 	for i in range(bag_size - 1, -1, -1):
 		var circle := Panel.new()
-		circle.size = Vector2(140, 140)
-		circle.custom_minimum_size = Vector2(140, 140)
+		circle.size = Vector2(110, 110)
+		circle.custom_minimum_size = Vector2(110, 110)
 		circle.add_theme_stylebox_override("panel", pile_style)
 		circle.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		circle.position = Vector2(0, i * 80)
@@ -100,8 +99,17 @@ static func _fmt_number(v: float) -> String:
 		return "%d" % int(v)
 	return "%.1f" % v
 
-static func _formula_bbcode(formula: String, color: Color) -> String:
-	return "[center][color=#%s]%s[/color][/center]" % [color.to_html(false), formula]
+static func _formula_bbcode(formula: String) -> String:
+	return "[center][color=#ffffff]%s[/color][/center]" % formula
+
+func _set_box_color(box: PanelContainer, color: Color) -> void:
+	var s := StyleBoxFlat.new()
+	s.bg_color = color
+	s.corner_radius_top_left = 10
+	s.corner_radius_top_right = 10
+	s.corner_radius_bottom_right = 10
+	s.corner_radius_bottom_left = 10
+	box.add_theme_stylebox_override("panel", s)
 
 func update_combat_line_totals() -> void:
 	var cards = _s._get_slot_cards()
@@ -116,15 +124,14 @@ func update_combat_line_totals() -> void:
 	if cards.is_empty():
 		_s.label_pressure_value.text = "x%.2f" % _s.current_pressure
 		_s.vfx.update_vignette(0)
-		_s.label_turn_atk.parse_bbcode("[center]0[/center]")
-		_s.label_turn_def.parse_bbcode("[center]0[/center]")
-		_s.label_intention_type.text = "ATTACK"
-		_s.label_enemy_intention.text = "◆ %d" % _s.current_enemy.current_damage
+		_s.label_turn_atk.parse_bbcode(_formula_bbcode("0"))
+		_s.label_turn_def.parse_bbcode(_formula_bbcode("0"))
+		_set_box_color(_s.atk_box, Color(0.1, 0.1, 0.1, 1))
+		_set_box_color(_s.def_box, Color(0.1, 0.1, 0.1, 1))
+		_s.label_enemy_intention.text = "ENTITY ATTACK ◆ %d" % _s.current_enemy.current_damage
 		_s.label_enemy_intention.add_theme_color_override("font_color", intention_color())
-		_s.label_intention_type.add_theme_color_override("font_color", intention_color())
 		for slot in _s._slots:
 			slot.set_effect_state(false)
-			slot.set_streak_active(false)
 			if slot.get_card():
 				slot.get_card().set_streak_pulse(false)
 		return
@@ -143,7 +150,7 @@ func update_combat_line_totals() -> void:
 		var color := token_type_color(card.token_data.token_type)
 		card.set_inactive(result.inactive_slots.has(i))
 		card.set_streak_pulse(result.streak_active_slots.has(i))
-		slot.set_streak_active(result.streak_active_slots.has(i), color)
+		slot.set_streak_active(false)
 		slot.set_effect_state(result.placement_active_slots.has(i), color)
 
 	# Show base x count during placement
@@ -152,17 +159,16 @@ func update_combat_line_totals() -> void:
 	var atk_base := GameManager.base_damage + GameManager.base_damage_fractional
 	var atk_str := _stat_formula(atk_base, result.atk_count)
 	var def_str := _stat_formula(float(GameManager.base_defense), result.def_count)
-	_s.label_turn_atk.parse_bbcode(_formula_bbcode(atk_str, atk_col))
-	_s.label_turn_def.parse_bbcode(_formula_bbcode(def_str, def_col))
+	_s.label_turn_atk.parse_bbcode(_formula_bbcode(atk_str))
+	_s.label_turn_def.parse_bbcode(_formula_bbcode(def_str))
+	var atk_box_col := Color(0.91, 0.16, 0.29, 1) if result.atk_count > 0 else Color(0.1, 0.1, 0.1, 1)
+	var def_box_col := Color(0.24, 0.4, 1, 1) if result.def_count > 0 else Color(0.1, 0.1, 0.1, 1)
+	_set_box_color(_s.atk_box, atk_box_col)
+	_set_box_color(_s.def_box, def_box_col)
 
 	# Enemy intention — arrow when Provocation reduces it
-	_s.label_intention_type.text = "ATTACK"
-	_s.label_intention_type.add_theme_color_override("font_color", intention_color())
-	if result.damage_multiplier < 1.0:
-		var modified_damage := roundi(_s.current_enemy.current_damage * result.damage_multiplier)
-		_s.label_enemy_intention.text = "◆ %d" % modified_damage
-	else:
-		_s.label_enemy_intention.text = "◆ %d" % _s.current_enemy.current_damage
+	var shown_damage: int = roundi(_s.current_enemy.current_damage * result.damage_multiplier) if result.damage_multiplier < 1.0 else _s.current_enemy.current_damage
+	_s.label_enemy_intention.text = "ENTITY ATTACK ◆ %d" % shown_damage
 	_s.label_enemy_intention.add_theme_color_override("font_color", intention_color())
 
 	_s.vfx.update_vignette(_s._count_hazards_in_slots())
@@ -193,8 +199,9 @@ func animate_pressure_label(label: Label) -> void:
 	t2.tween_property(label, "rotation", 0.0, 0.28).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	await t2.finished
 
-func animate_pressure_on_stat(label: RichTextLabel, new_text: String, color: Color) -> void:
-	label.parse_bbcode(_formula_bbcode(new_text, color))
+func animate_pressure_on_stat(label: RichTextLabel, new_text: String, box: PanelContainer, color: Color) -> void:
+	label.parse_bbcode(_formula_bbcode(new_text))
+	_set_box_color(box, color)
 	label.pivot_offset = label.size / 2.0
 	var tilt := deg_to_rad(8.0) if color.r > 0.5 else deg_to_rad(-8.0)
 	var t = label.create_tween()
@@ -228,8 +235,8 @@ func on_enemy_hp_changed(new_hp: int, max_hp: int) -> void:
 	var t = _s.create_tween()
 	t.tween_property(_s.enemy_hp_bar, "value", new_hp, 0.6).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 
-func on_enemy_intention_changed(_intention_type: String, damage: int) -> void:
-	_s.label_enemy_intention.text = "◆ %d" % damage
+func on_enemy_intention_changed(intention_type: String, damage: int) -> void:
+	_s.label_enemy_intention.text = "ENTITY %s ◆ %d" % [intention_type.to_upper(), damage]
 
 func token_type_color(type: TokenResource.TokenType) -> Color:
 	match type:

@@ -4,6 +4,7 @@ var _relic_tooltip: Control
 var _token_tooltip: Control
 var _hide_timer: SceneTreeTimer = null
 var _enabled := true
+var _suppressed_until := 0.0
 
 func _ready() -> void:
 	layer = 100
@@ -16,6 +17,11 @@ func _ready() -> void:
 	_token_tooltip = preload("res://token_tooltip.tscn").instantiate()
 	add_child(_token_tooltip)
 	_token_tooltip.position = Vector2(-9999, -9999)
+	_token_tooltip.hide()
+
+func suppress_briefly(duration: float = 0.5) -> void:
+	_suppressed_until = Time.get_ticks_msec() / 1000.0 + duration
+	_relic_tooltip.hide()
 	_token_tooltip.hide()
 
 func set_enabled(value: bool) -> void:
@@ -40,6 +46,8 @@ func show_relic(data: RelicResource, card_global_pos: Vector2, card_size: Vector
 
 func show_token(data: TokenResource, card_global_pos: Vector2, card_size: Vector2) -> void:
 	if not _enabled:
+		return
+	if Time.get_ticks_msec() / 1000.0 < _suppressed_until:
 		return
 	_hide_timer = null
 	_relic_tooltip.hide()

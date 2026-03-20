@@ -43,6 +43,22 @@ func trigger_before_crash(draw_count: int, hazard_count: int) -> bool:
 			return true
 	return false
 
+func trigger_pressure_mult(context: Dictionary) -> Dictionary:
+	for i in relics.size():
+		var atk_before: int = context.get("final_attack", 0)
+		context = relics[i].on_pressure_mult(context)
+		if context.get("final_attack", 0) != atk_before:
+			relic_triggered.emit(i)
+	return context
+
+func trigger_deathblow(context: Dictionary) -> Dictionary:
+	for i in relics.size():
+		var dmg_before: int = context.get("death_blow_damage", 0)
+		context = relics[i].on_deathblow(context)
+		if context.get("death_blow_damage", 0) != dmg_before:
+			relic_triggered.emit(i)
+	return context
+
 func trigger_reward_screen() -> void:
 	for relic in relics:
 		relic.on_reward_screen()

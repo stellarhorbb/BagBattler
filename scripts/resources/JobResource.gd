@@ -10,3 +10,4 @@ extends Resource
 @export var base_damage: int = 3
 @export var base_defense: int = 10
 @export var base_hp: int = 80
+@export var slot_count: int = 5

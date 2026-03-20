@@ -23,6 +23,7 @@ enum StreakScope   { CONSECUTIVE, ADJACENT }
 @export var placement_value: float = 0.0
 @export var placement_count_scale: bool = false   # if true: value × count of placement_count_type on line
 @export var placement_count_type: TokenType = TokenType.DEFENSE
+@export var placement_bonus_description: String = ""
 
 # Streak — bonus per token count
 @export_group("Streak")
@@ -30,6 +31,7 @@ enum StreakScope   { CONSECUTIVE, ADJACENT }
 @export var streak_scope: StreakScope = StreakScope.CONSECUTIVE
 @export var streak_min: int = 2
 @export var streak_value_per_token: float = 0.0
+@export var streak_bonus_description: String = ""
 
 # Base — always fires on execute
 @export_group("Base")

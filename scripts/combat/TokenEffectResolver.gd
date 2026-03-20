@@ -20,13 +20,11 @@ static func resolve(cards: Array, total_slots: int = 5) -> ResolveResult:
 		match token.base_target:
 			TokenResource.EffectTarget.DAMAGE_MULT:
 				result.damage_multiplier += token.base_value
-				result.placement_active_slots.append(i)
 			TokenResource.EffectTarget.HP:
 				card_hp += token.base_value
 			TokenResource.EffectTarget.PRESSURE:
 				result.pressure_bonus += token.base_value
 				result.pressure_events.append({"slots": [i], "bonus": token.base_value})
-				result.placement_active_slots.append(i)
 
 		# Placement effect — fires only at right slot
 		if placement_met and token.placement_target != TokenResource.EffectTarget.NONE:
@@ -73,7 +71,7 @@ static func resolve(cards: Array, total_slots: int = 5) -> ResolveResult:
 
 static func _placement_met(slot: TokenResource.SlotPosition, card_index: int, slot_index: int, total_slots: int) -> bool:
 	match slot:
-		TokenResource.SlotPosition.FIRST: return card_index == 0
+		TokenResource.SlotPosition.FIRST: return slot_index == 0
 		TokenResource.SlotPosition.LAST:  return slot_index == total_slots - 1
 		_: return false
 
@@ -129,9 +127,15 @@ static func _apply_consecutive(cards: Array, start: int, run_end: int, result: R
 
 static func _apply_adjacent(cards: Array, card_index: int, result: ResolveResult) -> void:
 	var token: TokenResource = cards[card_index].token_data
+	var my_slot: int = cards[card_index].get_parent().slot_index
 	var neighbors := 0
-	if card_index > 0: neighbors += 1
-	if card_index < cards.size() - 1: neighbors += 1
+	for j in cards.size():
+		if j == card_index:
+			continue
+		if cards[j].token_data.token_type != token.token_type:
+			continue
+		if abs(cards[j].get_parent().slot_index - my_slot) == 1:
+			neighbors += 1
 
 	if neighbors == 0 or neighbors < token.streak_min:
 		return

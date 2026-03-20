@@ -29,21 +29,21 @@ static func _fill_value(reward: RewardResource) -> void:
 			match reward.reward_type:
 				RewardType.GOLD:            reward.value = randi_range(6, 8)
 				RewardType.HP_MAX:          reward.value = 5
-				RewardType.UPGRADE_DAMAGE:  reward.value = 1
+				RewardType.UPGRADE_DAMAGE:  reward.value = 2
 				RewardType.UPGRADE_DEFENSE: reward.value = 2
 				RewardType.HEAL:            reward.value = 10
 		Rarity.RARE:
 			match reward.reward_type:
 				RewardType.GOLD:            reward.value = randi_range(10, 14)
 				RewardType.HP_MAX:          reward.value = 8
-				RewardType.UPGRADE_DAMAGE:  reward.value = 2
+				RewardType.UPGRADE_DAMAGE:  reward.value = 3
 				RewardType.UPGRADE_DEFENSE: reward.value = 3
 				RewardType.HEAL:            reward.value = 18
 		Rarity.EPIC:
 			match reward.reward_type:
 				RewardType.GOLD:            reward.value = randi_range(18, 22)
 				RewardType.HP_MAX:          reward.value = 12
-				RewardType.UPGRADE_DAMAGE:  reward.value = 3
+				RewardType.UPGRADE_DAMAGE:  reward.value = 4
 				RewardType.UPGRADE_DEFENSE: reward.value = 4
 				RewardType.HEAL:            reward.value = 28
 		Rarity.LEGENDARY:
@@ -51,7 +51,7 @@ static func _fill_value(reward: RewardResource) -> void:
 				RewardType.GOLD:            reward.value = randi_range(30, 40)
 				RewardType.HP_MAX:          reward.value = 18
 				RewardType.UPGRADE_DAMAGE:  reward.value = 5
-				RewardType.UPGRADE_DEFENSE: reward.value = 6
+				RewardType.UPGRADE_DEFENSE: reward.value = 5
 				RewardType.HEAL:            reward.value = 40
 
 static func generate_random() -> RewardResource:
@@ -67,6 +67,14 @@ static func generate_random() -> RewardResource:
 		reward.rarity = Rarity.EPIC
 	else:
 		reward.rarity = Rarity.LEGENDARY
-	reward.reward_type = randi() % 5 as RewardType
+	reward.reward_type = _weighted_type()
 	_fill_value(reward)
 	return reward
+
+static func _weighted_type() -> RewardType:
+	var roll := randf() * 100.0
+	if roll < 40.0: return RewardType.GOLD
+	if roll < 60.0: return RewardType.HEAL
+	if roll < 80.0: return RewardType.HP_MAX
+	if roll < 90.0: return RewardType.UPGRADE_DAMAGE
+	return RewardType.UPGRADE_DEFENSE

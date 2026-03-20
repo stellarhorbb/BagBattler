@@ -420,3 +420,30 @@ Quand le joueur tue l'ennemi mais aurait subi des dégâts :
 - Animation dans l'IntentionBox : "DEATH BLOW" pop avec tilt (spring), puis "−X HP" en contre-tilt
 - Barre de vie du joueur s'anime pendant l'affichage
 - 1s de pause puis transition vers l'écran de récompense
+
+---
+
+## 20 Mars 2026 — Session 6 : Slot scalable · Bugfixes resolver · Simplification visuelle
+
+**Tooltip anti-spam au placement ✅**
+- `TooltipManager.suppress_briefly()` : bloque le tooltip 0.5s après un drop (timestamp)
+- Appelé dans `DragController.end_drag()` et `battle_scene._on_slot_clicked()`
+- Hover intentionnel reste instantané
+
+**Slot count scalable ✅**
+- `GameManager.slot_count` (défaut 5) + `JobResource.slot_count` field exporté
+- `battle_scene._ready` instancie les slots dynamiquement selon `GameManager.slot_count`
+- `token_tooltip.gd` lit `GameManager.slot_count` au lieu d'une `const N_SLOTS`
+
+**Bugfixes TokenEffectResolver ✅**
+- `_placement_met` FIRST : `card_index == 0` → `slot_index == 0` (slot physique, cohérent avec LAST)
+- `_apply_adjacent` : voisins filtrés par slot physique adjacent (abs distance == 1) ET même `token_type`
+- Base effects (`DAMAGE_MULT`, `PRESSURE`) retirés de `placement_active_slots` — wave ring réservé au bonus de placement conditionnel
+
+**Règle visuelle simplifiée ✅**
+- Wave ring (`set_effect_state`) = placement bonus actif (bon slot)
+- Pulse (`set_streak_pulse`) = streak bonus actif
+- Bordure colorée slot (`set_streak_active`) supprimée — état redondant
+
+**Poids récompenses post-combat ✅**
+- `RewardResource._weighted_type()` : 40% Salt · 20% Heal · 20% Max HP · 10% Base ATK · 10% Base DEF
