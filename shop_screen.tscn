@@ -133,79 +133,79 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 16
 
-[node name="TokensPanel" type="PanelContainer" parent="ContentVBox/SectionsRow" unique_id=200000001]
+[node name="ShellsPanel" type="PanelContainer" parent="ContentVBox/SectionsRow" unique_id=200000001]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_tokens")
 
-[node name="VBox" type="VBoxContainer" parent="ContentVBox/SectionsRow/TokensPanel" unique_id=200000002]
+[node name="VBox" type="VBoxContainer" parent="ContentVBox/SectionsRow/ShellsPanel" unique_id=200000002]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 20
 
-[node name="Title" type="Label" parent="ContentVBox/SectionsRow/TokensPanel/VBox" unique_id=200000003]
+[node name="Title" type="Label" parent="ContentVBox/SectionsRow/ShellsPanel/VBox" unique_id=200000003]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("2_font_black")
 theme_override_font_sizes/font_size = 42
-text = "TOKENS"
+text = "SHELLS"
 horizontal_alignment = 1
 
-[node name="SlotsRow" type="HBoxContainer" parent="ContentVBox/SectionsRow/TokensPanel/VBox" unique_id=200000004]
+[node name="SlotsRow" type="HBoxContainer" parent="ContentVBox/SectionsRow/ShellsPanel/VBox" unique_id=200000004]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/separation = 24
 alignment = 1
 
-[node name="EchoesPanel" type="PanelContainer" parent="ContentVBox/SectionsRow" unique_id=200000005]
+[node name="TokenPanel" type="PanelContainer" parent="ContentVBox/SectionsRow" unique_id=200000005]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_echoes")
 
-[node name="VBox" type="VBoxContainer" parent="ContentVBox/SectionsRow/EchoesPanel" unique_id=200000006]
+[node name="VBox" type="VBoxContainer" parent="ContentVBox/SectionsRow/TokenPanel" unique_id=200000006]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 20
 
-[node name="Title" type="Label" parent="ContentVBox/SectionsRow/EchoesPanel/VBox" unique_id=200000007]
+[node name="Title" type="Label" parent="ContentVBox/SectionsRow/TokenPanel/VBox" unique_id=200000007]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("2_font_black")
 theme_override_font_sizes/font_size = 42
-text = "ECHOES"
+text = "TOKEN"
 horizontal_alignment = 1
 
-[node name="SlotsRow" type="HBoxContainer" parent="ContentVBox/SectionsRow/EchoesPanel/VBox" unique_id=200000008]
+[node name="SlotsRow" type="HBoxContainer" parent="ContentVBox/SectionsRow/TokenPanel/VBox" unique_id=200000008]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/separation = 24
 alignment = 1
 
-[node name="ItemPanel" type="PanelContainer" parent="ContentVBox/SectionsRow" unique_id=200000009]
+[node name="EchoPanel" type="PanelContainer" parent="ContentVBox/SectionsRow" unique_id=200000009]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_item")
 
-[node name="VBox" type="VBoxContainer" parent="ContentVBox/SectionsRow/ItemPanel" unique_id=200000010]
+[node name="VBox" type="VBoxContainer" parent="ContentVBox/SectionsRow/EchoPanel" unique_id=200000010]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 20
 
-[node name="Title" type="Label" parent="ContentVBox/SectionsRow/ItemPanel/VBox" unique_id=200000011]
+[node name="Title" type="Label" parent="ContentVBox/SectionsRow/EchoPanel/VBox" unique_id=200000011]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("2_font_black")
 theme_override_font_sizes/font_size = 42
-text = "ITEM"
+text = "ECHO"
 horizontal_alignment = 1
 
-[node name="SlotsRow" type="HBoxContainer" parent="ContentVBox/SectionsRow/ItemPanel/VBox" unique_id=200000012]
+[node name="SlotsRow" type="HBoxContainer" parent="ContentVBox/SectionsRow/EchoPanel/VBox" unique_id=200000012]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 3

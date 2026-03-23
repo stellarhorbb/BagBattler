@@ -149,27 +149,40 @@ func _build_modal_view() -> void:
 	spacer.custom_minimum_size = Vector2(0, 21)
 	modal_content.add_child(spacer)
 
-	# Rows per token name
+	# Scrollable rows
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	modal_content.add_child(scroll)
+
+	var rows_vbox := VBoxContainer.new()
+	rows_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rows_vbox.add_theme_constant_override("separation", 13)
+	scroll.add_child(rows_vbox)
+
 	for token_type in TYPE_ORDER:
 		if not composition.has(token_type):
 			continue
 		for token_name in composition[token_type]:
 			var data = composition[token_type][token_name]
-			modal_content.add_child(_make_row(token_type, token_name, data["count"], data["percent"]))
+			var res := _find_token_resource(token_name)
+			rows_vbox.add_child(_make_row(token_type, token_name, data["count"], data["percent"], res))
 
-# --- OPEN / CLOSE ---
+# --- TOGGLE ---
 
-func open_modal() -> void:
+func toggle_modal() -> void:
 	if modal_view.visible:
-		return
+		_close_modal()
+	else:
+		_open_modal()
+
+func _open_modal() -> void:
 	_build_modal_view()
 	modal_view.visible = true
 	var t = create_tween()
 	t.tween_property(modal_view, "modulate:a", 1.0, 0.18).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 
-func close_modal() -> void:
-	if not modal_view.visible:
-		return
+func _close_modal() -> void:
 	var t = create_tween()
 	t.tween_property(modal_view, "modulate:a", 0.0, 0.14).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_CUBIC)
 	t.tween_callback(func(): modal_view.visible = false)
@@ -194,7 +207,13 @@ func _make_circle(token_type: int, count: int) -> Control:
 	circle.add_child(label)
 	return circle
 
-func _make_row(token_type: int, token_name: String, count: int, percent: float) -> PanelContainer:
+func _find_token_resource(token_name: String) -> TokenResource:
+	for token in _get_tokens():
+		if token.token_name == token_name:
+			return token
+	return null
+
+func _make_row(token_type: int, token_name: String, count: int, percent: float, res: TokenResource = null) -> PanelContainer:
 	var outer = PanelContainer.new()
 	var bg_style = StyleBoxFlat.new()
 	bg_style.bg_color = Color(0.15, 0.15, 0.15, 1)
@@ -240,7 +259,7 @@ func _make_row(token_type: int, token_name: String, count: int, percent: float) 
 	row.add_child(count_lbl)
 
 	# Overlapping token pile
-	row.add_child(_make_token_pile(token_type, token_name, count))
+	row.add_child(_make_token_pile(token_type, token_name, count, res))
 
 	# Percentage
 	var pct = Label.new()
@@ -262,13 +281,14 @@ const TOKEN_ICONS = {
 	"provocation": "res://assets/icons/tokens/new/provocation.png",
 	"skull":       "res://assets/icons/tokens/new/skull.png",
 	"heal":        "res://assets/icons/tokens/new/heal.png",
+	"swing":       "res://assets/icons/tokens/new/swing.png",
 	"frenzy":      "res://assets/icons/tokens/frenzy.png",
 	"gamble":      "res://assets/icons/tokens/gamble.png",
 	"reckless":    "res://assets/icons/tokens/reckless.png",
 	"resonance":   "res://assets/icons/tokens/resonance.png",
 }
 
-func _make_token_pile(token_type: int, token_name: String, count: int) -> Control:
+func _make_token_pile(token_type: int, token_name: String, count: int, res: TokenResource = null) -> Control:
 	const TOKEN_SIZE := 46
 	const STEP := 22  # horizontal offset per token (overlap)
 	const MAX_VISIBLE := 5
@@ -279,14 +299,14 @@ func _make_token_pile(token_type: int, token_name: String, count: int) -> Contro
 	pile.custom_minimum_size = Vector2(pile_width, TOKEN_SIZE)
 
 	for i in n:
-		var token = _make_mini_token(token_type, token_name)
+		var token = _make_mini_token(token_type, token_name, res)
 		token.position = Vector2(i * STEP, 0)
 		token.z_index = i
 		pile.add_child(token)
 
 	return pile
 
-func _make_mini_token(token_type: int, token_name: String) -> Control:
+func _make_mini_token(token_type: int, token_name: String, res: TokenResource = null) -> Control:
 	const TOKEN_SIZE := 46
 	const ICON_SIZE := 26
 	var container = Control.new()
@@ -296,10 +316,10 @@ func _make_mini_token(token_type: int, token_name: String) -> Control:
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	var style = StyleBoxFlat.new()
 	style.bg_color = TYPE_COLORS.get(token_type, Color(0.3, 0.3, 0.3, 1))
-	style.corner_radius_top_left = TOKEN_SIZE / 2
-	style.corner_radius_top_right = TOKEN_SIZE / 2
-	style.corner_radius_bottom_left = TOKEN_SIZE / 2
-	style.corner_radius_bottom_right = TOKEN_SIZE / 2
+	style.corner_radius_top_left = TOKEN_SIZE / 2.0
+	style.corner_radius_top_right = TOKEN_SIZE / 2.0
+	style.corner_radius_bottom_left = TOKEN_SIZE / 2.0
+	style.corner_radius_bottom_right = TOKEN_SIZE / 2.0
 	style.border_width_left = 3
 	style.border_width_top = 3
 	style.border_width_right = 3
@@ -315,13 +335,22 @@ func _make_mini_token(token_type: int, token_name: String) -> Control:
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
-		var half := ICON_SIZE / 2
-		var center := TOKEN_SIZE / 2
+		var half := ICON_SIZE / 2.0
+		var center := TOKEN_SIZE / 2.0
 		icon.set_anchors_preset(Control.PRESET_FULL_RECT)
 		icon.offset_left = center - half
 		icon.offset_top = center - half
 		icon.offset_right = -(center - half)
 		icon.offset_bottom = -(center - half)
 		container.add_child(icon)
+
+	if res != null:
+		container.mouse_filter = Control.MOUSE_FILTER_STOP
+		container.mouse_entered.connect(func():
+			TooltipManager.show_token(res, container.global_position, Vector2(TOKEN_SIZE, TOKEN_SIZE))
+		)
+		container.mouse_exited.connect(func():
+			TooltipManager.hide_tooltip()
+		)
 
 	return container

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="MoonPhaseResource" format=3 uid="uid://dya22psij5113"]
+
+[ext_resource type="Script" uid="uid://d3nh0i7eotoxf" path="res://scripts/resources/MoonPhaseResource.gd" id="1_moonres"]
+
+[resource]
+script = ExtResource("1_moonres")
+phase_type = 3
+phase_name = "Last Quarter"
+description = "+5 max HP for this run."
+cost = 8
+hp_bonus = 5

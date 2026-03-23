@@ -59,7 +59,7 @@ static func resolve(cards: Array, total_slots: int = 5) -> ResolveResult:
 		if token.placement_slot == TokenResource.SlotPosition.NONE and \
 				token.streak_target == TokenResource.EffectTarget.NONE:
 			match token.token_type:
-				TokenResource.TokenType.ATTACK: result.atk_count += 1
+				TokenResource.TokenType.ATTACK: result.atk_count += token.atk_weight
 				TokenResource.TokenType.DEFENSE: result.def_count += 1
 
 	_resolve_streaks(cards, result)
@@ -69,7 +69,7 @@ static func resolve(cards: Array, total_slots: int = 5) -> ResolveResult:
 	return result
 
 
-static func _placement_met(slot: TokenResource.SlotPosition, card_index: int, slot_index: int, total_slots: int) -> bool:
+static func _placement_met(slot: TokenResource.SlotPosition, _card_index: int, slot_index: int, total_slots: int) -> bool:
 	match slot:
 		TokenResource.SlotPosition.FIRST: return slot_index == 0
 		TokenResource.SlotPosition.LAST:  return slot_index == total_slots - 1

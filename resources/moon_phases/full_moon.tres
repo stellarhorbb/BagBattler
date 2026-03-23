@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="MoonPhaseResource" format=3 uid="uid://bxmosxv7hgksp"]
+
+[ext_resource type="Script" uid="uid://d3nh0i7eotoxf" path="res://scripts/resources/MoonPhaseResource.gd" id="1_moonres"]
+
+[resource]
+script = ExtResource("1_moonres")
+phase_type = 2
+phase_name = "Full Moon"
+description = "+1 base DEF for this run."
+cost = 8
+def_bonus = 1

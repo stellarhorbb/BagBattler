@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="MoonPhaseResource" format=3 uid="uid://8y37a2ryig8p"]
+
+[ext_resource type="Script" uid="uid://d3nh0i7eotoxf" path="res://scripts/resources/MoonPhaseResource.gd" id="1_moonres"]
+
+[resource]
+script = ExtResource("1_moonres")
+phase_type = 1
+phase_name = "First Quarter"
+description = "+0.05 base Pressure floor for this run."
+cost = 8
+prsr_bonus = 0.05

@@ -447,3 +447,33 @@ Quand le joueur tue l'ennemi mais aurait subi des dégâts :
 
 **Poids récompenses post-combat ✅**
 - `RewardResource._weighted_type()` : 40% Salt · 20% Heal · 20% Max HP · 10% Base ATK · 10% Base DEF
+
+---
+
+## 23 Mars 2026 — Session : Phases de Lune & Système de Shells
+
+**Moon Phases — data-driven ✅**
+- `MoonPhaseResource` refactorisé : `value: float` remplacé par 4 champs explicites : `atk_bonus: int`, `prsr_bonus: float`, `def_bonus: int`, `hp_bonus: int`
+- `GameManager.apply_moon_phase()` simplifié : applique les 4 champs directement, plus de `match`
+- `purchased_moon_phases: Array[MoonPhaseResource]` ajouté à GameManager, resetté au Game Over
+- 5 phases créées en `.tres` : New Moon (ATK+1), First Quarter (PRSR+0.05), Full Moon (DEF+1), Last Quarter (HP+5), Blood Moon (toutes les stats)
+
+**Blood Moon légendaire ✅**
+- 5% de chance de drop depuis le Shell Nacré au lieu des phases normales
+- Overlay spécial : pas de choix, titre "A GIFT FROM THE DEPTHS" — carte unique, moment mémorable
+- Coût 0, accordé directement
+
+**Système de Shells ✅**
+- `ShellResource.gd` : `shell_type`, `shell_name`, `flavor_text`, `cost`
+- 4 shells en `.tres` : Dark (Echo, 6 Salt), Striped (Token, 6 Salt), Nacre (Phase de Lune, 7 Salt), Broken (Sacrifice, 9 Salt)
+- Shop redessiné : section Shells remplace les Items verrouillés, 2 shells aléatoires par visite, pas de reroll sur les shells
+- Flow d'achat : survol → tooltip · achat → vibration 0.8s → overlay de choix
+- Tooltip shell : même template que token/echo (fond noir, bordure blanche 4px, radius 12, marges 32/24, nom 52px, divider, description 26px)
+- Flavor text stocké dans chaque `.tres`, zéro hardcodé dans le code
+
+**Corrections GDScript (warnings) ✅**
+- `BaseRelic.gd` : paramètres inutilisés prefixés `_`
+- `bag_inspector.gd` : division entière `TOKEN_SIZE / 2` → `/ 2.0`, `ICON_SIZE / 2` → `/ 2.0`
+- `TokenEffectResolver.gd` : `card_index` → `_card_index`
+- `battle_hud.gd` : `atk_col`/`def_col` → `_atk_col`/`_def_col`
+- `battle_scene.gd` : variable `s` renommée `style` (shadowing lambda param)

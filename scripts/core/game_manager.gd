@@ -1,8 +1,10 @@
 extends Node
 
 var selected_job: JobResource = null
-var current_round: int = 1
+var current_zone: int = 1
 var gold: int = 0
+var base_pressure_floor: float = 1.0   # permanent run stat, raised by Moon Phase upgrades
+var pending_pressure_boost: float = 0.0 # temporary next-zone bonus from rewards
 var slot_count: int = 6
 var turns_played_last_combat: int = 0
 var base_damage: int
@@ -13,6 +15,7 @@ var player_max_hp: int
 var player_current_hp: int = 80
 var purchased_tokens: Array[TokenResource] = []
 var purchased_relics: Array[BaseRelic] = []
+var purchased_moon_phases: Array[MoonPhaseResource] = []
 var sacrificed_tokens: Array[TokenResource] = []
 var full_bag: Array[TokenResource] = []
 
@@ -21,13 +24,16 @@ var entity_progression: EntityProgressionResource = preload("res://resources/ent
 
 func reset_run() -> void:
 	selected_job = null
-	current_round = 1
+	current_zone = 1
 	gold = 0
+	base_pressure_floor = 1.0
+	pending_pressure_boost = 0.0
 	slot_count = 6
 	turns_played_last_combat = 0
 	base_damage_fractional = 0.0
 	purchased_tokens.clear()
 	purchased_relics.clear()
+	purchased_moon_phases.clear()
 	sacrificed_tokens.clear()
 	full_bag.clear()
 	RelicManager.relics.clear()
@@ -50,21 +56,21 @@ func calculate_combat_reward() -> int:
 		reward -= 3
 	return max(reward, 0)
 
-# Retourne les stats du round actuel
-func get_current_stats() -> RoundStatsResource:
-	return entity_progression.get_stats(current_round)
+# Retourne les stats de la zone actuelle
+func get_current_stats() -> ZoneStatsResource:
+	return entity_progression.get_stats(current_zone)
 
 # Ante affiché au joueur (calculé automatiquement)
 func get_current_ante() -> int:
-	return ceil(current_round / 4.0)
+	return ceil(current_zone / 4.0)
 
-# Round dans l'ante (1, 2, 3 ou 4)
-func get_round_in_ante() -> int:
-	return ((current_round - 1) % 4) + 1
+# Zone dans l'ante (1, 2, 3 ou 4)
+func get_zone_in_ante() -> int:
+	return ((current_zone - 1) % 4) + 1
 
-# C'est un boss si c'est le 4ème round de l'ante
-func is_boss_round() -> bool:
-	return get_round_in_ante() == 4
+# C'est un boss si c'est la 4ème zone de l'ante
+func is_boss_zone() -> bool:
+	return get_zone_in_ante() == 4
 
 const DEPTH_NAMES := [
 	"The Surface",
@@ -87,7 +93,15 @@ func heal_end_of_ante() -> void:
 func get_effective_bag() -> Array[TokenResource]:
 	return full_bag
 
-func advance_round() -> void:
-	current_round += 1
-	if get_round_in_ante() == 1:
+func advance_zone() -> void:
+	current_zone += 1
+	if get_zone_in_ante() == 1:
 		heal_end_of_ante()
+
+func apply_moon_phase(phase: MoonPhaseResource) -> void:
+	purchased_moon_phases.append(phase)
+	base_damage += phase.atk_bonus
+	base_pressure_floor += phase.prsr_bonus
+	base_defense += phase.def_bonus
+	player_max_hp += phase.hp_bonus
+	player_current_hp = min(player_current_hp + phase.hp_bonus, player_max_hp)

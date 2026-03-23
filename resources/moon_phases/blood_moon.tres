@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="MoonPhaseResource" format=3 uid="uid://dslrno26qmqr"]
+
+[ext_resource type="Script" uid="uid://d3nh0i7eotoxf" path="res://scripts/resources/MoonPhaseResource.gd" id="1_moonres"]
+
+[resource]
+script = ExtResource("1_moonres")
+phase_type = 4
+phase_name = "Blood Moon"
+description = "+1 ATK · +0.05 PRSR · +1 DEF · +5 HP"
+cost = 0
+atk_bonus = 1
+prsr_bonus = 0.05
+def_bonus = 1
+hp_bonus = 5

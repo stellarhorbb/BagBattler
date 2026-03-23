@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ShellResource" format=3 uid="uid://dwvqgrh087v7k"]
+
+[ext_resource type="Script" uid="uid://cn0y5pmbh466g" path="res://scripts/resources/ShellResource.gd" id="1_shellres"]
+
+[resource]
+script = ExtResource("1_shellres")
+shell_type = 2
+shell_name = "Nacre Shell"
+flavor_text = "The tide shifts. So do you. Choose 1 updrade"
+cost = 7

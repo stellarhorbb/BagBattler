@@ -59,11 +59,13 @@ var bag_manager = BagManager
 var current_enemy: Enemy
 var player_current_hp: int
 var turns_played: int = 0
-var current_pressure: float = 1.0
+var current_pressure: float = 1.0  # set from pending_pressure_boost at zone start
 var _slots: Array[Node] = []
 
 var drag_controller: DragController
 var hud: BattleHUD
+var token_vfx: TokenVFX
+var hud_vfx: HudVFX
 var _death_blow_active: bool = false
 
 func _ready():
@@ -89,6 +91,14 @@ func _ready():
 	drag_controller = DragController.new()
 	add_child(drag_controller)
 
+	token_vfx = TokenVFX.new()
+	add_child(token_vfx)
+	token_vfx.setup(self)
+
+	hud_vfx = HudVFX.new()
+	add_child(hud_vfx)
+	hud_vfx.setup(self)
+
 	hud = BattleHUD.new()
 	add_child(hud)
 	hud.setup(self)
@@ -99,7 +109,10 @@ func _ready():
 	if job == null:
 		job = load("res://resources/jobs/knight.tres")
 
-	if GameManager.current_round == 1:
+	current_pressure = GameManager.base_pressure_floor + GameManager.pending_pressure_boost
+	GameManager.pending_pressure_boost = 0.0
+
+	if GameManager.current_zone == 1:
 		GameManager.init_run_stats(job)
 	player_current_hp = GameManager.player_current_hp
 
@@ -157,6 +170,9 @@ func _ready():
 
 func setup_enemy() -> void:
 	var stats = GameManager.get_current_stats()
+	if stats == null:
+		push_error("No stats defined for zone %d" % GameManager.current_zone)
+		return
 
 	current_enemy = Enemy.new()
 	add_child(current_enemy)
@@ -172,17 +188,17 @@ func setup_enemy() -> void:
 	current_enemy.enemy_died.connect(_on_enemy_died)
 
 	var display_ante = GameManager.get_current_ante() - 1
-	var display_round = GameManager.get_round_in_ante()
+	var display_zone = GameManager.get_zone_in_ante()
 	label_turns_title.text = GameManager.get_depth_name().to_upper()
-	label_turns.text = "%d.%d" % [display_ante, display_round]
-	if GameManager.is_boss_round():
+	label_turns.text = "%d.%d" % [display_ante, display_zone]
+	if GameManager.is_boss_zone():
 		label_turns_title.text += " ★ BOSS"
 	enemy_hp_bar.max_value = stats.hp
 	enemy_hp_bar.value = stats.hp
 	label_enemy_hp.text = "%d/%d" % [stats.hp, stats.hp]
 	label_enemy_intention.text = "ENTITY ATTACK ◆ %d" % stats.atk
 
-	if GameManager.is_boss_round():
+	if GameManager.is_boss_zone():
 		blob_bg.material.set_shader_parameter("color", Color(0.85, 0.1, 0.15, 1.0))
 		var white := Color.WHITE
 		label_enemy_name.add_theme_color_override("font_color", white)
@@ -208,7 +224,7 @@ func _on_button_draw_pressed() -> void:
 	if _count_hazards_in_slots() > 0:
 		current_pressure += GameManager.pressure_increment
 		label_pressure_value.text = "x%.2f" % current_pressure
-		hud.animate_pressure_label(label_pressure_value)
+		hud_vfx.animate_pressure_label(label_pressure_value)
 
 	var token = bag_manager.draw_token()
 	if token == null:
@@ -251,6 +267,8 @@ func _on_slot_clicked(slot_index: int) -> void:
 	await _on_token_placed_in_slot(slot_index, token)
 
 func _on_token_placed_in_slot(_slot_index: int, _token: TokenResource) -> void:
+	if _token.placement_swap:
+		_do_swing_swap(_slot_index)
 	revealed_token_holder.clear()
 	SFXManager.play("draw")
 
@@ -261,6 +279,23 @@ func _on_token_placed_in_slot(_slot_index: int, _token: TokenResource) -> void:
 		await _handle_crash()
 	else:
 		update_ui()
+
+func _do_swing_swap(slot_index: int) -> void:
+	var total := _slots.size()
+	var neighbor_index: int
+	if slot_index == 0:
+		neighbor_index = 1
+	elif slot_index == total - 1:
+		neighbor_index = total - 2
+	else:
+		neighbor_index = slot_index + (1 if randi() % 2 == 0 else -1)
+	var neighbor_slot = _slots[neighbor_index]
+	if neighbor_slot.is_empty():
+		return
+	var neighbor_token: TokenResource = neighbor_slot.take_token()
+	var swing_token: TokenResource = _slots[slot_index].take_token()
+	_slots[slot_index].place_token(neighbor_token)
+	_slots[neighbor_index].place_token(swing_token)
 
 func _handle_crash() -> void:
 	print("💥 CRASH!")
@@ -374,38 +409,8 @@ func _on_button_execute_pressed() -> void:
 				continue
 			var token_color: Color = hud.token_type_color(c.token_data.token_type)
 
-			# Tilt card
 			SFXManager.play("resolution")
-			c.pivot_offset = c.size / 2.0
-			var tw = c.create_tween()
-			tw.tween_property(c, "rotation_degrees", -18.0, 0.4).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-			tw.tween_property(c, "rotation_degrees", 0.0, 1.6).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SPRING)
-
-			# Ring pulse from card center
-			var ring := Panel.new()
-			var ring_style := StyleBoxFlat.new()
-			ring_style.bg_color = Color(0, 0, 0, 0)
-			ring_style.border_width_left = 5
-			ring_style.border_width_top = 5
-			ring_style.border_width_right = 5
-			ring_style.border_width_bottom = 5
-			ring_style.border_color = token_color
-			ring_style.corner_radius_top_left = 70
-			ring_style.corner_radius_top_right = 70
-			ring_style.corner_radius_bottom_right = 70
-			ring_style.corner_radius_bottom_left = 70
-			ring.add_theme_stylebox_override("panel", ring_style)
-			ring.size = c.size
-			ring.pivot_offset = c.size / 2.0
-			ring.global_position = c.global_position
-			ring.z_index = 100
-			ring.z_as_relative = false
-			add_child(ring)
-			var rt = ring.create_tween()
-			rt.set_parallel(true)
-			rt.tween_property(ring, "scale", Vector2(2.2, 2.2), 1.5).set_ease(Tween.EASE_OUT)
-			rt.tween_property(ring, "modulate:a", 0.0, 1.5).set_ease(Tween.EASE_IN)
-			rt.finished.connect(ring.queue_free)
+			token_vfx.play_resolution(c, token_color)
 
 			# Apply effect at the moment the card tilts
 			if event["kind"] == "pressure":
@@ -416,7 +421,7 @@ func _on_button_execute_pressed() -> void:
 				player_current_hp = min(player_current_hp + heal_amount, GameManager.player_max_hp)
 				hud.update_player_hp()
 				var slot_center: Vector2 = filled_slots[slot_idx].global_position + filled_slots[slot_idx].size / 2.0
-				hud.show_floating_text(slot_center, "+%d HP" % heal_amount, Color("#EAA21C"))
+				hud_vfx.floating_text(slot_center, "+%d HP" % heal_amount, Color("#EAA21C"))
 
 			await get_tree().create_timer(0.75).timeout
 
@@ -451,13 +456,13 @@ func _on_button_execute_pressed() -> void:
 	var atk_color := Color(0.91, 0.16, 0.29, 1) if final_attack > 0 else Color(0.1, 0.1, 0.1, 1)
 	var def_color := Color(0.24, 0.4, 1, 1) if final_defense > 0 else Color(0.1, 0.1, 0.1, 1)
 	SFXManager.play("pressure-resolution")
-	hud.animate_pressure_label(label_pressure_value)
-	hud.animate_pressure_on_stat(label_turn_atk, "%d" % final_attack, atk_box, atk_color)
-	await hud.animate_pressure_on_stat(label_turn_def, "%d" % final_defense, def_box, def_color)
+	hud_vfx.animate_pressure_label(label_pressure_value)
+	hud_vfx.animate_pressure_on_stat(label_turn_atk, "%d" % final_attack, atk_box, atk_color)
+	await hud_vfx.animate_pressure_on_stat(label_turn_def, "%d" % final_defense, def_box, def_color)
 	await get_tree().create_timer(0.6).timeout
 
 	# Step 4 — ATK label strikes, entity loses HP
-	await hud.tilt_hard(label_turn_atk)
+	await token_vfx.tilt_hard(label_turn_atk)
 	if final_attack > 0:
 		SFXManager.play("damage")
 	current_enemy.take_damage(final_attack)
@@ -504,13 +509,13 @@ func _on_button_execute_pressed() -> void:
 		return
 
 	# Step 5 — DEF label fires, entity intention updates to show remaining damage
-	await hud.tilt_hard(label_turn_def)
+	await token_vfx.tilt_hard(label_turn_def)
 	if final_defense > 0:
 		label_enemy_intention.text = "ENTITY ATTACK ◆ %d" % incoming_damage
 	await get_tree().create_timer(0.5).timeout
 
 	# Step 6 — entity intention strikes, player loses HP
-	await hud.tilt_hard(label_enemy_intention)
+	await token_vfx.tilt_hard(label_enemy_intention)
 	if incoming_damage == 0:
 		SFXManager.play("safe")
 	else:
@@ -623,21 +628,21 @@ func _refresh_draw_button() -> void:
 	var slots_full := _slots.all(func(s): return not s.is_empty())
 	var token_pending := revealed_token_holder.get_token() != null
 	button_draw.disabled = slots_full or token_pending
-	var s := StyleBoxFlat.new()
-	s.corner_radius_top_left = 70
-	s.corner_radius_top_right = 70
-	s.corner_radius_bottom_right = 70
-	s.corner_radius_bottom_left = 70
+	var style := StyleBoxFlat.new()
+	style.corner_radius_top_left = 70
+	style.corner_radius_top_right = 70
+	style.corner_radius_bottom_right = 70
+	style.corner_radius_bottom_left = 70
 	if slots_full:
-		s.bg_color = Color(0.08, 0.08, 0.08, 1)
+		style.bg_color = Color(0.08, 0.08, 0.08, 1)
 		for state in ["normal", "hover", "pressed", "disabled"]:
-			button_draw.add_theme_stylebox_override(state, s)
+			button_draw.add_theme_stylebox_override(state, style)
 		button_draw.add_theme_color_override("font_color", Color(0.35, 0.35, 0.35, 1))
 		button_draw.add_theme_color_override("font_disabled_color", Color(0.35, 0.35, 0.35, 1))
 	else:
-		s.bg_color = Color(1, 1, 1, 1)
+		style.bg_color = Color(1, 1, 1, 1)
 		for state in ["normal", "hover", "pressed", "disabled"]:
-			button_draw.add_theme_stylebox_override(state, s)
+			button_draw.add_theme_stylebox_override(state, style)
 		button_draw.add_theme_color_override("font_color", Color(0, 0, 0, 1))
 		button_draw.add_theme_color_override("font_disabled_color", Color(0, 0, 0, 1))
 
@@ -667,8 +672,8 @@ func _on_enemy_died() -> void:
 	get_tree().change_scene_to_file("res://reward_screen.tscn")
 
 func _on_button_next_pressed() -> void:
-	print("=== ROUND SUIVANT ===")
-	GameManager.advance_round()
+	print("=== ZONE SUIVANTE ===")
+	GameManager.advance_zone()
 	get_tree().reload_current_scene()
 
 func _on_button_back_to_menu_pressed() -> void:

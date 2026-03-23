@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="MoonPhaseResource" format=3 uid="uid://bj0qk014afs3"]
+
+[ext_resource type="Script" uid="uid://d3nh0i7eotoxf" path="res://scripts/resources/MoonPhaseResource.gd" id="1_moonres"]
+
+[resource]
+script = ExtResource("1_moonres")
+phase_name = "New Moon"
+description = "+1 base ATK damage for this run."
+cost = 8
+atk_bonus = 1

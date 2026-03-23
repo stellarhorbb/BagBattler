@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ShellResource" format=3 uid="uid://mlm8xkp4ddcl"]
+
+[ext_resource type="Script" uid="uid://cn0y5pmbh466g" path="res://scripts/resources/ShellResource.gd" id="1_shellres"]
+
+[resource]
+script = ExtResource("1_shellres")
+shell_type = 3
+shell_name = "Broken Shell"
+flavor_text = "What you leave behind makes you lighter. Sacrifice 1 token"
+cost = 9
