@@ -26,8 +26,13 @@ func _ready() -> void:
 func _build_rewards() -> void:
 	for child in reward_container.get_children():
 		child.queue_free()
-	for i in 3:
-		var r = RewardResource.generate_random()
+	var salt = RewardResource.generate_of_type(RewardResource.RewardType.GOLD)
+	var other = RewardResource.generate_random()
+	while other.reward_type == RewardResource.RewardType.GOLD:
+		other = RewardResource.generate_random()
+	var rewards = [salt, other]
+	rewards.shuffle()
+	for r in rewards:
 		var card = _reward_card_scene.instantiate()
 		reward_container.add_child(card)
 		card.setup(r, func(): _on_reward_chosen(r))
@@ -87,22 +92,14 @@ func _on_reward_chosen(reward: RewardResource) -> void:
 	match reward.reward_type:
 		RewardResource.RewardType.GOLD:
 			GameManager.gold += reward.value
-		RewardResource.RewardType.HP_MAX:
-			var old_max = GameManager.player_max_hp
-			GameManager.player_max_hp += reward.value
-			if GameManager.player_current_hp == old_max:
-				GameManager.player_current_hp = GameManager.player_max_hp
-			else:
-				GameManager.player_current_hp = min(GameManager.player_current_hp + roundi(reward.value * 0.5), GameManager.player_max_hp)
-		RewardResource.RewardType.UPGRADE_DAMAGE:
-			GameManager.base_damage += reward.value
-		RewardResource.RewardType.UPGRADE_DEFENSE:
-			GameManager.base_defense += reward.value
 		RewardResource.RewardType.HEAL:
-			GameManager.player_current_hp = min(GameManager.player_current_hp + reward.value, GameManager.player_max_hp)
+			var heal_amount := roundi(GameManager.player_max_hp * reward.value / 100.0)
+			GameManager.player_current_hp = min(GameManager.player_current_hp + heal_amount, GameManager.player_max_hp)
+		RewardResource.RewardType.PRESSURE_BOOST:
+			GameManager.pending_pressure_boost += reward.value / 100.0
 
-	if GameManager.is_boss_round():
+	if GameManager.is_boss_zone():
 		get_tree().change_scene_to_file("res://sacrifice_screen.tscn")
 	else:
-		GameManager.advance_round()
+		GameManager.advance_zone()
 		get_tree().change_scene_to_file("res://shop_screen.tscn")

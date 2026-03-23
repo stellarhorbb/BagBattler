@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="TokenResource" format=3 uid="uid://b2yl5m14n35w2"]
+
+[ext_resource type="Script" uid="uid://b85kh2kqvsidh" path="res://scripts/resources/TokenResource.gd" id="1_r5oys"]
+
+[resource]
+script = ExtResource("1_r5oys")
+token_name = "Swing"
+description = "Deals 2x base ATK. On placement, swaps with a random neighbor."
+shop_drop_weight = 0.6
+shop_price = 6
+streak_target = 1
+streak_value_per_token = 0.1
+atk_weight = 2
+placement_swap = true

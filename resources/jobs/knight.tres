@@ -7,11 +7,12 @@
 [ext_resource type="Resource" uid="uid://c8x66m171d7sr" path="res://resources/tokens/provocation.tres" id="5_k2sp2"]
 [ext_resource type="Resource" uid="uid://bduw6k4q8hcjk" path="res://resources/tokens/rampart.tres" id="6_y6udf"]
 [ext_resource type="Resource" uid="uid://dnypmp1opnb3w" path="res://resources/tokens/hazard.tres" id="7_1lib4"]
+[ext_resource type="Resource" uid="uid://b2yl5m14n35w2" path="res://resources/tokens/swing.tres" id="8_j7164"]
 
 [sub_resource type="Resource" id="Resource_jkosw"]
 script = ExtResource("2_okrrx")
 token = ExtResource("3_j7164")
-count = 3
+count = 2
 
 [sub_resource type="Resource" id="Resource_2hxan"]
 script = ExtResource("2_okrrx")
@@ -31,9 +32,14 @@ script = ExtResource("2_okrrx")
 token = ExtResource("7_1lib4")
 count = 2
 
+[sub_resource type="Resource" id="Resource_b62gq"]
+script = ExtResource("2_okrrx")
+token = ExtResource("8_j7164")
+metadata/_custom_type_script = "uid://cwlr8x6e8ymoi"
+
 [resource]
 script = ExtResource("1_0w5r0")
-starting_bag = Array[ExtResource("2_okrrx")]([SubResource("Resource_jkosw"), SubResource("Resource_2hxan"), SubResource("Resource_0ehes"), SubResource("Resource_r1lkp"), SubResource("Resource_4axj8")])
+starting_bag = Array[ExtResource("2_okrrx")]([SubResource("Resource_jkosw"), SubResource("Resource_2hxan"), SubResource("Resource_0ehes"), SubResource("Resource_r1lkp"), SubResource("Resource_4axj8"), SubResource("Resource_b62gq")])
 base_defense = 3
-base_hp = 20
+base_hp = 30
 slot_count = 6

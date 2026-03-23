@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="RelicResource" format=3]
+
+[ext_resource type="Script" path="res://scripts/relics/RelicResource.gd" id="1_relicres"]
+[ext_resource type="Texture2D" path="res://assets/icons/relics/salto.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_relicres")
+relic_name = "Salt(o)"
+description = "Gain +0.05 Pressure per 10 Salt in your wallet."
+lore = "The ocean provides. Spend wisely."
+rarity = 1
+cost = 5
+icon = ExtResource("2_icon")
+trigger_step = 1

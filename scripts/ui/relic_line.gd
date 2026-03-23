@@ -21,3 +21,9 @@ func refresh() -> void:
 func trigger_pulse(index: int) -> void:
 	if index >= 0 and index < _cards.size():
 		_cards[index].trigger_pulse()
+
+func get_card_center(index: int) -> Vector2:
+	if index >= 0 and index < _cards.size():
+		var card = _cards[index]
+		return card.global_position + card.size / 2.0
+	return Vector2.ZERO

@@ -37,6 +37,8 @@ var ALL_RELICS: Array = [
 	[preload("res://resources/relics/crown_of_fool.tres"), RelicCrownOfFool],
 	[preload("res://resources/relics/jellyfish.tres"),     RelicTrident],
 	[preload("res://resources/relics/angel.tres"),         RelicAngel],
+	[preload("res://resources/relics/white_hole.tres"),    RelicWhiteHole],
+	[preload("res://resources/relics/salto.tres"),         RelicSalto],
 ]
 
 const SHELL_COLORS := {
@@ -46,11 +48,11 @@ const SHELL_COLORS := {
 	3: Color("#7A5038"),  # BROKEN
 }
 
-const SHELL_SYMBOLS := {
-	0: "◉",
-	1: "≡",
-	2: "✦",
-	3: "⌗",
+const SHELL_ICONS := {
+	0: "res://assets/icons/shells/new/echo-shell.png",
+	1: "res://assets/icons/shells/new/token-shell.png",
+	2: "res://assets/icons/shells/new/moon-shell.png",
+	3: "res://assets/icons/shells/new/sacrifice-shell.png",
 }
 
 var _font       = preload("res://font/LondrinaSolid-Black.ttf")
@@ -91,17 +93,24 @@ func _reroll_right() -> void:
 	_update_reroll_button()
 
 func _build_shells_section() -> void:
-	var pool: Array = ALL_SHELLS.duplicate()
-	pool.shuffle()
-	for i in 2:
-		shells_slots.add_child(_make_shell_slot(pool[i]))
+	var nacre: ShellResource = preload("res://resources/shells/nacre_shell.tres")
+	var other_pool: Array = ALL_SHELLS.filter(func(s): return s != nacre)
+	other_pool.shuffle()
+	shells_slots.add_child(_make_shell_slot(nacre))
+	shells_slots.add_child(_make_shell_slot(other_pool[0]))
 
 func _build_token_section() -> void:
+	if randf() < 0.25:
+		token_slots.add_child(_make_moon_phase_slot(_pick_random_moon_phase()))
+		return
 	var token = _pick_weighted_token()
 	var price = token.shop_price if token.shop_price > 0 else roundi(10.0 / token.shop_drop_weight)
 	token_slots.add_child(_make_token_slot(token, price))
 
 func _build_echo_section() -> void:
+	if randf() < 0.25:
+		echo_slots.add_child(_make_moon_phase_slot(_pick_random_moon_phase()))
+		return
 	var pool: Array = ALL_RELICS.duplicate()
 	pool.shuffle()
 	var entry = pool[0]
@@ -110,24 +119,24 @@ func _build_echo_section() -> void:
 	var owned = GameManager.purchased_relics.any(func(r): return r.relic_data == data)
 	echo_slots.add_child(_make_relic_slot(data, relic_class, owned))
 
-# ── SHELL SLOT ────────────────────────────────────────────────────────────────
+func _pick_random_moon_phase() -> MoonPhaseResource:
+	var pool: Array = ALL_MOON_PHASES.duplicate()
+	pool.shuffle()
+	return pool[0]
 
-func _make_shell_slot(shell: ShellResource) -> VBoxContainer:
+# ── MOON PHASE DIRECT SLOT ────────────────────────────────────────────────────
+
+func _make_moon_phase_slot(phase: MoonPhaseResource) -> VBoxContainer:
 	var slot = VBoxContainer.new()
 	slot.add_theme_constant_override("separation", 10)
 	slot.alignment = BoxContainer.ALIGNMENT_CENTER
 
-	var shell_color: Color = SHELL_COLORS.get(shell.shell_type, Color.WHITE)
-
-	# Wrapper so VBoxContainer doesn't fight the vibration tween
-	var wrapper = Control.new()
-	wrapper.custom_minimum_size = Vector2(110, 110)
-	slot.add_child(wrapper)
+	var phase_color: Color = MOON_PHASE_COLORS.get(phase.phase_type, Color.WHITE)
 
 	var circle = Panel.new()
-	circle.size = Vector2(110, 110)
+	circle.custom_minimum_size = Vector2(110, 110)
 	var cs = StyleBoxFlat.new()
-	cs.bg_color = shell_color.darkened(0.45)
+	cs.bg_color = phase_color.darkened(0.45)
 	cs.corner_radius_top_left    = 55
 	cs.corner_radius_top_right   = 55
 	cs.corner_radius_bottom_left = 55
@@ -136,19 +145,65 @@ func _make_shell_slot(shell: ShellResource) -> VBoxContainer:
 	cs.border_width_top    = 5
 	cs.border_width_right  = 5
 	cs.border_width_bottom = 5
-	cs.border_color = Color(1, 1, 1, 1)
+	cs.border_color = phase_color
 	circle.add_theme_stylebox_override("panel", cs)
-	circle.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	wrapper.add_child(circle)
-
 	var sym = Label.new()
-	sym.text = SHELL_SYMBOLS.get(shell.shell_type, "?")
-	sym.add_theme_font_size_override("font_size", 44)
+	sym.text = MOON_PHASE_SYMBOLS.get(phase.phase_type, "?")
+	sym.add_theme_font_size_override("font_size", 52)
 	sym.set_anchors_preset(Control.PRESET_FULL_RECT)
 	sym.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	sym.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	sym.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	circle.add_child(sym)
+	slot.add_child(circle)
+
+	_add_name_label_colored(slot, phase.phase_name, phase_color)
+
+	var desc_lbl = Label.new()
+	desc_lbl.text = phase.description
+	desc_lbl.add_theme_font_override("font", _font)
+	desc_lbl.add_theme_font_size_override("font_size", 16)
+	desc_lbl.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6, 1))
+	desc_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	desc_lbl.custom_minimum_size = Vector2(120, 0)
+	slot.add_child(desc_lbl)
+
+	var buy_btn = _make_styled_button("BUY", Color.WHITE, Color(0.1, 0.1, 0.1, 1))
+	slot.add_child(buy_btn)
+	slot.add_child(_make_price_row(phase.cost))
+	buy_btn.pressed.connect(func():
+		if GameManager.gold < phase.cost:
+			return
+		GameManager.gold -= phase.cost
+		GameManager.apply_moon_phase(phase)
+		_make_sold_out(slot)
+		_update_display()
+	)
+	return slot
+
+# ── SHELL SLOT ────────────────────────────────────────────────────────────────
+
+func _make_shell_slot(shell: ShellResource) -> VBoxContainer:
+	var slot = VBoxContainer.new()
+	slot.add_theme_constant_override("separation", 10)
+	slot.alignment = BoxContainer.ALIGNMENT_CENTER
+
+	# Wrapper so VBoxContainer doesn't fight the vibration tween
+	var wrapper = Control.new()
+	wrapper.custom_minimum_size = Vector2(110, 110)
+	wrapper.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	wrapper.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	slot.add_child(wrapper)
+
+	var circle = TextureRect.new()
+	circle.texture = load(SHELL_ICONS.get(shell.shell_type, SHELL_ICONS[0]))
+	circle.set_anchors_preset(Control.PRESET_FULL_RECT)
+	circle.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	circle.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	circle.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	circle.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	wrapper.add_child(circle)
 
 	var name_lbl = Label.new()
 	name_lbl.text = shell.shell_name.to_upper()

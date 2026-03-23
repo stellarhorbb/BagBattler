@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="RelicResource" format=3 uid="uid://cjjpepetbawi5"]
+
+[ext_resource type="Script" uid="uid://bw7m6taw4761m" path="res://scripts/relics/RelicResource.gd" id="1_relicres"]
+[ext_resource type="Texture2D" uid="uid://cv3xbh4m7urq" path="res://assets/icons/relics/white-hole.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_relicres")
+relic_name = "White Hole"
+description = "Each empty slot on Execute adds +0.2 to Pressure."
+lore = "Something escapes from the void."
+rarity = 2
+cost = 7
+icon = ExtResource("2_icon")

@@ -8,4 +8,4 @@ token_name = "Strike"
 description = "Deals base ATK damage. 2+ adjacent Strikes → +0.05 Pressure per token."
 value = 3
 streak_target = 1
-streak_value_per_token = 0.05
+streak_value_per_token = 0.1

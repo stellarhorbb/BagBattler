@@ -6,9 +6,9 @@
 script = ExtResource("1_l2mxt")
 token_name = "Rampart"
 token_type = 1
-description = "If placed on the last slot, adds +0.05 Pressure per DEF token on the line."
+description = "If placed on the last slot, adds +0.1 Pressure per DEF token on the line."
 shop_drop_weight = 0.3
 placement_slot = 2
 placement_target = 1
-placement_value = 0.05
+placement_value = 0.1
 placement_count_scale = true

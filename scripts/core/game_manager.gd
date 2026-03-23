@@ -49,11 +49,15 @@ func init_run_stats(job: JobResource) -> void:
 	slot_count = job.slot_count
 
 func calculate_combat_reward() -> int:
-	var reward = 5
-	if turns_played_last_combat < 5:
+	var reward = 10
+	if turns_played_last_combat <= 1:
+		reward += 5
+	elif turns_played_last_combat <= 2:
 		reward += 2
-	elif turns_played_last_combat > 10:
-		reward -= 3
+	elif turns_played_last_combat >= 10:
+		reward -= 5
+	elif turns_played_last_combat >= 7:
+		reward -= 2
 	return max(reward, 0)
 
 # Retourne les stats de la zone actuelle
@@ -103,5 +107,6 @@ func apply_moon_phase(phase: MoonPhaseResource) -> void:
 	base_damage += phase.atk_bonus
 	base_pressure_floor += phase.prsr_bonus
 	base_defense += phase.def_bonus
-	player_max_hp += phase.hp_bonus
-	player_current_hp = min(player_current_hp + phase.hp_bonus, player_max_hp)
+	var flat_hp := phase.hp_bonus + roundi(player_max_hp * phase.hp_bonus_percent / 100.0)
+	player_max_hp += flat_hp
+	player_current_hp = min(player_current_hp + flat_hp, player_max_hp)

@@ -1,100 +1,182 @@
 [gd_resource type="Resource" script_class="EntityProgressionResource" format=3 uid="uid://bbo6nnrgqh02y"]
 
-[ext_resource type="Script" uid="uid://dk6c5s7isee0a" path="res://scripts/resources/RoundStatsResource.gd" id="1_oc5d8"]
+[ext_resource type="Script" path="res://scripts/resources/ZoneStatsResource.gd" id="2_oc5d8"]
 [ext_resource type="Script" uid="uid://cujpdwqr2ohcw" path="res://scripts/resources/EntityProgressionResource.gd" id="2_oi8th"]
 
 [sub_resource type="Resource" id="Resource_oc5d8"]
-script = ExtResource("1_oc5d8")
-round_number = 0
+script = ExtResource("2_oc5d8")
+zone_number = 0
 hp = 1
-atk = 5
+atk = 4
 
 [sub_resource type="Resource" id="Resource_oi8th"]
-script = ExtResource("1_oc5d8")
+script = ExtResource("2_oc5d8")
 hp = 15
-atk = 5
+atk = 4
 
 [sub_resource type="Resource" id="Resource_u26b2"]
-script = ExtResource("1_oc5d8")
-round_number = 2
+script = ExtResource("2_oc5d8")
+zone_number = 2
 hp = 22
-atk = 6
+atk = 5
 
 [sub_resource type="Resource" id="Resource_74566"]
-script = ExtResource("1_oc5d8")
-round_number = 3
+script = ExtResource("2_oc5d8")
+zone_number = 3
 hp = 30
 
 [sub_resource type="Resource" id="Resource_x5pso"]
-script = ExtResource("1_oc5d8")
-round_number = 4
+script = ExtResource("2_oc5d8")
+zone_number = 4
 hp = 45
-atk = 10
 mutations = 1
 is_boss = true
 
 [sub_resource type="Resource" id="Resource_sr5d3"]
-script = ExtResource("1_oc5d8")
-round_number = 5
+script = ExtResource("2_oc5d8")
+zone_number = 5
 hp = 55
-atk = 12
+atk = 9
 mutations = 1
 
 [sub_resource type="Resource" id="Resource_qhwgh"]
-script = ExtResource("1_oc5d8")
-round_number = 6
+script = ExtResource("2_oc5d8")
+zone_number = 6
 hp = 65
-atk = 14
+atk = 11
 mutations = 1
 
 [sub_resource type="Resource" id="Resource_6rd15"]
-script = ExtResource("1_oc5d8")
-round_number = 7
+script = ExtResource("2_oc5d8")
+zone_number = 7
 hp = 80
-atk = 16
+atk = 13
 mutations = 1
 
 [sub_resource type="Resource" id="Resource_xaiba"]
-script = ExtResource("1_oc5d8")
-round_number = 8
+script = ExtResource("2_oc5d8")
+zone_number = 8
 hp = 105
-atk = 20
+atk = 16
 mutations = 2
 is_boss = true
 
 [sub_resource type="Resource" id="Resource_ugnbj"]
-script = ExtResource("1_oc5d8")
-round_number = 9
+script = ExtResource("2_oc5d8")
+zone_number = 9
 hp = 125
-atk = 24
+atk = 19
 mutations = 2
-metadata/_custom_type_script = "uid://dk6c5s7isee0a"
 
 [sub_resource type="Resource" id="Resource_br1lb"]
-script = ExtResource("1_oc5d8")
-round_number = 10
+script = ExtResource("2_oc5d8")
+zone_number = 10
 hp = 145
-atk = 27
+atk = 22
 mutations = 2
-metadata/_custom_type_script = "uid://dk6c5s7isee0a"
 
 [sub_resource type="Resource" id="Resource_vt7nw"]
-script = ExtResource("1_oc5d8")
-round_number = 11
+script = ExtResource("2_oc5d8")
+zone_number = 11
 hp = 170
-atk = 30
+atk = 24
 mutations = 2
-metadata/_custom_type_script = "uid://dk6c5s7isee0a"
 
 [sub_resource type="Resource" id="Resource_yr7df"]
-script = ExtResource("1_oc5d8")
-round_number = 12
+script = ExtResource("2_oc5d8")
+zone_number = 12
 hp = 210
-atk = 35
+atk = 28
 mutations = 3
 is_boss = true
-metadata/_custom_type_script = "uid://dk6c5s7isee0a"
+
+[sub_resource type="Resource" id="Resource_r13"]
+script = ExtResource("2_oc5d8")
+zone_number = 13
+hp = 150
+atk = 24
+mutations = 2
+
+[sub_resource type="Resource" id="Resource_r14"]
+script = ExtResource("2_oc5d8")
+zone_number = 14
+hp = 170
+atk = 28
+mutations = 2
+
+[sub_resource type="Resource" id="Resource_r15"]
+script = ExtResource("2_oc5d8")
+zone_number = 15
+hp = 190
+atk = 32
+mutations = 2
+
+[sub_resource type="Resource" id="Resource_r16"]
+script = ExtResource("2_oc5d8")
+zone_number = 16
+hp = 220
+atk = 36
+mutations = 3
+is_boss = true
+
+[sub_resource type="Resource" id="Resource_r17"]
+script = ExtResource("2_oc5d8")
+zone_number = 17
+hp = 250
+atk = 44
+mutations = 3
+
+[sub_resource type="Resource" id="Resource_r18"]
+script = ExtResource("2_oc5d8")
+zone_number = 18
+hp = 280
+atk = 50
+mutations = 3
+
+[sub_resource type="Resource" id="Resource_r19"]
+script = ExtResource("2_oc5d8")
+zone_number = 19
+hp = 310
+atk = 55
+mutations = 3
+
+[sub_resource type="Resource" id="Resource_r20"]
+script = ExtResource("2_oc5d8")
+zone_number = 20
+hp = 360
+atk = 60
+mutations = 4
+is_boss = true
+
+[sub_resource type="Resource" id="Resource_r21"]
+script = ExtResource("2_oc5d8")
+zone_number = 21
+hp = 390
+atk = 72
+mutations = 4
+
+[sub_resource type="Resource" id="Resource_r22"]
+script = ExtResource("2_oc5d8")
+zone_number = 22
+hp = 430
+atk = 80
+mutations = 4
+
+[sub_resource type="Resource" id="Resource_r23"]
+script = ExtResource("2_oc5d8")
+zone_number = 23
+hp = 470
+atk = 88
+mutations = 4
+
+[sub_resource type="Resource" id="Resource_r24"]
+script = ExtResource("2_oc5d8")
+zone_number = 24
+hp = 550
+atk = 96
+mutations = 4
+is_boss = true
 
 [resource]
 script = ExtResource("2_oi8th")
-rounds = Array[ExtResource("1_oc5d8")]([SubResource("Resource_oc5d8"), SubResource("Resource_oi8th"), SubResource("Resource_u26b2"), SubResource("Resource_74566"), SubResource("Resource_x5pso"), SubResource("Resource_sr5d3"), SubResource("Resource_qhwgh"), SubResource("Resource_6rd15"), SubResource("Resource_xaiba"), SubResource("Resource_ugnbj"), SubResource("Resource_br1lb"), SubResource("Resource_vt7nw"), SubResource("Resource_yr7df")])
+zones = Array[ExtResource("2_oc5d8")]([SubResource("Resource_oc5d8"), SubResource("Resource_oi8th"), SubResource("Resource_u26b2"), SubResource("Resource_74566"), SubResource("Resource_x5pso"), SubResource("Resource_sr5d3"), SubResource("Resource_qhwgh"), SubResource("Resource_6rd15"), SubResource("Resource_xaiba"), SubResource("Resource_ugnbj"), SubResource("Resource_br1lb"), SubResource("Resource_vt7nw"), SubResource("Resource_yr7df"), SubResource("Resource_r13"), SubResource("Resource_r14"), SubResource("Resource_r15"), SubResource("Resource_r16"), SubResource("Resource_r17"), SubResource("Resource_r18"), SubResource("Resource_r19"), SubResource("Resource_r20"), SubResource("Resource_r21"), SubResource("Resource_r22"), SubResource("Resource_r23"), SubResource("Resource_r24")])

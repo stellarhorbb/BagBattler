@@ -37,3 +37,8 @@ enum StreakScope   { CONSECUTIVE, ADJACENT }
 @export_group("Base")
 @export var base_target: EffectTarget = EffectTarget.NONE
 @export var base_value: float = 0.0
+
+# Placement behaviour
+@export_group("Placement Behaviour")
+@export var atk_weight: int = 1        # counts as N ATK tokens when resolving
+@export var placement_swap: bool = false  # swaps with a random neighbor on placement

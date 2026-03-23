@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("1_relicres")
 relic_name = "Crown of Fools"
-description = "If you execute an action with EXACTLY 1 Hazard on the line, gain +1 Salt."
+description = "If you execute an action with EXACTLY 1 Hazard on the line, gain +2 Salt."
 lore = "Stories say that a brave man once lost his favorite crown, up in the north."
 rarity = 1
 cost = 4

@@ -427,21 +427,59 @@ func _on_button_execute_pressed() -> void:
 
 	current_pressure += result.pressure_bonus
 
-	# Step 2 — relics react left-to-right
+	# Step 2 — relics resolve left to right with animation
 	var hazard_count := _count_hazards_in_slots()
+	var empty_slot_count := _slots.filter(func(s): return s.is_empty()).size()
 	var context := {
 		"hazard_count": hazard_count,
+		"empty_slot_count": empty_slot_count,
 		"gold": GameManager.gold,
 		"total_attack": result.total_attack,
 		"total_defense": result.total_defense,
 		"pressure": current_pressure,
 	}
-	context = RelicManager.trigger_execute(context)
-	GameManager.gold = context["gold"]
+
+	for i in RelicManager.relics.size():
+		var gold_before: int = context.get("gold", 0)
+		var pressure_before: float = context.get("pressure", current_pressure)
+		context = RelicManager.trigger_execute_single(i, context)
+
+		var gold_changed: bool = context.get("gold", 0) != gold_before
+		var pressure_changed: bool = context.get("pressure", current_pressure) != pressure_before
+
+		if gold_changed or pressure_changed:
+			RunHUD.relic_line.trigger_pulse(i)
+			var card_center: Vector2 = RunHUD.relic_line.get_card_center(i)
+			if gold_changed:
+				var diff: int = context.get("gold", 0) - gold_before
+				GameManager.gold = context["gold"]
+				hud_vfx.floating_text(card_center, "+%d SALT" % diff, Color("#EAA21C"))
+				hud.update_hud()
+			if pressure_changed:
+				var pressure_steps: Array = context.get("pressure_steps", [])
+				if not pressure_steps.is_empty():
+					context.erase("pressure_steps")
+					for step in pressure_steps:
+						current_pressure += step
+						label_pressure_value.text = "x%.2f" % current_pressure
+						hud_vfx.animate_pressure_label(label_pressure_value)
+						hud_vfx.floating_text(card_center, "+%.2f PRSR" % step, Color("#C040E0"))
+						await get_tree().create_timer(0.45).timeout
+					continue
+				else:
+					current_pressure = context.get("pressure", current_pressure)
+					label_pressure_value.text = "x%.2f" % current_pressure
+					hud_vfx.animate_pressure_label(label_pressure_value)
+					hud_vfx.floating_text(card_center, "+%.2f PRSR" % (current_pressure - pressure_before), Color("#C040E0"))
+			await get_tree().create_timer(0.45).timeout
+
+	GameManager.gold = context.get("gold", GameManager.gold)
+	current_pressure = context.get("pressure", current_pressure)
+	label_pressure_value.text = "x%.2f" % current_pressure
 	hud.update_hud()
 
 	# Step 3 — pressure multiplies ATK and DEF, relics may modify final values
-	var eff_pressure: float = context.get("pressure", current_pressure)
+	var eff_pressure: float = current_pressure
 	var final_attack := roundi(context.get("total_attack", result.total_attack) * eff_pressure)
 	var final_defense := roundi(context.get("total_defense", result.total_defense) * eff_pressure)
 	var modified_damage: int = roundi(current_enemy.current_damage * result.damage_multiplier)

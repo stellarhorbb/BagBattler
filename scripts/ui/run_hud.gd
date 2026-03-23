@@ -17,8 +17,6 @@ var draw_count_label: Label
 var type_breakdown_box: VBoxContainer
 var bag_info_area: Control
 var bag_inspector: Control
-var _bag_hover_active := false
-var _modal_panel: Control
 
 func _ready() -> void:
 	layer = 5
@@ -43,17 +41,12 @@ func _ready() -> void:
 	bag_inspector = preload("res://bag_inspector.tscn").instantiate()
 	bag_inspector.get_node("CompactView").visible = false
 	add_child(bag_inspector)
-	_modal_panel = bag_inspector.get_node("ModalView/ModalPanel")
-	bag_info_area.mouse_entered.connect(func():
-		_bag_hover_active = true
-		bag_inspector.open_modal()
-	)
 
 func refresh() -> void:
 	var display_ante := GameManager.get_current_ante() - 1
-	var display_round := GameManager.get_round_in_ante()
+	var display_zone := GameManager.get_zone_in_ante()
 	label_turns_title.text = GameManager.get_depth_name().to_upper()
-	label_turns.text = "%d.%d" % [display_ante, display_round]
+	label_turns.text = "%d.%d" % [display_ante, display_zone]
 	label_gold.text = "%d" % GameManager.gold
 	player_hp_bar.max_value = GameManager.player_max_hp
 	player_hp_bar.value = GameManager.player_current_hp
@@ -65,24 +58,12 @@ func refresh() -> void:
 	update_bag_info(GameManager.get_effective_bag())
 	bag_inspector.setup_from_array(GameManager.full_bag)
 
-func _process(_delta: float) -> void:
-	if not _bag_hover_active or not bag_inspector.get_node("ModalView").visible:
-		return
-	var mouse := get_viewport().get_mouse_position()
-	if not bag_info_area.get_global_rect().has_point(mouse) \
-			and not _modal_panel.get_global_rect().has_point(mouse):
-		_bag_hover_active = false
-		bag_inspector.close_modal()
-
 func _unhandled_input(event: InputEvent) -> void:
 	if not visible or bag_inspector == null:
 		return
-	if event is InputEventKey and event.keycode == KEY_TAB:
+	if event is InputEventKey and event.keycode == KEY_TAB and event.pressed and not event.echo:
 		get_viewport().set_input_as_handled()
-		if event.pressed:
-			bag_inspector.open_modal()
-		else:
-			bag_inspector.close_modal()
+		bag_inspector.toggle_modal()
 
 func set_info_color(color: Color) -> void:
 	label_turns_title.add_theme_color_override("font_color", color)

@@ -106,7 +106,9 @@ static func _apply_consecutive(cards: Array, start: int, run_end: int, result: R
 	var run_len := run_end - start + 1
 
 	match token.token_type:
-		TokenResource.TokenType.ATTACK:  result.atk_count += run_len
+		TokenResource.TokenType.ATTACK:
+			for j in range(start, run_end + 1):
+				result.atk_count += cards[j].token_data.atk_weight
 		TokenResource.TokenType.DEFENSE: result.def_count += run_len
 
 	if run_len < 2 or run_len < token.streak_min:

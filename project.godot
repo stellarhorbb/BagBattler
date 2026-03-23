@@ -35,6 +35,15 @@ window/size/initial_position_type=3
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
+[file_customization]
+
+folder_colors={
+"res://assets/": "green",
+"res://obsidian/": "gray",
+"res://resources/": "purple",
+"res://scripts/": "red"
+}
+
 [gui]
 
 theme/custom="res://default_theme.tres"

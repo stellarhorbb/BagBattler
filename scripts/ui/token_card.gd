@@ -9,8 +9,10 @@ var _pulse_tween: Tween
 
 func setup(token: TokenResource) -> void:
 	token_data = token
-	mouse_entered.connect(_on_hover)
-	mouse_exited.connect(_on_unhover)
+	if not mouse_entered.is_connected(_on_hover):
+		mouse_entered.connect(_on_hover)
+	if not mouse_exited.is_connected(_on_unhover):
+		mouse_exited.connect(_on_unhover)
 	_style = StyleBoxFlat.new()
 	_style.corner_radius_top_left = 70
 	_style.corner_radius_top_right = 70
@@ -90,6 +92,7 @@ func _load_icon() -> void:
 		"provocation": "res://assets/icons/tokens/new/provocation.png",
 		"skull":       "res://assets/icons/tokens/new/skull.png",
 		"heal":        "res://assets/icons/tokens/new/heal.png",
+		"swing":       "res://assets/icons/tokens/new/swing.png",
 	}
 	var key = token_data.token_name.to_lower()
 	if icon_map.has(key) and ResourceLoader.exists(icon_map[key]):

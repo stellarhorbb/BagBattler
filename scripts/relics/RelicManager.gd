@@ -12,6 +12,9 @@ func add_relic(relic: BaseRelic) -> bool:
 	relics.append(relic)
 	return true
 
+func remove_relic(relic: BaseRelic) -> void:
+	relics.erase(relic)
+
 func reorder(from: int, to: int) -> void:
 	if from < 0 or from >= relics.size() or to < 0 or to >= relics.size():
 		return
@@ -21,10 +24,17 @@ func reorder(from: int, to: int) -> void:
 
 func trigger_execute(context: Dictionary) -> Dictionary:
 	for i in relics.size():
-		var gold_before: int = context.get("gold", 0)
-		context = relics[i].on_execute(context)
-		if context.get("gold", 0) != gold_before:
-			relic_triggered.emit(i)
+		context = trigger_execute_single(i, context)
+	return context
+
+func trigger_execute_single(index: int, context: Dictionary) -> Dictionary:
+	if index < 0 or index >= relics.size():
+		return context
+	var gold_before: int = context.get("gold", 0)
+	var pressure_before: float = context.get("pressure", 0.0)
+	context = relics[index].on_execute(context)
+	if context.get("gold", 0) != gold_before or context.get("pressure", 0.0) != pressure_before:
+		relic_triggered.emit(index)
 	return context
 
 func trigger_hazard_drawn() -> int:

@@ -25,19 +25,15 @@ const RARITY_NAMES = {
 }
 
 const TYPE_ICONS = {
-	RewardResource.RewardType.UPGRADE_DAMAGE:  "res://assets/icons/ui/attack-icon.png",
-	RewardResource.RewardType.UPGRADE_DEFENSE: "res://assets/icons/ui/defense-icon.png",
-	RewardResource.RewardType.HP_MAX:          "res://assets/icons/ui/max-hp.png",
-	RewardResource.RewardType.HEAL:            "res://assets/icons/ui/heal.png",
-	RewardResource.RewardType.GOLD:            "res://assets/icons/ui/salt-icon.png",
+	RewardResource.RewardType.GOLD:           "res://assets/icons/ui/salt-icon.png",
+	RewardResource.RewardType.HEAL:           "res://assets/icons/ui/heal.png",
+	RewardResource.RewardType.PRESSURE_BOOST: "res://assets/icons/ui/attack-icon.png",
 }
 
 const TYPE_NAMES = {
-	RewardResource.RewardType.UPGRADE_DAMAGE:  "BASE ATK",
-	RewardResource.RewardType.UPGRADE_DEFENSE: "BASE DEF",
-	RewardResource.RewardType.HP_MAX:          "MAX HP",
-	RewardResource.RewardType.HEAL:            "HEAL",
-	RewardResource.RewardType.GOLD:            "SALT",
+	RewardResource.RewardType.GOLD:           "SALT",
+	RewardResource.RewardType.HEAL:           "HEAL",
+	RewardResource.RewardType.PRESSURE_BOOST: "PRESSURE",
 }
 
 func setup(reward: RewardResource, callback: Callable) -> void:
@@ -52,11 +48,12 @@ func setup(reward: RewardResource, callback: Callable) -> void:
 	label_type_name.text = TYPE_NAMES[reward.reward_type]
 
 	match reward.reward_type:
-		RewardResource.RewardType.UPGRADE_DAMAGE, RewardResource.RewardType.UPGRADE_DEFENSE, \
-		RewardResource.RewardType.HP_MAX, RewardResource.RewardType.HEAL:
-			label_value.text = "+%d" % reward.value
 		RewardResource.RewardType.GOLD:
 			label_value.text = "+%d" % reward.value
+		RewardResource.RewardType.HEAL:
+			label_value.text = "+%d%%" % reward.value
+		RewardResource.RewardType.PRESSURE_BOOST:
+			label_value.text = "x%.2f" % (1.0 + reward.value / 100.0)
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
