@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="RelicResource" format=3]
+
+[ext_resource type="Script" uid="uid://bw7m6taw4761m" path="res://scripts/relics/RelicResource.gd" id="1_relicres"]
+[ext_resource type="Texture2D" path="res://assets/icons/relics/salt-merchant.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_relicres")
+relic_name = "Salt Merchant"
+description = "Gain +5 SALT after each combat."
+lore = ""
+rarity = 1
+cost = 4
+icon = ExtResource("2_icon")

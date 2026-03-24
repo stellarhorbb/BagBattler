@@ -7,5 +7,5 @@ script = ExtResource("1_moonres")
 phase_type = 3
 phase_name = "Last Quarter"
 description = "+15% max HP for this run."
-cost = 8
+cost = 6
 hp_bonus_percent = 15.0

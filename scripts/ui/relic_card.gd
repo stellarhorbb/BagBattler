@@ -171,7 +171,7 @@ func _on_sell() -> void:
 	_hide_sell_popup()
 	RelicManager.remove_relic(relic)
 	GameManager.purchased_relics.erase(relic)
-	GameManager.gold += SELL_PRICE
+	GameManager.add_gold(SELL_PRICE)
 	RunHUD.refresh()
 	get_parent().refresh()
 

@@ -7,6 +7,7 @@ extends Control
 
 var bag_manager: BagManager
 var _static_tokens: Array[TokenResource] = []
+var _opened_by_tab: bool = false
 
 var _font = preload("res://font/LondrinaSolid-Black.ttf")
 
@@ -27,6 +28,10 @@ const TYPE_ORDER = [
 	TokenResource.TokenType.CLEANSER,
 	TokenResource.TokenType.HAZARD,
 ]
+
+func _ready() -> void:
+	$CompactView.pressed.connect(toggle_modal)
+	$ModalView/Dimmer.gui_input.connect(_on_dimmer_input)
 
 func setup(bm: BagManager) -> void:
 	bag_manager = bm
@@ -123,37 +128,170 @@ func _build_modal_view() -> void:
 	for child in modal_content.get_children():
 		child.free()
 
-	var total = _get_tokens().size()
-	var composition = _get_composition()
+	var panels_row := HBoxContainer.new()
+	panels_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panels_row.add_theme_constant_override("separation", 24)
+	modal_content.add_child(panels_row)
 
-	# Title
-	var title = Label.new()
-	title.text = "COMPOSITION"
+	# Left: Run Stats (only in live run)
+	var left_panel := _build_run_stats_panel()
+	left_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	left_panel.size_flags_stretch_ratio = 0.3
+	panels_row.add_child(left_panel)
+
+	# Vertical divider
+	var divider := ColorRect.new()
+	divider.custom_minimum_size = Vector2(2, 0)
+	divider.color = Color(1, 1, 1, 0.12)
+	divider.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panels_row.add_child(divider)
+
+	# Right: Bag Composition
+	var right_panel := _build_composition_panel()
+	right_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	right_panel.size_flags_stretch_ratio = 0.7
+	panels_row.add_child(right_panel)
+
+func _build_run_stats_panel() -> VBoxContainer:
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 10)
+
+	# Title row: "RUN STATS" left, HP% right
+	var title_row := HBoxContainer.new()
+	vbox.add_child(title_row)
+
+	var title_vbox := VBoxContainer.new()
+	title_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_vbox.add_theme_constant_override("separation", 0)
+	title_row.add_child(title_vbox)
+
+	var title := Label.new()
+	title.text = "RUN STATS"
 	title.add_theme_font_override("font", _font)
-	title.add_theme_font_size_override("font_size", 68)
-	title.add_theme_color_override("font_color", Color(1, 1, 1, 1))
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	modal_content.add_child(title)
+	title.add_theme_font_size_override("font_size", 52)
+	title.add_theme_color_override("font_color", Color.WHITE)
+	title_vbox.add_child(title)
 
-	# Subtitle
-	var subtitle = Label.new()
-	subtitle.text = "%d LEFT" % total
-	subtitle.add_theme_font_override("font", _font)
-	subtitle.add_theme_font_size_override("font_size", 29)
-	subtitle.add_theme_color_override("font_color", Color(1, 1, 1, 0.55))
-	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	modal_content.add_child(subtitle)
+	if GameManager.selected_job != null:
+		var ante := GameManager.get_current_ante()
+		var zone_in_ante := GameManager.get_zone_in_ante()
+		var depth := GameManager.get_depth_name().to_upper()
+		var subtitle := Label.new()
+		subtitle.text = "%d.%d %s" % [ante, zone_in_ante, depth]
+		subtitle.add_theme_font_override("font", _font)
+		subtitle.add_theme_font_size_override("font_size", 20)
+		subtitle.add_theme_color_override("font_color", Color(1, 1, 1, 0.5))
+		title_vbox.add_child(subtitle)
+
+	if GameManager.selected_job != null:
+		var hp_pct := roundi(GameManager.player_current_hp * 100.0 / max(GameManager.player_max_hp, 1))
+		var hp_label := Label.new()
+		hp_label.text = "%d%%" % hp_pct
+		hp_label.add_theme_font_override("font", _font)
+		hp_label.add_theme_font_size_override("font_size", 42)
+		hp_label.add_theme_color_override("font_color", Color.WHITE)
+		hp_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		title_row.add_child(hp_label)
+
+	# Class row
+	if GameManager.selected_job != null:
+		var class_row := _make_list_row("CLASS", GameManager.selected_job.job_name.to_upper())
+		vbox.add_child(class_row)
+
+	# Stat boxes: ATK DEF HP PRSR
+	if GameManager.selected_job != null:
+		var stats_row := HBoxContainer.new()
+		stats_row.add_theme_constant_override("separation", 8)
+		vbox.add_child(stats_row)
+
+		var atk_bonus := GameManager.base_damage - GameManager.selected_job.base_damage
+		var def_bonus := GameManager.base_defense - GameManager.selected_job.base_defense
+		var hp_bonus := GameManager.player_max_hp - GameManager.selected_job.base_hp
+		var prsr_bonus := GameManager.base_pressure_floor - 1.0
+
+		stats_row.add_child(_make_stat_box("ATK", "+%d" % atk_bonus, Color("E8294A"), true))
+		stats_row.add_child(_make_stat_box("DEF", "+%d" % def_bonus, Color("3D4CE8"), true))
+		stats_row.add_child(_make_stat_box("HP", "+%d" % hp_bonus, Color(0.18, 0.18, 0.18, 1), false))
+		stats_row.add_child(_make_stat_box("PRSR", "+%.2f" % prsr_bonus, Color(0.18, 0.18, 0.18, 1), false))
+
+	# Token added / sacrificed boxes
+	if GameManager.selected_job != null:
+		var token_row := HBoxContainer.new()
+		token_row.add_theme_constant_override("separation", 8)
+		vbox.add_child(token_row)
+
+		var added := GameManager.purchased_tokens.size()
+		var sacrificed := GameManager.sacrificed_tokens.size()
+		token_row.add_child(_make_count_box("TOKEN ADDED", str(added)))
+		token_row.add_child(_make_count_box("TOKEN SACRIFICED", str(sacrificed)))
 
 	# Spacer
-	var spacer = Control.new()
-	spacer.custom_minimum_size = Vector2(0, 21)
-	modal_content.add_child(spacer)
+	var spacer := Control.new()
+	spacer.custom_minimum_size = Vector2(0, 4)
+	vbox.add_child(spacer)
 
-	# Scrollable rows
+	# List rows
+	if GameManager.selected_job != null:
+		var moon_count := GameManager.purchased_moon_phases.size()
+		var shells_count := GameManager.shells_opened
+		var salt_total := GameManager.total_salt_earned
+		var crashes := GameManager.total_crashes
+
+		vbox.add_child(_make_list_row("MOON CARDS CONSUMED", "x%d" % moon_count))
+		vbox.add_child(_make_list_row("SHELLS CONSUMED", "x%d" % shells_count))
+		vbox.add_child(_make_list_row("TOTAL SALT EARNED", "x%d" % salt_total))
+		vbox.add_child(_make_list_row("TOTAL CRASHES", "x%d" % crashes))
+
+	return vbox
+
+func _build_composition_panel() -> VBoxContainer:
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 0)
+
+	var total := _get_tokens().size()
+	var composition := _get_composition()
+
+	# Title row
+	var title_row := HBoxContainer.new()
+	vbox.add_child(title_row)
+
+	var title_vbox := VBoxContainer.new()
+	title_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_vbox.add_theme_constant_override("separation", 0)
+	title_row.add_child(title_vbox)
+
+	var title := Label.new()
+	title.text = "BAG COMPOSITION"
+	title.add_theme_font_override("font", _font)
+	title.add_theme_font_size_override("font_size", 52)
+	title.add_theme_color_override("font_color", Color.WHITE)
+	title_vbox.add_child(title)
+
+	var subtitle := Label.new()
+	subtitle.text = "TOKENS LEFT"
+	subtitle.add_theme_font_override("font", _font)
+	subtitle.add_theme_font_size_override("font_size", 20)
+	subtitle.add_theme_color_override("font_color", Color(1, 1, 1, 0.5))
+	title_vbox.add_child(subtitle)
+
+	var count_label := Label.new()
+	count_label.text = "x%d" % total
+	count_label.add_theme_font_override("font", _font)
+	count_label.add_theme_font_size_override("font_size", 42)
+	count_label.add_theme_color_override("font_color", Color.WHITE)
+	count_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	title_row.add_child(count_label)
+
+	# Spacer
+	var spacer := Control.new()
+	spacer.custom_minimum_size = Vector2(0, 18)
+	vbox.add_child(spacer)
+
+	# Scrollable token rows
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	modal_content.add_child(scroll)
+	vbox.add_child(scroll)
 
 	var rows_vbox := VBoxContainer.new()
 	rows_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -168,13 +306,31 @@ func _build_modal_view() -> void:
 			var res := _find_token_resource(token_name)
 			rows_vbox.add_child(_make_row(token_type, token_name, data["count"], data["percent"], res))
 
+	return vbox
+
 # --- TOGGLE ---
 
 func toggle_modal() -> void:
+	_opened_by_tab = false
 	if modal_view.visible:
 		_close_modal()
 	else:
 		_open_modal()
+
+func open_by_tab() -> void:
+	if not modal_view.visible:
+		_opened_by_tab = true
+		_open_modal()
+
+func close_by_tab() -> void:
+	if _opened_by_tab:
+		_opened_by_tab = false
+		_close_modal()
+
+func _on_dimmer_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		_opened_by_tab = false
+		_close_modal()
 
 func _open_modal() -> void:
 	_build_modal_view()
@@ -206,6 +362,125 @@ func _make_circle(token_type: int, count: int) -> Control:
 	label.add_theme_color_override("font_color", Color.WHITE)
 	circle.add_child(label)
 	return circle
+
+func _make_stat_box(stat_name: String, value: String, bg_color: Color, colored: bool) -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var style := StyleBoxFlat.new()
+	style.bg_color = bg_color
+	style.corner_radius_top_left = 6
+	style.corner_radius_top_right = 6
+	style.corner_radius_bottom_left = 6
+	style.corner_radius_bottom_right = 6
+	panel.add_theme_stylebox_override("panel", style)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 12)
+	margin.add_theme_constant_override("margin_right", 12)
+	margin.add_theme_constant_override("margin_top", 10)
+	margin.add_theme_constant_override("margin_bottom", 10)
+	panel.add_child(margin)
+
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 0)
+	margin.add_child(col)
+
+	var name_lbl := Label.new()
+	name_lbl.text = stat_name
+	name_lbl.add_theme_font_override("font", _font)
+	name_lbl.add_theme_font_size_override("font_size", 18)
+	name_lbl.add_theme_color_override("font_color", Color(1, 1, 1, 0.7))
+	name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	col.add_child(name_lbl)
+
+	var val_lbl := Label.new()
+	val_lbl.text = value
+	val_lbl.add_theme_font_override("font", _font)
+	val_lbl.add_theme_font_size_override("font_size", 34)
+	val_lbl.add_theme_color_override("font_color", Color.WHITE)
+	val_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	col.add_child(val_lbl)
+
+	return panel
+
+func _make_count_box(label_text: String, value: String) -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.12, 0.12, 0.12, 1)
+	style.corner_radius_top_left = 6
+	style.corner_radius_top_right = 6
+	style.corner_radius_bottom_left = 6
+	style.corner_radius_bottom_right = 6
+	panel.add_theme_stylebox_override("panel", style)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 12)
+	margin.add_theme_constant_override("margin_right", 12)
+	margin.add_theme_constant_override("margin_top", 10)
+	margin.add_theme_constant_override("margin_bottom", 10)
+	panel.add_child(margin)
+
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 2)
+	margin.add_child(col)
+
+	var name_lbl := Label.new()
+	name_lbl.text = label_text
+	name_lbl.add_theme_font_override("font", _font)
+	name_lbl.add_theme_font_size_override("font_size", 16)
+	name_lbl.add_theme_color_override("font_color", Color(1, 1, 1, 0.5))
+	name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	col.add_child(name_lbl)
+
+	var val_lbl := Label.new()
+	val_lbl.text = value
+	val_lbl.add_theme_font_override("font", _font)
+	val_lbl.add_theme_font_size_override("font_size", 40)
+	val_lbl.add_theme_color_override("font_color", Color.WHITE)
+	val_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	col.add_child(val_lbl)
+
+	return panel
+
+func _make_list_row(label_text: String, value: String) -> PanelContainer:
+	var panel := PanelContainer.new()
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.12, 0.12, 0.12, 1)
+	style.corner_radius_top_left = 4
+	style.corner_radius_top_right = 4
+	style.corner_radius_bottom_left = 4
+	style.corner_radius_bottom_right = 4
+	panel.add_theme_stylebox_override("panel", style)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 14)
+	margin.add_theme_constant_override("margin_right", 14)
+	margin.add_theme_constant_override("margin_top", 8)
+	margin.add_theme_constant_override("margin_bottom", 8)
+	panel.add_child(margin)
+
+	var row := HBoxContainer.new()
+	margin.add_child(row)
+
+	var lbl := Label.new()
+	lbl.text = label_text
+	lbl.add_theme_font_override("font", _font)
+	lbl.add_theme_font_size_override("font_size", 22)
+	lbl.add_theme_color_override("font_color", Color(1, 1, 1, 0.65))
+	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	row.add_child(lbl)
+
+	var val := Label.new()
+	val.text = value
+	val.add_theme_font_override("font", _font)
+	val.add_theme_font_size_override("font_size", 22)
+	val.add_theme_color_override("font_color", Color.WHITE)
+	val.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	row.add_child(val)
+
+	return panel
 
 func _find_token_resource(token_name: String) -> TokenResource:
 	for token in _get_tokens():
@@ -240,7 +515,7 @@ func _make_row(token_type: int, token_name: String, count: int, percent: float, 
 	name_label.add_theme_font_override("font", _font)
 	name_label.add_theme_font_size_override("font_size", 32)
 	name_label.add_theme_color_override("font_color", Color(1, 1, 1, 1))
-	name_label.custom_minimum_size = Vector2(240, 0)
+	name_label.custom_minimum_size = Vector2(180, 0)
 	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(name_label)
 

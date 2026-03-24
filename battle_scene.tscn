@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://bxrevtokenhld" path="res://scripts/ui/revealed_token_holder.gd" id="9_revholder"]
 [ext_resource type="Texture2D" uid="uid://do4cc1pn1rhwh" path="res://assets/icons/ui/attack-icon.png" id="10_atkicon"]
 [ext_resource type="Texture2D" uid="uid://cuubpyby0njyq" path="res://assets/icons/ui/defense-icon.png" id="11_deficon"]
+[ext_resource type="Texture2D" uid="uid://b5pressureiconx" path="res://assets/icons/ui/pressure-icon.png" id="12_psricon"]
 
 [sub_resource type="Shader" id="Shader_eblob"]
 code = "shader_type canvas_item;
@@ -261,16 +262,28 @@ scroll_active = false
 [node name="PressureSection" type="VBoxContainer" parent="PlayerHUDRow" unique_id=334455701]
 custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
-theme_override_constants/separation = 0
+theme_override_constants/separation = 4
 alignment = 1
 
-[node name="LabelPressureTitle" type="Label" parent="PlayerHUDRow/PressureSection" unique_id=334455702]
+[node name="PRSTitleRow" type="HBoxContainer" parent="PlayerHUDRow/PressureSection" unique_id=334455710]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="PressureIcon" type="TextureRect" parent="PlayerHUDRow/PressureSection/PRSTitleRow" unique_id=334455711]
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 2
+texture = ExtResource("12_psricon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LabelPressureTitle" type="Label" parent="PlayerHUDRow/PressureSection/PRSTitleRow" unique_id=334455702]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("8_font_black")
 theme_override_font_sizes/font_size = 32
-text = "PRESSURE"
-horizontal_alignment = 1
+text = "PRSR"
 
 [node name="LabelPressureValue" type="Label" parent="PlayerHUDRow/PressureSection" unique_id=334455703]
 layout_mode = 2

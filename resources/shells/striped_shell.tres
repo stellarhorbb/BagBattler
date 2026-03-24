@@ -7,4 +7,4 @@ script = ExtResource("1_shellres")
 shell_type = 1
 shell_name = "Striped Shell"
 flavor_text = "The ocean arms those willing to draw. Choose 1 token"
-cost = 6
+cost = 5

@@ -7,4 +7,4 @@ script = ExtResource("1_shellres")
 shell_type = 3
 shell_name = "Broken Shell"
 flavor_text = "What you leave behind makes you lighter. Sacrifice 1 token"
-cost = 9
+cost = 7

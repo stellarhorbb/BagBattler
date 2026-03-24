@@ -160,14 +160,11 @@ func update_combat_line_totals() -> void:
 	var def_str := _stat_formula(float(GameManager.base_defense), result.def_count)
 	_s.label_turn_atk.parse_bbcode(_formula_bbcode(atk_str))
 	_s.label_turn_def.parse_bbcode(_formula_bbcode(def_str))
-	var atk_box_col := Color(0.91, 0.16, 0.29, 1) if result.atk_count > 0 else Color(0.1, 0.1, 0.1, 1)
-	var def_box_col := Color(0.24, 0.4, 1, 1) if result.def_count > 0 else Color(0.1, 0.1, 0.1, 1)
-	_set_box_color(_s.atk_box, atk_box_col)
-	_set_box_color(_s.def_box, def_box_col)
+	_set_box_color(_s.atk_box, Color(0.1, 0.1, 0.1, 1))
+	_set_box_color(_s.def_box, Color(0.1, 0.1, 0.1, 1))
 
-	# Enemy intention — arrow when Provocation reduces it
-	var shown_damage: int = roundi(_s.current_enemy.current_damage * result.damage_multiplier) if result.damage_multiplier < 1.0 else _s.current_enemy.current_damage
-	_s.label_enemy_intention.text = "ENTITY ATTACK ◆ %d" % shown_damage
+	# Enemy intention — always show full damage during placement; provocation resolves during execution
+	_s.label_enemy_intention.text = "ENTITY ATTACK ◆ %d" % _s.current_enemy.current_damage
 	_s.label_enemy_intention.add_theme_color_override("font_color", intention_color())
 
 	_s.vfx.update_vignette(_s._count_hazards_in_slots())

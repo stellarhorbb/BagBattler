@@ -3,6 +3,10 @@ extends Node
 var selected_job: JobResource = null
 var current_zone: int = 1
 var gold: int = 0
+var total_salt_earned: int = 0
+var total_crashes: int = 0
+var shells_opened: int = 0
+var purchased_echoes: Array = []
 var base_pressure_floor: float = 1.0   # permanent run stat, raised by Moon Phase upgrades
 var pending_pressure_boost: float = 0.0 # temporary next-zone bonus from rewards
 var slot_count: int = 6
@@ -18,6 +22,9 @@ var purchased_relics: Array[BaseRelic] = []
 var purchased_moon_phases: Array[MoonPhaseResource] = []
 var sacrificed_tokens: Array[TokenResource] = []
 var full_bag: Array[TokenResource] = []
+var streak_bonus_multiplier: float = 1.0
+var streak_extra_count: int = 0
+var last_combat_pressure: float = 1.0
 
 # Charge la progression de l'entité
 var entity_progression: EntityProgressionResource = preload("res://resources/entity/entity_progression.tres")
@@ -26,6 +33,10 @@ func reset_run() -> void:
 	selected_job = null
 	current_zone = 1
 	gold = 0
+	total_salt_earned = 0
+	total_crashes = 0
+	shells_opened = 0
+	purchased_echoes.clear()
 	base_pressure_floor = 1.0
 	pending_pressure_boost = 0.0
 	slot_count = 6
@@ -36,6 +47,8 @@ func reset_run() -> void:
 	purchased_moon_phases.clear()
 	sacrificed_tokens.clear()
 	full_bag.clear()
+	streak_bonus_multiplier = 1.0
+	streak_extra_count = 0
 	RelicManager.relics.clear()
 	player_current_hp = player_max_hp
 
@@ -101,6 +114,11 @@ func advance_zone() -> void:
 	current_zone += 1
 	if get_zone_in_ante() == 1:
 		heal_end_of_ante()
+
+func add_gold(amount: int) -> void:
+	gold += amount
+	if amount > 0:
+		total_salt_earned += amount
 
 func apply_moon_phase(phase: MoonPhaseResource) -> void:
 	purchased_moon_phases.append(phase)

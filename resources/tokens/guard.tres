@@ -8,5 +8,6 @@ token_name = "Guard"
 token_type = 1
 description = "Absorbs base DEF damage. 2+ adjacent Guards → +0.05 Pressure per token."
 value = 5
+shop_price = 3
 streak_target = 1
 streak_value_per_token = 0.1

@@ -7,4 +7,4 @@ script = ExtResource("1_shellres")
 shell_type = 2
 shell_name = "Nacre Shell"
 flavor_text = "The tide shifts. So do you. Choose 1 updrade"
-cost = 7
+cost = 6

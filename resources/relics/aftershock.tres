@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="RelicResource" format=3 uid="uid://elx1c4u2g1q3"]
+
+[ext_resource type="Script" uid="uid://bw7m6taw4761m" path="res://scripts/relics/RelicResource.gd" id="1_relicres"]
+[ext_resource type="Texture2D" uid="uid://dmb4qhqrpti7l" path="res://assets/icons/relics/fortress.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_relicres")
+relic_name = "Aftershock"
+description = "On execute, gain +2 ATK for each streak group that fired."
+rarity = 3
+cost = 7
+icon = ExtResource("2_icon")

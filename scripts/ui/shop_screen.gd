@@ -34,11 +34,26 @@ const ALL_SHELLS: Array = [
 ]
 
 var ALL_RELICS: Array = [
-	[preload("res://resources/relics/crown_of_fool.tres"), RelicCrownOfFool],
-	[preload("res://resources/relics/jellyfish.tres"),     RelicTrident],
-	[preload("res://resources/relics/angel.tres"),         RelicAngel],
-	[preload("res://resources/relics/white_hole.tres"),    RelicWhiteHole],
-	[preload("res://resources/relics/salto.tres"),         RelicSalto],
+	[preload("res://resources/relics/crown_of_fool.tres"),  RelicCrownOfFool],
+	[preload("res://resources/relics/jellyfish.tres"),      RelicTrident],
+	[preload("res://resources/relics/angel.tres"),          RelicAngel],
+	[preload("res://resources/relics/white_hole.tres"),     RelicWhiteHole],
+	[preload("res://resources/relics/salto.tres"),          RelicSalto],
+	[preload("res://resources/relics/fortress.tres"),       RelicFortress],
+	[preload("res://resources/relics/depth_charge.tres"),   RelicDepthCharge],
+	[preload("res://resources/relics/depth_count.tres"),    RelicDepthCount],
+	[preload("res://resources/relics/tidal_mass.tres"),     RelicTidalMass],
+	[preload("res://resources/relics/dead_weight.tres"),    RelicDeadWeight],
+	[preload("res://resources/relics/salt_merchant.tres"),  RelicSaltMerchant],
+	[preload("res://resources/relics/predator.tres"),       RelicPredator],
+	[preload("res://resources/relics/void_barrier.tres"),   RelicVoidBarrier],
+	[preload("res://resources/relics/collector.tres"),      RelicCollector],
+	[preload("res://resources/relics/salvage.tres"),        RelicSalvage],
+	[preload("res://resources/relics/the_hermit.tres"),     RelicTheHermit],
+	[preload("res://resources/relics/under_pressure.tres"), RelicUnderPressure],
+	[preload("res://resources/relics/iron_tide.tres"),      RelicIronTide],
+	[preload("res://resources/relics/streak_master.tres"),  RelicStreakMaster],
+	[preload("res://resources/relics/aftershock.tres"),     RelicAftershock],
 ]
 
 const SHELL_COLORS := {
@@ -111,13 +126,16 @@ func _build_echo_section() -> void:
 	if randf() < 0.25:
 		echo_slots.add_child(_make_moon_phase_slot(_pick_random_moon_phase()))
 		return
-	var pool: Array = ALL_RELICS.duplicate()
+	var pool: Array = ALL_RELICS.filter(func(entry):
+		return not GameManager.purchased_relics.any(func(r): return r.relic_data == entry[0])
+	)
+	if pool.is_empty():
+		return
 	pool.shuffle()
 	var entry = pool[0]
 	var data: RelicResource = entry[0]
 	var relic_class = entry[1]
-	var owned = GameManager.purchased_relics.any(func(r): return r.relic_data == data)
-	echo_slots.add_child(_make_relic_slot(data, relic_class, owned))
+	echo_slots.add_child(_make_relic_slot(data, relic_class, false))
 
 func _pick_random_moon_phase() -> MoonPhaseResource:
 	var pool: Array = ALL_MOON_PHASES.duplicate()
@@ -229,6 +247,7 @@ func _on_buy_shell(shell: ShellResource, shell_icon: Control, slot: VBoxContaine
 	if GameManager.gold < shell.cost:
 		return
 	GameManager.gold -= shell.cost
+	GameManager.shells_opened += 1
 	_update_display()
 	_hide_shell_tooltip()
 	for child in slot.get_children():
@@ -401,7 +420,9 @@ func _show_shell_overlay(shell: ShellResource) -> void:
 func _get_shell_choices(shell: ShellResource) -> Array:
 	match shell.shell_type:
 		ShellResource.ShellType.DARK:
-			var pool: Array = ALL_RELICS.duplicate()
+			var pool: Array = ALL_RELICS.filter(func(entry):
+				return not GameManager.purchased_relics.any(func(r): return r.relic_data == entry[0])
+			)
 			pool.shuffle()
 			return pool.slice(0, 2)
 		ShellResource.ShellType.STRIPED:

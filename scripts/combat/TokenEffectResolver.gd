@@ -20,6 +20,7 @@ static func resolve(cards: Array, total_slots: int = 5) -> ResolveResult:
 		match token.base_target:
 			TokenResource.EffectTarget.DAMAGE_MULT:
 				result.damage_multiplier += token.base_value
+				result.damage_mult_events.append({"slot_index": i, "value": token.base_value})
 			TokenResource.EffectTarget.HP:
 				card_hp += token.base_value
 			TokenResource.EffectTarget.PRESSURE:
@@ -38,6 +39,7 @@ static func resolve(cards: Array, total_slots: int = 5) -> ResolveResult:
 			match token.placement_target:
 				TokenResource.EffectTarget.DAMAGE_MULT:
 					result.damage_multiplier += value
+					result.damage_mult_events.append({"slot_index": i, "value": value})
 					if not result.placement_active_slots.has(i):
 						result.placement_active_slots.append(i)
 				TokenResource.EffectTarget.HP:
@@ -114,7 +116,9 @@ static func _apply_consecutive(cards: Array, start: int, run_end: int, result: R
 	if run_len < 2 or run_len < token.streak_min:
 		return
 
-	var bonus := token.streak_value_per_token * run_len
+	result.streak_count += 1
+	var effective_len: int = run_len + GameManager.streak_extra_count
+	var bonus: float = token.streak_value_per_token * effective_len * GameManager.streak_bonus_multiplier
 	var slot_indices := []
 	for j in range(start, run_end + 1):
 		slot_indices.append(j)
@@ -142,7 +146,8 @@ static func _apply_adjacent(cards: Array, card_index: int, result: ResolveResult
 	if neighbors == 0 or neighbors < token.streak_min:
 		return
 
-	var bonus := token.streak_value_per_token * neighbors
+	var effective_neighbors: int = neighbors + GameManager.streak_extra_count
+	var bonus: float = token.streak_value_per_token * effective_neighbors * GameManager.streak_bonus_multiplier
 
 	if not result.streak_active_slots.has(card_index):
 		result.streak_active_slots.append(card_index)

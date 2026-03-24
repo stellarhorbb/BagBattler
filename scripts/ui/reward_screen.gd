@@ -11,6 +11,7 @@ var _salt_reward: int = 0
 var _reward_chosen := false
 
 func _ready() -> void:
+	RelicManager.trigger_reward_screen()
 	_salt_reward = GameManager.calculate_combat_reward()
 	label_choose.modulate.a = 0.0
 
@@ -63,7 +64,7 @@ func _animate_salt() -> void:
 		t.tween_interval(i * 0.18)
 		t.tween_property(icon, "modulate:a", 1.0, 0.12)
 		t.tween_callback(func():
-			GameManager.gold += 1
+			GameManager.add_gold(1)
 			RunHUD.refresh()
 			_tilt_salt_counter()
 		)
@@ -91,7 +92,7 @@ func _on_reward_chosen(reward: RewardResource) -> void:
 
 	match reward.reward_type:
 		RewardResource.RewardType.GOLD:
-			GameManager.gold += reward.value
+			GameManager.add_gold(reward.value)
 		RewardResource.RewardType.HEAL:
 			var heal_amount := roundi(GameManager.player_max_hp * reward.value / 100.0)
 			GameManager.player_current_hp = min(GameManager.player_current_hp + heal_amount, GameManager.player_max_hp)

@@ -10,10 +10,21 @@ func add_relic(relic: BaseRelic) -> bool:
 	if relics.size() >= MAX_RELICS:
 		return false
 	relics.append(relic)
+	_recompute_streak_stats()
 	return true
 
 func remove_relic(relic: BaseRelic) -> void:
 	relics.erase(relic)
+	_recompute_streak_stats()
+
+func _recompute_streak_stats() -> void:
+	var mult: float = 1.0
+	var extra: int = 0
+	for r in relics:
+		mult *= r.get_streak_multiplier()
+		extra += r.get_streak_extra()
+	GameManager.streak_bonus_multiplier = mult
+	GameManager.streak_extra_count = extra
 
 func reorder(from: int, to: int) -> void:
 	if from < 0 or from >= relics.size() or to < 0 or to >= relics.size():
@@ -32,8 +43,11 @@ func trigger_execute_single(index: int, context: Dictionary) -> Dictionary:
 		return context
 	var gold_before: int = context.get("gold", 0)
 	var pressure_before: float = context.get("pressure", 0.0)
+	var atk_before: int = context.get("total_attack", 0)
+	var def_before: int = context.get("total_defense", 0)
 	context = relics[index].on_execute(context)
-	if context.get("gold", 0) != gold_before or context.get("pressure", 0.0) != pressure_before:
+	if context.get("gold", 0) != gold_before or context.get("pressure", 0.0) != pressure_before \
+			or context.get("total_attack", 0) != atk_before or context.get("total_defense", 0) != def_before:
 		relic_triggered.emit(index)
 	return context
 
@@ -68,6 +82,24 @@ func trigger_deathblow(context: Dictionary) -> Dictionary:
 		if context.get("death_blow_damage", 0) != dmg_before:
 			relic_triggered.emit(i)
 	return context
+
+func trigger_crash(context: Dictionary) -> Dictionary:
+	for i in relics.size():
+		var gold_before: int = context.get("gold", 0)
+		var dmg_before: int = context.get("damage", 0)
+		context = relics[i].on_crash(context)
+		if context.get("gold", 0) != gold_before or context.get("damage", 0) != dmg_before:
+			relic_triggered.emit(i)
+	return context
+
+func trigger_defense_negate() -> int:
+	var bonus_dmg := 0
+	for i in relics.size():
+		var dmg := relics[i].on_defense_negate()
+		if dmg > 0:
+			bonus_dmg += dmg
+			relic_triggered.emit(i)
+	return bonus_dmg
 
 func trigger_reward_screen() -> void:
 	for relic in relics:

@@ -8,6 +8,7 @@ token_name = "Provocation"
 token_type = 2
 description = "Reduces Entity ATK by 20%"
 shop_drop_weight = 0.5
+shop_price = 4
 placement_slot = 1
 placement_target = 3
 placement_value = -0.1

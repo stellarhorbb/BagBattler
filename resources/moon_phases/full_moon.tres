@@ -7,5 +7,5 @@ script = ExtResource("1_moonres")
 phase_type = 2
 phase_name = "Full Moon"
 description = "+1 base DEF for this run."
-cost = 8
+cost = 6
 def_bonus = 1

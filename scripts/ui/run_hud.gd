@@ -41,6 +41,11 @@ func _ready() -> void:
 	bag_inspector = preload("res://bag_inspector.tscn").instantiate()
 	bag_inspector.get_node("CompactView").visible = false
 	add_child(bag_inspector)
+	bag_info_area.mouse_filter = Control.MOUSE_FILTER_STOP
+	bag_info_area.gui_input.connect(func(event: InputEvent):
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			bag_inspector.toggle_modal()
+	)
 
 func refresh() -> void:
 	var display_ante := GameManager.get_current_ante() - 1
@@ -61,9 +66,12 @@ func refresh() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not visible or bag_inspector == null:
 		return
-	if event is InputEventKey and event.keycode == KEY_TAB and event.pressed and not event.echo:
+	if event is InputEventKey and event.keycode == KEY_TAB and not event.echo:
 		get_viewport().set_input_as_handled()
-		bag_inspector.toggle_modal()
+		if event.pressed:
+			bag_inspector.open_by_tab()
+		else:
+			bag_inspector.close_by_tab()
 
 func set_info_color(color: Color) -> void:
 	label_turns_title.add_theme_color_override("font_color", color)

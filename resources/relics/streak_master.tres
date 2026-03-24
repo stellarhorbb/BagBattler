@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="RelicResource" format=3]
+
+[ext_resource type="Script" uid="uid://bw7m6taw4761m" path="res://scripts/relics/RelicResource.gd" id="1_relicres"]
+[ext_resource type="Texture2D" path="res://assets/icons/relics/fortress.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_relicres")
+relic_name = "Streak Master"
+description = "All streak bonuses are doubled."
+lore = ""
+rarity = 3
+cost = 7
+icon = ExtResource("2_icon")
